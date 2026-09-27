@@ -191,7 +191,7 @@ export default function Header() {
                 onClick={openGeneralCallback}
                 className="rounded-full bg-[#2EAD45] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-green-500/25 transition-colors hover:bg-[#1E8A32]"
               >
-                Talk to an Expert
+                Get Event Assistance
               </button>
             </div>
 
@@ -259,7 +259,7 @@ export default function Header() {
                   }}
                   className="rounded-full bg-[#2EAD45] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1E8A32]"
                 >
-                  Talk to an Expert
+                  Get Event Assistance
                 </button>
               </div>
             </nav>

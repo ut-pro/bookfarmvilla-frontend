@@ -67,10 +67,6 @@ const footerColumns: FooterColumn[] = [
         href: "/about",
       },
       {
-        label: "Blogs",
-        href: "/blogs",
-      },
-      {
         label: "Careers",
         href: "/careers",
       },
