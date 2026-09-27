@@ -6,6 +6,8 @@ import {
   useState,
 } from "react";
 
+import Link from "next/link";
+
 import { Menu, X } from "lucide-react";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
@@ -14,23 +16,23 @@ import Logo from "@/components/layout/Logo";
 const navigationItems = [
   {
     label: "Farmhouses",
-    href: "#farmhouses",
+    href: "/#farmhouses",
   },
   {
     label: "Villas",
-    href: "#villas",
+    href: "/#villas",
   },
   {
     label: "Wedding Lawns",
-    href: "#wedding-lawns",
+    href: "/#wedding-lawns",
   },
   {
-    label: "Blogs",
-    href: "#blogs",
+    label: "About Us",
+    href: "/about",
   },
   {
     label: "Contact",
-    href: "#contact",
+    href: "/#contact",
   },
 ];
 
@@ -120,8 +122,8 @@ export default function Header() {
         <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
           <div className="flex h-20 items-center justify-between">
             {/* Logo */}
-            <a
-              href="#home"
+            <Link
+              href="/"
               onClick={closeMobileMenu}
               className="group flex items-center gap-3"
               aria-label="BookFarmVilla homepage"
@@ -149,7 +151,7 @@ export default function Header() {
                   Farmhouses · Villas · Wedding Lawns
                 </span>
               </div>
-            </a>
+            </Link>
 
             {/* Desktop navigation */}
             <nav
@@ -157,7 +159,7 @@ export default function Header() {
               aria-label="Main navigation"
             >
               {navigationItems.map((item) => (
-                <a
+                <Link
                   key={item.label}
                   href={item.href}
                   className={`text-sm font-medium transition-colors hover:text-[#2EAD45] ${
@@ -167,14 +169,14 @@ export default function Header() {
                   }`}
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </nav>
 
             {/* Desktop action buttons */}
             <div className="hidden items-center gap-3 lg:flex">
-              <a
-                href="#partner"
+              <Link
+                href="/#partner"
                 className={`rounded-full border-2 px-5 py-2.5 text-sm font-semibold transition-all ${
                   isScrolled
                     ? "border-[#2EAD45] text-[#2EAD45] hover:bg-[#2EAD45] hover:text-white"
@@ -182,7 +184,7 @@ export default function Header() {
                 }`}
               >
                 Become a Partner
-              </a>
+              </Link>
 
               <button
                 type="button"
@@ -230,14 +232,14 @@ export default function Header() {
               aria-label="Mobile navigation"
             >
               {navigationItems.map((item) => (
-                <a
+                <Link
                   key={item.label}
                   href={item.href}
                   onClick={closeMobileMenu}
                   className="rounded-lg px-1 py-2 text-sm font-medium text-[#0F172A] transition-colors hover:text-[#2EAD45]"
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
 
               <div className="flex flex-col gap-3 border-t border-gray-100 pt-5">

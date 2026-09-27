@@ -63,6 +63,6 @@ export default function Home() {
 
       <Footer />
       <CallbackModal />
-    </ CallbackProvider>
+    </CallbackProvider>
   );
 }

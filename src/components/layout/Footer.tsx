@@ -11,6 +11,8 @@ import {
   FaYoutube,
 } from "react-icons/fa6";
 
+import Link from "next/link";
+
 import type { IconType } from "react-icons";
 
 import Logo from "@/components/layout/Logo";
@@ -49,7 +51,7 @@ const footerColumns: FooterColumn[] = [
       },
       {
         label: "Become a Partner",
-        href: "#partner",
+        href: "/#partner",
       },
       {
         label: "Contact",
@@ -133,8 +135,8 @@ export default function Footer() {
         <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
           {/* Brand and contact information */}
           <div className="md:col-span-2 lg:col-span-2">
-            <a
-              href="#home"
+            <Link
+              href="/"
               className="inline-flex items-center gap-3"
               aria-label="Go to BookFarmVilla homepage"
             >
@@ -149,7 +151,7 @@ export default function Footer() {
                   Farmhouses · Villas · Wedding Lawns
                 </p>
               </div>
-            </a>
+            </Link>
 
             <p className="mb-6 mt-5 max-w-sm text-sm leading-relaxed text-gray-400">
               {siteConfig.description}
@@ -234,12 +236,12 @@ export default function Footer() {
               <ul className="flex flex-col gap-3">
                 {column.links.map((link) => (
                   <li key={link.label}>
-                    <a
+                    <Link
                       href={link.href}
                       className="text-sm text-gray-400 transition-colors hover:text-[#4CAF50]"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
