@@ -35,6 +35,10 @@ export default function CallbackForm({
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
+  const propertyOptions = initialProperty
+  ? [initialProperty]
+  : mockProperties;
+
   const validateForm = (): CallbackFormErrors => {
     const nextErrors: CallbackFormErrors = {};
     const phoneDigits = phone.replace(/\D/g, "");
@@ -148,7 +152,7 @@ export default function CallbackForm({
             Select a property
           </option>
 
-          {mockProperties.map((property) => (
+          {propertyOptions.map((property) => (
             <option
               key={property.id}
               value={property.id}

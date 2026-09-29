@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Building2, MapPin, Search, Users } from "lucide-react";
 
 const heroStatistics = [
@@ -19,20 +20,43 @@ const heroStatistics = [
 ];
 
 export default function HeroSection() {
+  const router = useRouter();
+
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("");
-  const [minimumCapacity, setMinimumCapacity] = useState("2");
+  const [minimumCapacity, setMinimumCapacity] = useState("");
 
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+  const handleSearch = (
+  event: FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
-    const searchFilters = {
-      city: location,
-      type: propertyType,
-      minCapacity: Number(minimumCapacity),
-    };
+    const searchParams = new URLSearchParams();
 
-    console.log("Property search filters:", searchFilters);
+    const normalizedLocation = location.trim();
+
+    if (normalizedLocation) {
+      searchParams.set("city", normalizedLocation);
+    }
+
+    if (propertyType) {
+      searchParams.set("type", propertyType);
+    }
+
+    if (minimumCapacity) {
+      searchParams.set(
+        "minCapacity",
+        minimumCapacity,
+      );
+    }
+
+    const queryString = searchParams.toString();
+
+    router.push(
+      queryString
+        ? `/properties?${queryString}`
+        : "/properties",
+    );
   };
 
   return (
@@ -174,7 +198,7 @@ export default function HeroSection() {
 
               <label className="min-w-0 flex-1">
                 <span className="mb-0.5 block text-xs font-medium text-gray-400">
-                  Guests
+                  Minimum Capacity
                 </span>
 
                 <select
@@ -182,15 +206,14 @@ export default function HeroSection() {
                   onChange={(event) => setMinimumCapacity(event.target.value)}
                   className="w-full cursor-pointer bg-transparent text-sm font-medium text-gray-800 outline-none"
                 >
-                  <option value="1">1 Guest</option>
-                  <option value="2">2 Guests</option>
-                  <option value="4">4 Guests</option>
-                  <option value="6">6 Guests</option>
-                  <option value="8">8+ Guests</option>
-                  <option value="15">15+ Guests</option>
-                  <option value="25">25+ Guests</option>
+                  <option value="">Any Capacity</option>
                   <option value="50">50+ Guests</option>
                   <option value="100">100+ Guests</option>
+                  <option value="200">200+ Guests</option>
+                  <option value="300">300+ Guests</option>
+                  <option value="500">500+ Guests</option>
+                  <option value="750">750+ Guests</option>
+                  <option value="1000">1000+ Guests</option>
                 </select>
               </label>
             </div>

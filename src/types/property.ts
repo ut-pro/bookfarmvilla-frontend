@@ -9,15 +9,53 @@ export interface PropertyCardData {
   id: string;
   name: string;
   type: PropertyType;
+  description?: string;
   location: string;
-  rating: number;
-  reviewCount: number;
+  city?: string;
+  rating?: number;
+  reviewCount?: number;
   guestCapacity: number;
   bedrooms?: number;
   hasPool: boolean;
+  amenities?: string[];
   startingPrice?: number;
+  priceRange?: string;
   priceSuffix?: string;
   imageUrl: string;
+  imageUrls?: string[];
   badge?: string;
   status: PropertyStatus;
+}
+
+export interface PropertyImageResponse {
+  id: string;
+  url: string;
+  isPrimary: boolean;
+}
+
+export interface PropertyApiResponse {
+  id: string;
+  title: string;
+  description?: string | null;
+  type: PropertyType;
+  address?: string | null;
+  city: string;
+  priceRange?: string | null;
+  capacity?: number | null;
+  contactPhone?: string | null;
+  status: PropertyStatus;
+  amenities?: string[] | null;
+  images?: PropertyImageResponse[] | null;
+  averageRating?: number | null;
+  createdAt?: string;
+  modifiedAt?: string;
+}
+
+export interface PropertyPageResponse {
+  content: PropertyApiResponse[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
 }

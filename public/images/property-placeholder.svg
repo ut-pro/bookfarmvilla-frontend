@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="520" viewBox="0 0 800 520" role="img" aria-labelledby="title description">
+  <title id="title">Property image unavailable</title>
+  <desc id="description">BookFarmVilla property image placeholder</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0fdf4"/>
+      <stop offset="1" stop-color="#dcfce7"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="520" fill="url(#background)"/>
+  <g fill="none" stroke="#2ead45" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M310 270 400 195l90 75v100H310Z" stroke-width="14"/>
+    <path d="M365 370v-78h70v78M288 282l112-94 112 94" stroke-width="14"/>
+  </g>
+  <text x="400" y="425" text-anchor="middle" fill="#166534" font-family="Arial, sans-serif" font-size="24" font-weight="600">Property image coming soon</text>
+</svg>

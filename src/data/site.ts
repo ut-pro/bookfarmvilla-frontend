@@ -6,7 +6,7 @@ export const siteConfig = {
 
   contact: {
     location: "Business location to be added",
-    phone: "+91 XXXXX XXXXX",
+    phone: "+91 87663 67427",
     email: "contact@yourdomain.com",
     isPlaceholder: true,
   },

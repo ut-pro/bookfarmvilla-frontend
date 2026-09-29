@@ -1,3 +1,5 @@
+import CallbackModal from "@/components/callback/CallbackModal";
+import { CallbackProvider } from "@/components/callback/CallbackContext";
 import CategorySection from "@/components/home/CategorySection";
 import HeroSection from "@/components/home/HeroSection";
 import PartnerSection from "@/components/home/PartnerSection";
@@ -7,24 +9,52 @@ import TrustFeatures from "@/components/home/TrustFeatures";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
-import { CallbackProvider } from "@/components/callback/CallbackContext";
-import CallbackModal from "@/components/callback/CallbackModal";
+import { PropertyDetailsProvider } from "@/components/property/PropertyDetailsContext";
+import { getActiveProperties } from "@/lib/property-api";
+import type { PropertyCardData } from "@/types/property";
 
-import {
-  farmhouseProperties,
-  villaProperties,
-  weddingLawnProperties,
-} from "@/data/properties";
+export default async function Home() {
+  let farmhouseProperties: PropertyCardData[] = [];
+  let villaProperties: PropertyCardData[] = [];
+  let weddingLawnProperties: PropertyCardData[] = [];
+  let propertyLoadError = false;
 
-export default function Home() {
+  try {
+    [
+      farmhouseProperties,
+      villaProperties,
+      weddingLawnProperties,
+    ] = await Promise.all([
+      getActiveProperties({ type: "FARMHOUSE", size: 4 }),
+      getActiveProperties({ type: "VILLA", size: 4 }),
+      getActiveProperties({ type: "WEDDING_LAWN", size: 4 }),
+    ]);
+  } catch (error) {
+    propertyLoadError = true;
+    console.error("Unable to load homepage properties:", error);
+  }
+
   return (
     <CallbackProvider>
-      <Header />
+      <PropertyDetailsProvider>
+        <Header />
 
-      <main>
+        <main>
         <HeroSection />
         <TrustFeatures />
         <CategorySection />
+
+        {propertyLoadError && (
+          <div
+            className="mx-auto mt-10 max-w-[1344px] px-6 lg:px-12"
+            role="alert"
+          >
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+              Properties could not be loaded right now. Please refresh the
+              page or try again shortly.
+            </div>
+          </div>
+        )}
 
         <PropertySection
           id="farmhouses"
@@ -61,8 +91,9 @@ export default function Home() {
         <TestimonialsSection />
       </main>
 
-      <Footer />
-      <CallbackModal />
+        <Footer />
+        <CallbackModal />
+      </PropertyDetailsProvider>
     </CallbackProvider>
   );
 }

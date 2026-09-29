@@ -7,10 +7,10 @@ import {
 } from "react";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { Menu, X } from "lucide-react";
 
-import { useCallbackModal } from "@/components/callback/CallbackContext";
 import Logo from "@/components/layout/Logo";
 
 const navigationItems = [
@@ -36,13 +36,31 @@ const navigationItems = [
   },
 ];
 
+const whatsappNumber =
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "";
+
+const whatsappMessage = `Hi BookFarmVilla team, I need assistance in finding a suitable venue.
+
+Event type:
+Preferred location:
+Event date:
+Expected guests:
+
+Please help me with available options.`;
+
+const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+  whatsappMessage,
+)}`;
+
 export default function Header() {
+  const pathname = usePathname();
+
   const [isScrolled, setIsScrolled] = useState(false);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] =
     useState(false);
 
-  const { openGeneralCallback } = useCallbackModal();
+  const useSolidHeader = isScrolled || pathname !== "/";
 
   const closeMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(false);
@@ -113,7 +131,7 @@ export default function Header() {
 
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-          isScrolled
+          useSolidHeader
             ? "bg-white/95 shadow-lg shadow-black/5 backdrop-blur-md"
             : "bg-transparent"
         }`}
@@ -133,7 +151,7 @@ export default function Header() {
               <div className="flex flex-col leading-tight">
                 <span
                   className={`text-xl font-bold tracking-tight transition-colors ${
-                    isScrolled
+                    useSolidHeader
                       ? "text-[#0F172A]"
                       : "text-white"
                   }`}
@@ -143,7 +161,7 @@ export default function Header() {
 
                 <span
                   className={`text-[10px] font-medium uppercase tracking-widest transition-colors ${
-                    isScrolled
+                    useSolidHeader
                       ? "text-[#2EAD45]"
                       : "text-green-300"
                   }`}
@@ -163,7 +181,7 @@ export default function Header() {
                   key={item.label}
                   href={item.href}
                   className={`text-sm font-medium transition-colors hover:text-[#2EAD45] ${
-                    isScrolled
+                    useSolidHeader
                       ? "text-[#0F172A]"
                       : "text-white/90"
                   }`}
@@ -178,7 +196,7 @@ export default function Header() {
               <Link
                 href="/#partner"
                 className={`rounded-full border-2 px-5 py-2.5 text-sm font-semibold transition-all ${
-                  isScrolled
+                  useSolidHeader
                     ? "border-[#2EAD45] text-[#2EAD45] hover:bg-[#2EAD45] hover:text-white"
                     : "border-white text-white hover:bg-white hover:text-[#2EAD45]"
                 }`}
@@ -186,13 +204,15 @@ export default function Header() {
                 Become a Partner
               </Link>
 
-              <button
-                type="button"
-                onClick={openGeneralCallback}
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="rounded-full bg-[#2EAD45] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-green-500/25 transition-colors hover:bg-[#1E8A32]"
+                aria-label="Get event assistance on WhatsApp"
               >
                 Get Event Assistance
-              </button>
+              </a>
             </div>
 
             {/* Mobile hamburger button */}
@@ -204,7 +224,7 @@ export default function Header() {
                 );
               }}
               className={`rounded-lg p-2 transition-colors lg:hidden ${
-                isScrolled
+                useSolidHeader
                   ? "text-[#0F172A]"
                   : "text-white"
               }`}
@@ -243,24 +263,24 @@ export default function Header() {
               ))}
 
               <div className="flex flex-col gap-3 border-t border-gray-100 pt-5">
-                <a
-                  href="#partner"
+                <Link
+                  href="/#partner"
                   onClick={closeMobileMenu}
                   className="rounded-full border-2 border-[#2EAD45] px-5 py-3 text-center text-sm font-semibold text-[#2EAD45] transition-colors hover:bg-[#2EAD45] hover:text-white"
                 >
                   Become a Partner
-                </a>
+                </Link>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    closeMobileMenu();
-                    openGeneralCallback();
-                  }}
-                  className="rounded-full bg-[#2EAD45] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1E8A32]"
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={closeMobileMenu}
+                  className="rounded-full bg-[#2EAD45] px-5 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-[#1E8A32]"
+                  aria-label="Get event assistance on WhatsApp"
                 >
                   Get Event Assistance
-                </button>
+                </a>
               </div>
             </nav>
           </div>
