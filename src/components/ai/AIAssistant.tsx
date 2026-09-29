@@ -32,7 +32,7 @@ type ApiResponse = {
 };
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  process.env.BACKEND_API_URL ??
   "https://book-farm-villa-be.onrender.com";
 
 const quickActions = [
