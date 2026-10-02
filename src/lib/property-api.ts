@@ -7,11 +7,11 @@ import type {
 const PROPERTY_PLACEHOLDER = "/images/property-placeholder.svg";
 
 function getBackendUrl(): string {
-  const backendUrl = process.env.BACKEND_API_URL;
+  const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   if (!backendUrl) {
     throw new Error(
-      "BACKEND_API_URL is missing. Add it to .env.local and restart the development server.",
+      "NEXT_PUBLIC_API_BASE_URL is missing. Add it to .env.local and restart the development server.",
     );
   }
 
