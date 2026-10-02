@@ -3,7 +3,7 @@
 // isn't one - the visitor isn't logged in), unlike src/lib/admin-api.ts.
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://book-farm-villa-be.onrender.com";
 
 export class PublicApiError extends Error {
   fieldErrors?: Record<string, string>;

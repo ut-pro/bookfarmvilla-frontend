@@ -31,7 +31,7 @@ import type {
 } from "@/types/admin";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://book-farm-villa-be.onrender.com";
 
 const TOKEN_KEY = "bfv_admin_token";
 const USER_KEY = "bfv_admin_user";
