@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   Bot,
   LocateFixed,
@@ -44,6 +45,7 @@ const quickActions = [
 ];
 
 export default function AIAssistant() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -149,6 +151,11 @@ export default function AIAssistant() {
     event.preventDefault();
     void sendMessage();
   };
+
+  // The public AI assistant widget has no place in the independent admin panel.
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <>

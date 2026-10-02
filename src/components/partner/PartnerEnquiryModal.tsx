@@ -14,6 +14,8 @@ import {
   X,
 } from "lucide-react";
 
+import { submitPartnerRequest, PublicApiError } from "@/lib/public-api";
+
 interface PartnerEnquiryModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -61,12 +63,14 @@ export default function PartnerEnquiryModal({
   const [errors, setErrors] = useState<PartnerFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccessful, setIsSuccessful] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleClose = useCallback(() => {
     setFormValues(initialFormValues);
     setErrors({});
     setIsSubmitting(false);
     setIsSuccessful(false);
+    setSubmitError(null);
     onClose();
   }, [onClose]);
 
@@ -152,26 +156,28 @@ export default function PartnerEnquiryModal({
     }
 
     setErrors({});
+    setSubmitError(null);
     setIsSubmitting(true);
 
-    const partnerEnquiry = {
-      businessName: formValues.businessName.trim(),
-      city: formValues.city.trim(),
-      fullName: formValues.fullName.trim(),
-      businessType: formValues.businessType,
-      location: formValues.location.trim(),
-      phone: formValues.phone.trim(),
-    };
-
-    // Frontend-only preview. Connect an API endpoint here later.
-    console.log("Partner enquiry:", partnerEnquiry);
-
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 500);
-    });
-
-    setIsSubmitting(false);
-    setIsSuccessful(true);
+    try {
+      await submitPartnerRequest({
+        businessName: formValues.businessName.trim(),
+        city: formValues.city.trim(),
+        fullName: formValues.fullName.trim(),
+        businessType: formValues.businessType,
+        location: formValues.location.trim(),
+        phoneNumber: formValues.phone.trim(),
+      });
+      setIsSuccessful(true);
+    } catch (error) {
+      if (error instanceof PublicApiError) {
+        setSubmitError(error.message);
+      } else {
+        setSubmitError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const inputClassName = (field: PartnerFormField) =>
@@ -244,8 +250,8 @@ export default function PartnerEnquiryModal({
                 Details Received
               </h3>
               <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
-                Your partner enquiry has been captured in the frontend
-                preview. Submission to the backend can be connected later.
+                Your partner enquiry has been received. Our team will review
+                it and get in touch with you shortly.
               </p>
 
               <button
@@ -418,6 +424,12 @@ export default function PartnerEnquiryModal({
                   )}
                 </div>
               </div>
+
+              {submitError && (
+                <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {submitError}
+                </div>
+              )}
 
               <div className="mt-6 flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:justify-end">
                 <button

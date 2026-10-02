@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 
 import { mockProperties } from "@/data/properties";
+import { submitLead, PublicApiError } from "@/lib/public-api";
 import type {
   CallbackFormErrors,
   CallbackLeadDraft,
@@ -34,6 +35,8 @@ export default function CallbackForm({
 
   const [isSubmitting, setIsSubmitting] =
     useState(false);
+
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const propertyOptions = initialProperty
   ? [initialProperty]
@@ -87,6 +90,7 @@ export default function CallbackForm({
     }
 
     setErrors({});
+    setSubmitError(null);
     setIsSubmitting(true);
 
     const leadDraft: CallbackLeadDraft = {
@@ -97,19 +101,24 @@ export default function CallbackForm({
       propertyId,
     };
 
-    /*
-     * UI-only development submission.
-     * Replace this with POST /api/leads after confirming
-     * the exact backend LeadRequest DTO.
-     */
-    console.log("Callback lead draft:", leadDraft);
-
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 500);
-    });
-
-    setIsSubmitting(false);
-    onSuccess(leadDraft);
+    try {
+      await submitLead({
+        propertyId,
+        name: leadDraft.name,
+        phone: leadDraft.phone,
+        email: leadDraft.email,
+        message: leadDraft.message,
+      });
+      onSuccess(leadDraft);
+    } catch (error) {
+      if (error instanceof PublicApiError) {
+        setSubmitError(error.message);
+      } else {
+        setSubmitError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -345,6 +354,13 @@ export default function CallbackForm({
           </p>
         )}
       </div>
+
+      {/* API-level submission error */}
+      {submitError && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {submitError}
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:justify-end">
