@@ -4,6 +4,11 @@
 
 import { API_BASE_URL } from "@/lib/api-config";
 
+import type {
+  VendorPageResponse,
+  VendorSearchParams,
+} from "@/types/vendor";
+
 export class PublicApiError extends Error {
   fieldErrors?: Record<string, string>;
 
@@ -12,6 +17,26 @@ export class PublicApiError extends Error {
     this.name = "PublicApiError";
     this.fieldErrors = fieldErrors;
   }
+}
+
+async function publicGet<T>(
+  path: string,
+  signal?: AbortSignal,
+): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "GET",
+    signal,
+  });
+
+  const text = await response.text();
+  const data = text ? JSON.parse(text) : undefined;
+
+  if (!response.ok) {
+    const message = data?.message ?? "Unable to load data right now.";
+    throw new PublicApiError(message, data?.fieldErrors);
+  }
+
+  return data as T;
 }
 
 async function publicPost<T>(path: string, body: unknown): Promise<T> {
@@ -58,4 +83,39 @@ export interface SubmitPartnerPayload {
 
 export async function submitPartnerRequest(payload: SubmitPartnerPayload) {
   return publicPost("/api/partners", payload);
+}
+
+export async function getActiveVendors(
+  params: VendorSearchParams = {},
+  signal?: AbortSignal,
+): Promise<VendorPageResponse> {
+  const searchParams = new URLSearchParams({
+    status: "ACTIVE",
+    page: String(params.page ?? 0),
+    size: String(params.size ?? 100),
+  });
+
+  const city = params.city?.trim();
+  const keyword = params.keyword?.trim();
+
+  if (city) {
+    searchParams.set("city", city);
+  }
+
+  if (params.category) {
+    searchParams.set("category", params.category);
+  }
+
+  if (keyword) {
+    searchParams.set("keyword", keyword);
+  }
+
+  if (params.sort) {
+    searchParams.set("sort", params.sort);
+  }
+
+  return publicGet<VendorPageResponse>(
+    `/api/vendors?${searchParams.toString()}`,
+    signal,
+  );
 }

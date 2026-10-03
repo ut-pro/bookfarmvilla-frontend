@@ -8,12 +8,15 @@ import {
 } from "react";
 
 import type { PropertyCardData } from "@/types/property";
+import type { VendorResponse } from "@/types/vendor";
 
 interface CallbackContextValue {
   isOpen: boolean;
   selectedProperty: PropertyCardData | null;
+  selectedVendor: VendorResponse | null;
   openGeneralCallback: () => void;
   openPropertyCallback: (property: PropertyCardData) => void;
+  openVendorCallback: (vendor: VendorResponse) => void;
   closeCallback: () => void;
 }
 
@@ -31,16 +34,26 @@ export function CallbackProvider({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] =
     useState<PropertyCardData | null>(null);
+  const [selectedVendor, setSelectedVendor] =
+  useState<VendorResponse | null>(null);
 
   const openGeneralCallback = () => {
     setSelectedProperty(null);
+    setSelectedVendor(null);
     setIsOpen(true);
   };
 
   const openPropertyCallback = (
     property: PropertyCardData,
-  ) => {
+  ) => {  
+    setSelectedVendor(null);
     setSelectedProperty(property);
+    setIsOpen(true);
+  };
+
+  const openVendorCallback = (vendor: VendorResponse) => {
+    setSelectedProperty(null);
+    setSelectedVendor(vendor);
     setIsOpen(true);
   };
 
@@ -53,8 +66,10 @@ export function CallbackProvider({
       value={{
         isOpen,
         selectedProperty,
+        selectedVendor,
         openGeneralCallback,
         openPropertyCallback,
+        openVendorCallback,
         closeCallback,
       }}
     >

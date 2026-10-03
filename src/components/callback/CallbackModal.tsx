@@ -19,6 +19,7 @@ export default function CallbackModal() {
   const {
     isOpen,
     selectedProperty,
+    selectedVendor,
     closeCallback,
   } = useCallbackModal();
 
@@ -98,7 +99,11 @@ export default function CallbackModal() {
               </h2>
 
               <p className="mt-1 text-sm text-gray-500">
-                Our team will contact you regarding your selected property.
+                {selectedVendor
+                  ? "Our team will contact you regarding your selected service provider."
+                  : selectedProperty
+                    ? "Our team will contact you regarding your selected property."
+                    : "Our team will contact you regarding your enquiry."}
               </p>
             </div>
           </div>
@@ -133,9 +138,13 @@ export default function CallbackModal() {
                 className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500"
                 role="status"
               >
-                Your callback request has been submitted successfully.
-                Our team will contact you shortly regarding the selected
-                property.
+                Your callback request has been submitted successfully. Our team
+                will contact you shortly regarding{" "}
+                {selectedVendor
+                  ? "the selected service provider."
+                  : selectedProperty
+                    ? "the selected property."
+                    : "your enquiry."}
               </p>
 
               <button
@@ -148,8 +157,15 @@ export default function CallbackModal() {
             </div>
           ) : (
             <CallbackForm
-              key={selectedProperty?.id ?? "general-enquiry"}
+              key={
+                selectedVendor
+                  ? `vendor-${selectedVendor.id}`
+                  : selectedProperty
+                    ? `property-${selectedProperty.id}`
+                    : "general-enquiry"
+              }
               initialProperty={selectedProperty}
+              initialVendor={selectedVendor}
               onSuccess={() => setIsSuccessful(true)}
               onCancel={handleClose}
             />

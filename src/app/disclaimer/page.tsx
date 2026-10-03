@@ -6,7 +6,6 @@ import {
   FileWarning,
   Info,
   Scale,
-  ShieldCheck,
 } from "lucide-react";
 
 import Footer from "@/components/layout/Footer";

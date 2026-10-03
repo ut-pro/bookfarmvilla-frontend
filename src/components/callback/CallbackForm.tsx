@@ -9,15 +9,18 @@ import type {
   CallbackLeadDraft,
 } from "@/types/lead";
 import type { PropertyCardData } from "@/types/property";
+import type { VendorResponse } from "@/types/vendor";
 
 interface CallbackFormProps {
   initialProperty: PropertyCardData | null;
+  initialVendor: VendorResponse | null;
   onSuccess: (lead: CallbackLeadDraft) => void;
   onCancel: () => void;
 }
 
 export default function CallbackForm({
   initialProperty,
+  initialVendor,
   onSuccess,
   onCancel,
 }: CallbackFormProps) {
@@ -42,6 +45,8 @@ export default function CallbackForm({
   ? [initialProperty]
   : mockProperties;
 
+  const isVendorEnquiry = Boolean(initialVendor);
+
   const validateForm = (): CallbackFormErrors => {
     const nextErrors: CallbackFormErrors = {};
     const phoneDigits = phone.replace(/\D/g, "");
@@ -64,7 +69,7 @@ export default function CallbackForm({
         "Please enter a valid email address.";
     }
 
-    if (!propertyId) {
+    if (!isVendorEnquiry && !propertyId) {
       nextErrors.propertyId =
         "Please select a property.";
     }
@@ -98,12 +103,14 @@ export default function CallbackForm({
       phone: phone.trim(),
       email: email.trim() || undefined,
       message: message.trim() || undefined,
-      propertyId,
+      propertyId: isVendorEnquiry ? undefined : propertyId,
+      vendorId: initialVendor?.id,
     };
 
     try {
       await submitLead({
-        propertyId,
+        propertyId: leadDraft.propertyId,
+        vendorId: leadDraft.vendorId,
         name: leadDraft.name,
         phone: leadDraft.phone,
         email: leadDraft.email,
@@ -127,62 +134,80 @@ export default function CallbackForm({
       className="space-y-5"
       noValidate
     >
-      {/* Property selection */}
-      <div>
-        <label
-          htmlFor="callback-property"
-          className="mb-1.5 block text-sm font-semibold text-[#0F172A]"
-        >
-          Property
-          <span className="ml-1 text-red-500">*</span>
-        </label>
+      {/* Property or vendor selection */}
+      {initialVendor ? (
+        <div>
+          <label
+            htmlFor="callback-vendor"
+            className="mb-1.5 block text-sm font-semibold text-[#0F172A]"
+          >
+            Service Provider
+          </label>
 
-        <select
-          id="callback-property"
-          value={propertyId}
-          onChange={(event) => {
-            setPropertyId(event.target.value);
+          <input
+            id="callback-vendor"
+            type="text"
+            value={`${initialVendor.name} — ${initialVendor.city}`}
+            readOnly
+            className="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-[#0F172A] outline-none"
+          />
 
-            if (errors.propertyId) {
-              setErrors((currentErrors) => ({
-                ...currentErrors,
-                propertyId: undefined,
-              }));
-            }
-          }}
-          disabled={Boolean(initialProperty)}
-          className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-[#0F172A] outline-none transition-colors disabled:cursor-not-allowed disabled:bg-gray-100 ${
-            errors.propertyId
-              ? "border-red-400 focus:border-red-500"
-              : "border-gray-200 focus:border-[#2EAD45]"
-          }`}
-        >
-          <option value="">
-            Select a property
-          </option>
-
-          {propertyOptions.map((property) => (
-            <option
-              key={property.id}
-              value={property.id}
-            >
-              {property.name} — {property.location}
-            </option>
-          ))}
-        </select>
-
-        {initialProperty && (
           <p className="mt-1.5 text-xs text-gray-500">
-            This enquiry is for {initialProperty.name}.
+            This enquiry is for {initialVendor.name}.
           </p>
-        )}
+        </div>
+      ) : (
+        <div>
+          <label
+            htmlFor="callback-property"
+            className="mb-1.5 block text-sm font-semibold text-[#0F172A]"
+          >
+            Property
+            <span className="ml-1 text-red-500">*</span>
+          </label>
 
-        {errors.propertyId && (
-          <p className="mt-1.5 text-xs text-red-500">
-            {errors.propertyId}
-          </p>
-        )}
-      </div>
+          <select
+            id="callback-property"
+            value={propertyId}
+            onChange={(event) => {
+              setPropertyId(event.target.value);
+
+              if (errors.propertyId) {
+                setErrors((currentErrors) => ({
+                  ...currentErrors,
+                  propertyId: undefined,
+                }));
+              }
+            }}
+            disabled={Boolean(initialProperty)}
+            className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-[#0F172A] outline-none transition-colors disabled:cursor-not-allowed disabled:bg-gray-100 ${
+              errors.propertyId
+                ? "border-red-400 focus:border-red-500"
+                : "border-gray-200 focus:border-[#2EAD45]"
+            }`}
+          >
+            <option value="">Select a property</option>
+
+            {propertyOptions.map((property) => (
+              <option key={property.id} value={property.id}>
+                {property.name} — {property.location}
+              </option>
+            ))}
+          </select>
+
+          {initialProperty && (
+            <p className="mt-1.5 text-xs text-gray-500">
+              This enquiry is for {initialProperty.name}.
+            </p>
+          )}
+
+          {errors.propertyId && (
+            <p className="mt-1.5 text-xs text-red-500">
+              {errors.propertyId}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Name */}
       <div>
@@ -190,7 +215,7 @@ export default function CallbackForm({
           htmlFor="callback-name"
           className="mb-1.5 block text-sm font-semibold text-[#0F172A]"
         >
-          Full Name
+          Your Full Name
           <span className="ml-1 text-red-500">*</span>
         </label>
 

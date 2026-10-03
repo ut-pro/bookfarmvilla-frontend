@@ -9,6 +9,18 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "img.vistarooms.com",
+      },
+      {
+        protocol: "https",
+        hostname: "static.wixstatic.com",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
         hostname: "vishalgarhfarms.in",
         pathname: "/wp-content/uploads/**",
       },

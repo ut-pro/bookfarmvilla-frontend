@@ -2,6 +2,7 @@
 
 import { usePropertyDetails } from "@/components/property/PropertyDetailsContext";
 import type { PropertyCardData, PropertyType } from "@/types/property";
+import Image from "next/image";
 import { Eye, MapPin, MessageCircle, Users, Waves } from "lucide-react";
 import { getPropertyPriceDisplay } from "@/lib/formatters";
 
@@ -116,10 +117,12 @@ export default function AIPropertyCard({ property, distanceKm }: Props) {
     <article className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
       <div className="relative h-36 overflow-hidden bg-gray-100">
         {image ? (
-          <img
+          <Image
             src={image}
             alt={`${property.title} in ${property.city ?? "India"}`}
-            className="h-full w-full object-cover"
+            fill
+            sizes="(min-width: 1280px) 25vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-gray-400">

@@ -17,14 +17,27 @@ export default function PropertyListingResults({
   city,
   minCapacity,
 }: PropertyListingResultsProps) {
-  const [properties, setProperties] = useState<PropertyCardData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const requestKey = JSON.stringify([
+    type ?? null,
+    city ?? null,
+    minCapacity ?? null,
+  ]);
+
+  const [result, setResult] = useState<{
+    requestKey: string | null;
+    properties: PropertyCardData[];
+    hasError: boolean;
+  }>({
+    requestKey: null,
+    properties: [],
+    hasError: false,
+  });
+
+  const loading = result.requestKey !== requestKey;
+  const { properties, hasError } = result;
 
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
-    setHasError(false);
 
     getActiveProperties(
       {
@@ -35,23 +48,33 @@ export default function PropertyListingResults({
       },
       controller.signal,
     )
-      .then(setProperties)
+      .then((nextProperties) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setResult({
+          requestKey,
+          properties: nextProperties,
+          hasError: false,
+        });
+      })
       .catch((error: unknown) => {
         if (controller.signal.aborted) {
           return;
         }
 
-        setHasError(true);
+        setResult({
+          requestKey,
+          properties: [],
+          hasError: true,
+        });
+
         console.error("Unable to load property listing:", error);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
       });
 
     return () => controller.abort();
-  }, [type, city, minCapacity]);
+  }, [type, city, minCapacity, requestKey]);
 
   if (loading) {
     return (

@@ -3,7 +3,8 @@ export interface CallbackLeadDraft {
   phone: string;
   email?: string;
   message?: string;
-  propertyId: string;
+  propertyId?: string;
+  vendorId?: string;
 }
 
 export type CallbackFormField =
