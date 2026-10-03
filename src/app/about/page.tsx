@@ -22,8 +22,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { CallbackProvider } from "@/components/callback/CallbackContext";
-import CallbackModal from "@/components/callback/CallbackModal";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 
@@ -163,7 +161,7 @@ const reasons: InformationCard[] = [
 
 export default function AboutPage() {
   return (
-    <CallbackProvider>
+    <>
       <Header />
 
       <main>
@@ -542,7 +540,6 @@ export default function AboutPage() {
       </main>
 
       <Footer />
-      <CallbackModal />
-    </CallbackProvider>
+    </>
   );
 }

@@ -2,8 +2,7 @@
 // PartnerEnquiryModal.tsx on the main site. These never attach a JWT (there
 // isn't one - the visitor isn't logged in), unlike src/lib/admin-api.ts.
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://book-farm-villa-be.onrender.com";
+import { API_BASE_URL } from "@/lib/api-config";
 
 export class PublicApiError extends Error {
   fieldErrors?: Record<string, string>;

@@ -1,4 +1,5 @@
 "use client";
+import { API_BASE_URL } from "@/lib/api-config";
 
 import { FormEvent, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -31,10 +32,6 @@ type ApiResponse = {
   locationSupported?: boolean;
   locationMessage?: string | null;
 };
-
-const API_BASE_URL =
-  process.env.BACKEND_API_URL ??
-  "https://book-farm-villa-be.onrender.com";
 
 const quickActions = [
   "Pool farmhouse",

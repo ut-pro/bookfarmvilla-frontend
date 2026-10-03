@@ -1,10 +1,7 @@
 import Link from "next/link";
 
-import CallbackModal from "@/components/callback/CallbackModal";
-import { CallbackProvider } from "@/components/callback/CallbackContext";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
-import { PropertyDetailsProvider } from "@/components/property/PropertyDetailsContext";
 import PropertyListingResults from "@/components/property/PropertyListingResults";
 import type {
   PropertyType,
@@ -118,11 +115,10 @@ export default async function PropertiesPage({
   : pageContent.title;
 
   return (
-    <CallbackProvider>
-      <PropertyDetailsProvider>
-        <Header />
+    <>
+      <Header />
 
-        <main className="min-h-screen bg-[#F8FAFC] pb-20 pt-28">
+      <main className="min-h-screen bg-[#F8FAFC] pb-20 pt-28">
         <section aria-labelledby="properties-page-heading">
           <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
             <div className="mb-8">
@@ -193,9 +189,7 @@ export default async function PropertiesPage({
         </section>
       </main>
 
-        <Footer />
-        <CallbackModal />
-      </PropertyDetailsProvider>
-    </CallbackProvider>
+      <Footer />
+    </>
   );
 }

@@ -1,12 +1,11 @@
+import { API_BASE_URL } from "@/lib/api-config";
+
 import type {
   PropertyApiResponse,
   PropertyCardData,
 } from "@/types/property";
 
 const PROPERTY_PLACEHOLDER = "/images/property-placeholder.svg";
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "https://book-farm-villa-be.onrender.com";
 
 function isSupportedImageUrl(imageUrl: string): boolean {
   try {

@@ -3,8 +3,6 @@ import Link from "next/link";
 
 import { FileText, Scale, ShieldCheck } from "lucide-react";
 
-import { CallbackProvider } from "@/components/callback/CallbackContext";
-import CallbackModal from "@/components/callback/CallbackModal";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 
@@ -429,7 +427,7 @@ function CancellationTable({ rows }: { rows: CancellationRow[] }) {
 
 export default function TermsAndConditionsPage() {
   return (
-    <CallbackProvider>
+    <>
       <Header />
 
       <main>
@@ -600,7 +598,6 @@ export default function TermsAndConditionsPage() {
       </main>
 
       <Footer />
-      <CallbackModal />
-    </CallbackProvider>
+    </>
   );
 }

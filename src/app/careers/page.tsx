@@ -16,8 +16,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { CallbackProvider } from "@/components/callback/CallbackContext";
-import CallbackModal from "@/components/callback/CallbackModal";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 
@@ -80,7 +78,7 @@ const idealCandidateTraits = [
 
 export default function CareersPage() {
   return (
-    <CallbackProvider>
+    <>
       <Header />
 
       <main>
@@ -432,7 +430,6 @@ export default function CareersPage() {
       </main>
 
       <Footer />
-      <CallbackModal />
-    </CallbackProvider>
+    </>
   );
 }

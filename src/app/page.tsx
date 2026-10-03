@@ -1,5 +1,3 @@
-import CallbackModal from "@/components/callback/CallbackModal";
-import { CallbackProvider } from "@/components/callback/CallbackContext";
 import CategorySection from "@/components/home/CategorySection";
 import HomePropertySections from "@/components/home/HomePropertySections";
 import HeroSection from "@/components/home/HeroSection";
@@ -9,15 +7,13 @@ import TrustFeatures from "@/components/home/TrustFeatures";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
-import { PropertyDetailsProvider } from "@/components/property/PropertyDetailsContext";
 
 export default function Home() {
   return (
-    <CallbackProvider>
-      <PropertyDetailsProvider>
-        <Header />
+    <>
+      <Header />
 
-        <main>
+      <main>
         <HeroSection />
         <TrustFeatures />
         <CategorySection />
@@ -28,9 +24,7 @@ export default function Home() {
         <TestimonialsSection />
       </main>
 
-        <Footer />
-        <CallbackModal />
-      </PropertyDetailsProvider>
-    </CallbackProvider>
+      <Footer />
+    </>
   );
 }
