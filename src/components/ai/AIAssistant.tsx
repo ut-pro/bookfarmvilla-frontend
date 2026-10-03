@@ -12,6 +12,10 @@ import {
   X,
 } from "lucide-react";
 import AIPropertyCard, { AIProperty } from "./AIPropertyCard";
+import { getActiveProperties } from "@/lib/property-api";
+import VendorCard from "@/components/vendor/VendorCard";
+import type { PropertyType } from "@/types/property";
+import type { VendorCategory, VendorResponse } from "@/types/vendor";
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -78,6 +82,101 @@ function distanceInKm(
   return 6371 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 }
 
+function toAIProperty(
+  property: Awaited<ReturnType<typeof getActiveProperties>>[number],
+): AIProperty {
+  return {
+    id: property.id,
+    title: property.name,
+    description: property.description,
+    type: property.type,
+    address: property.location,
+    city: property.city,
+    startingPrice: property.startingPrice,
+    endingPrice: property.endingPrice,
+    capacity: property.guestCapacity,
+    latitude: property.latitude,
+    longitude: property.longitude,
+    amenities: property.amenities,
+    averageRating: property.rating,
+    images:
+      property.imageUrls?.map((url, index) => ({
+        id: `${property.id}-${index}`,
+        url,
+        isPrimary: index === 0,
+      })) ?? [],
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function toVendorResponse(value: unknown): VendorResponse | null {
+  if (!isRecord(value)) return null;
+
+  const name =
+    typeof value.name === "string"
+      ? value.name
+      : typeof value.title === "string"
+        ? value.title
+        : null;
+  const id = typeof value.id === "string" ? value.id : null;
+  const city = typeof value.city === "string" ? value.city : "";
+  const rawCategory =
+    typeof value.category === "string"
+      ? value.category.toUpperCase()
+      : typeof value.serviceType === "string"
+        ? value.serviceType.toUpperCase()
+        : "OTHER";
+  const categories: VendorCategory[] = [
+    "CATERER",
+    "DECORATOR",
+    "PHOTOGRAPHER",
+    "MAKEUP_ARTIST",
+    "DJ",
+    "OTHER",
+  ];
+  const category = categories.includes(rawCategory as VendorCategory)
+    ? (rawCategory as VendorCategory)
+    : "OTHER";
+  const contactPhone =
+    typeof value.contactPhone === "string"
+      ? value.contactPhone
+      : typeof value.phone === "string"
+        ? value.phone
+        : "";
+
+  if (!id || !name) return null;
+
+  const images = Array.isArray(value.images)
+    ? value.images.flatMap((image, index) => {
+        if (!isRecord(image) || typeof image.url !== "string") return [];
+        return [{
+          id: typeof image.id === "string" ? image.id : `${id}-${index}`,
+          url: image.url,
+          isPrimary: image.isPrimary === true || image.primary === true,
+        }];
+      })
+    : [];
+
+  return {
+    id,
+    name,
+    category,
+    description:
+      typeof value.description === "string" ? value.description : null,
+    city,
+    priceRange:
+      typeof value.priceRange === "string" ? value.priceRange : null,
+    contactPhone,
+    status: "ACTIVE",
+    images,
+    averageRating:
+      typeof value.averageRating === "number" ? value.averageRating : null,
+  };
+}
+
 export default function AIAssistant() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -90,17 +189,24 @@ export default function AIAssistant() {
     },
   ]);
   const [properties, setProperties] = useState<AIProperty[]>([]);
+  const [similarProperties, setSimilarProperties] = useState<AIProperty[]>([]);
+  const [vendors, setVendors] = useState<VendorResponse[]>([]);
   const [budget, setBudget] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
 
   const matchingProperties = useMemo(() => {
-    const filtered = properties.filter((property) => {
+    const matchesBudget = (property: AIProperty) => {
       if (budget === null) return true;
       const startingPrice = Number(property.startingPrice);
       return Number.isFinite(startingPrice) && startingPrice < budget;
-    });
+    };
+    const directMatches = properties.filter(matchesBudget);
+    const filtered =
+      directMatches.length > 0 || similarProperties.length === 0
+        ? directMatches
+        : similarProperties.filter(matchesBudget);
 
     if (!location) return filtered;
 
@@ -118,7 +224,7 @@ export default function AIAssistant() {
         return first.distance - second.distance;
       })
       .map(({ property }) => property);
-  }, [budget, location, properties]);
+  }, [budget, location, properties, similarProperties]);
 
   const canSend = useMemo(() => input.trim().length > 0 && !loading, [input, loading]);
 
@@ -182,14 +288,74 @@ export default function AIAssistant() {
       }
 
       const data: ApiResponse = await response.json();
+      const responseProperties = Array.isArray(data.properties)
+        ? data.properties
+        : [];
+      const responseVendors = Array.isArray(data.vendors) ? data.vendors : [];
+      const requestedBudget =
+        parseBudget(message) ?? data.requirements?.budget ?? budget;
+      setProperties(responseProperties);
+      setVendors(responseVendors.flatMap((vendor) => {
+        const normalizedVendor = toVendorResponse(vendor);
+        return normalizedVendor ? [normalizedVendor] : [];
+      }));
+      setBudget(requestedBudget);
+      setSimilarProperties([]);
+      let assistantMessage = data.message;
+
+      const hasMatchingBudgetProperty = responseProperties.some((property) => {
+        if (requestedBudget === null) return true;
+        const startingPrice = Number(property.startingPrice);
+        return Number.isFinite(startingPrice) && startingPrice < requestedBudget;
+      });
+
+      if (!hasMatchingBudgetProperty && responseVendors.length === 0) {
+        const propertyType = data.requirements?.propertyType;
+        const type: PropertyType | undefined =
+          propertyType === "FARMHOUSE" ||
+          propertyType === "VILLA" ||
+          propertyType === "WEDDING_LAWN"
+            ? propertyType
+            : undefined;
+
+        try {
+          const alternatives = await getActiveProperties(
+            {
+              type,
+              size: 100,
+            },
+          );
+          const locationQuery = data.requirements?.location?.trim().toLowerCase();
+          const matchingAlternatives = alternatives.filter((property) => {
+            const matchesLocation =
+              !locationQuery ||
+              property.city?.toLowerCase().includes(locationQuery) ||
+              property.location.toLowerCase().includes(locationQuery);
+            const matchesBudget =
+              requestedBudget === null ||
+              (typeof property.startingPrice === "number" &&
+                property.startingPrice < requestedBudget);
+            return matchesLocation && matchesBudget;
+          });
+          setSimilarProperties(matchingAlternatives.map(toAIProperty));
+          if (responseVendors.length === 0) {
+            assistantMessage = matchingAlternatives.length > 0
+              ? "Here are some similar properties from our listings that may suit what you're looking for."
+              : "I can help adjust your budget, location, or property type to suggest other options.";
+          }
+        } catch (error) {
+          console.error("Unable to load similar property suggestions:", error);
+          if (responseVendors.length === 0) {
+            assistantMessage =
+              "I can help adjust your budget, location, or property type to suggest other options.";
+          }
+        }
+      }
+
       setMessages((current) => [
         ...current,
-        { role: "assistant", content: data.message },
+        { role: "assistant", content: assistantMessage },
       ]);
-      setProperties(data.properties ?? []);
-      setBudget(
-        parseBudget(message) ?? data.requirements?.budget ?? budget,
-      );
 
       if (data.locationMessage) {
         setLocationError(data.locationMessage);
@@ -294,7 +460,7 @@ export default function AIAssistant() {
               {matchingProperties.length > 0 && (
                 <div className="space-y-2.5 pt-1">
                   <p className="px-1 text-xs font-semibold uppercase tracking-wider text-[#2EAD45]">
-                    Matching properties
+                    {properties.length > 0 ? "Matching properties" : "Similar properties you may like"}
                   </p>
                   {matchingProperties.map((property) => (
                     <AIPropertyCard
@@ -311,13 +477,23 @@ export default function AIAssistant() {
               )}
               {properties.length > 0 && matchingProperties.length === 0 && budget !== null && (
                 <p className="rounded-xl bg-white p-3 text-xs text-gray-600 shadow-sm">
-                  No properties found with a starting price under{" "}
+                  Here are some similar options to explore. Your budget was{" "}
                   {new Intl.NumberFormat("en-IN", {
                     style: "currency",
                     currency: "INR",
                     maximumFractionDigits: 0,
                   }).format(budget)}.
                 </p>
+              )}
+              {vendors.length > 0 && (
+                <div className="space-y-2.5 pt-1">
+                  <p className="px-1 text-xs font-semibold uppercase tracking-wider text-[#2EAD45]">
+                    Recommended vendors
+                  </p>
+                  {vendors.map((vendor) => (
+                    <VendorCard key={vendor.id} vendor={vendor} />
+                  ))}
+                </div>
               )}
             </div>
 

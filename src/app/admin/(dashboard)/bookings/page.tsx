@@ -22,13 +22,29 @@ const typeLabels: Record<PropertyType, string> = {
 };
 
 function exportToCsv(bookings: AdminBooking[]) {
-  const header = ["Booking ID", "Customer", "Listing Type", "Date", "Amount", "Status", "Payment"];
+  const header = [
+    "Booking ID",
+    "Customer",
+    "Property ID",
+    "Listing Type",
+    "Date",
+    "Amount",
+    "Advance Amount",
+    "Commission Percentage",
+    "Commission Amount",
+    "Status",
+    "Payment",
+  ];
   const rows = bookings.map((b) => [
     b.id,
     b.customerName,
+    b.propertyId ?? "",
     typeLabels[b.listingType],
     b.bookingDate,
     b.amount.toString(),
+    (b.advanceAmount ?? 0).toString(),
+    (b.commissionPercentage ?? 0).toString(),
+    (b.commissionAmount ?? 0).toString(),
     b.status,
     b.paymentStatus,
   ]);
@@ -100,7 +116,7 @@ export default function BookingsPage() {
     <>
       <AdminHeader title="Bookings" />
 
-      <main className="p-8">
+      <main className="min-w-0 p-4 sm:p-6 lg:p-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Bookings</h2>
@@ -179,48 +195,77 @@ export default function BookingsPage() {
             </div>
           )}
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 text-left text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  <th className="px-6 py-3">Customer Name</th>
-                  <th className="px-6 py-3">Listing Type</th>
-                  <th className="px-6 py-3">Date</th>
-                  <th className="px-6 py-3">Amount</th>
-                  <th className="px-6 py-3">Status</th>
-                  <th className="px-6 py-3">Payment</th>
-                  <th className="px-6 py-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-400">Loading…</td></tr>
-                ) : bookings.length === 0 ? (
-                  <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-400">No bookings found.</td></tr>
-                ) : (
-                  bookings.map((booking) => (
-                    <tr key={booking.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                      <td className="px-6 py-3 font-medium text-gray-900">{booking.customerName}</td>
-                      <td className="px-6 py-3 text-gray-600">{typeLabels[booking.listingType]}</td>
-                      <td className="px-6 py-3 text-gray-600">{booking.bookingDate}</td>
-                      <td className="px-6 py-3 text-gray-600">₹{booking.amount.toLocaleString("en-IN")}</td>
-                      <td className="px-6 py-3"><StatusBadge status={booking.status} /></td>
-                      <td className="px-6 py-3"><StatusBadge status={booking.paymentStatus} /></td>
-                      <td className="px-6 py-3">
-                        <button
-                          type="button"
-                          onClick={() => { setEditing(booking); setFormOpen(true); }}
-                          className="rounded-lg border border-gray-200 p-1.5 text-violet-600 hover:bg-violet-50"
-                          aria-label="Edit"
-                        >
-                          <Pencil size={15} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+          <div className="p-4 sm:p-5">
+            {loading ? (
+              <div className="py-10 text-center text-sm text-gray-400">Loading bookings…</div>
+            ) : bookings.length === 0 ? (
+              <div className="py-10 text-center text-sm text-gray-400">No bookings found.</div>
+            ) : (
+              <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2">
+                {bookings.map((booking) => (
+                  <article
+                    key={booking.id}
+                    className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4 transition hover:border-violet-100 hover:shadow-sm sm:p-5"
+                  >
+                    <div className="flex min-w-0 items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="truncate font-semibold text-gray-900">{booking.customerName}</h3>
+                        {booking.customerPhone && (
+                          <p className="mt-0.5 text-sm text-gray-500">{booking.customerPhone}</p>
+                        )}
+                        <p className="mt-2 text-sm text-gray-600">
+                          {typeLabels[booking.listingType]}
+                          <span className="mx-2 text-gray-300">•</span>
+                          {booking.bookingDate}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setEditing(booking); setFormOpen(true); }}
+                        className="shrink-0 rounded-lg border border-gray-200 p-2 text-violet-600 hover:bg-violet-50"
+                        aria-label={`Edit booking for ${booking.customerName}`}
+                      >
+                        <Pencil size={15} />
+                      </button>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      <div className="rounded-xl bg-gray-50 px-3 py-2.5">
+                        <p className="text-xs text-gray-500">Total</p>
+                        <p className="mt-1 truncate text-sm font-semibold text-gray-900">
+                          ₹{booking.amount.toLocaleString("en-IN")}
+                        </p>
+                      </div>
+                      <div className="rounded-xl bg-gray-50 px-3 py-2.5">
+                        <p className="text-xs text-gray-500">Advance</p>
+                        <p className="mt-1 truncate text-sm font-semibold text-gray-900">
+                          ₹{(booking.advanceAmount ?? 0).toLocaleString("en-IN")}
+                        </p>
+                      </div>
+                      <div className="col-span-2 rounded-xl bg-violet-50 px-3 py-2.5 sm:col-span-1">
+                        <p className="text-xs text-violet-700">Commission</p>
+                        <p className="mt-1 truncate text-sm font-semibold text-violet-900">
+                          ₹{(booking.commissionAmount ?? 0).toLocaleString("en-IN")}
+                          <span className="ml-1 text-xs font-medium text-violet-700">
+                            ({(booking.commissionPercentage ?? 0).toLocaleString("en-IN")}%)
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex min-w-0 flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-3">
+                      <p className="min-w-0 max-w-full truncate text-xs text-gray-500" title={booking.propertyId ?? undefined}>
+                        Property ID: <span className="font-medium text-gray-700">{booking.propertyId ?? "—"}</span>
+                      </p>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <StatusBadge status={booking.status} />
+                        <StatusBadge status={booking.paymentStatus} />
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
 
           <Pagination

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Eye } from "lucide-react";
+import { Download, Eye } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatusBadge from "@/components/admin/StatusBadge";
 import Pagination from "@/components/admin/Pagination";
@@ -15,6 +15,45 @@ const tabs: { label: string; value: LeadStatus | "ALL" }[] = [
   { label: "Converted", value: "CONVERTED" },
   { label: "Closed", value: "CLOSED" },
 ];
+
+function exportToCsv(leads: AdminLead[]) {
+  const header = [
+    "Enquiry ID",
+    "Customer",
+    "Phone",
+    "Email",
+    "Listing",
+    "Event Type",
+    "Preferred Date",
+    "Message",
+    "Received",
+    "Status",
+  ];
+  const rows = leads.map((lead) => [
+    lead.id,
+    lead.name,
+    lead.phone,
+    lead.email ?? "",
+    lead.propertyTitle ?? lead.vendorName ?? "",
+    lead.eventType ?? "",
+    lead.preferredDate ?? "",
+    lead.message ?? "",
+    lead.createdAt,
+    lead.status,
+  ]);
+  const escapeCsvCell = (value: string) =>
+    `"${value.replace(/"/g, '""')}"`;
+  const csv = [header, ...rows]
+    .map((row) => row.map(escapeCsvCell).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "enquiries.csv";
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function EnquiriesPage() {
   const [activeTab, setActiveTab] = useState<LeadStatus | "ALL">("ALL");
@@ -76,24 +115,34 @@ export default function EnquiriesPage() {
           <p className="text-sm text-gray-500">Manage customer enquiries and leads</p>
         </div>
 
-        <div className="mb-4 inline-flex rounded-xl border border-gray-100 bg-white p-1 shadow-sm">
-          {tabs.map((tab) => (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() => {
-                setPage(0);
-                setActiveTab(tab.value);
-              }}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                activeTab === tab.value
-                  ? "bg-violet-600 text-white"
-                  : "text-gray-500 hover:bg-gray-50"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex max-w-full overflow-x-auto rounded-xl border border-gray-100 bg-white p-1 shadow-sm">
+            {tabs.map((tab) => (
+              <button
+                key={tab.value}
+                type="button"
+                onClick={() => {
+                  setPage(0);
+                  setActiveTab(tab.value);
+                }}
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                  activeTab === tab.value
+                    ? "bg-violet-600 text-white"
+                    : "text-gray-500 hover:bg-gray-50"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => exportToCsv(leads)}
+            disabled={loading || leads.length === 0}
+            className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download size={15} /> Export
+          </button>
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">

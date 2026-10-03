@@ -68,6 +68,7 @@ export interface AdminPropertyPayload {
   contactPhone: string;
   status?: ListingStatus;
   amenityIds?: string[];
+  amenities?: string[];
   imageUrls?: string[];
 }
 
@@ -148,6 +149,9 @@ export interface AdminBooking {
   listingType: PropertyType;
   bookingDate: string;
   amount: number;
+  advanceAmount: number;
+  commissionPercentage: number;
+  commissionAmount: number;
   status: BookingStatus;
   paymentStatus: PaymentStatus;
   createdAt: string;
@@ -162,6 +166,9 @@ export interface AdminBookingPayload {
   listingType: PropertyType;
   bookingDate: string;
   amount: number;
+  advanceAmount: number;
+  commissionPercentage: number;
+  commissionAmount: number;
   status?: BookingStatus;
   paymentStatus?: PaymentStatus;
 }
