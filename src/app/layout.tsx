@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import AIAssistant from "@/components/ai/AIAssistant";
+import CallbackModal from "@/components/callback/CallbackModal";
+import { CallbackProvider } from "@/components/callback/CallbackContext";
+import { PropertyDetailsProvider } from "@/components/property/PropertyDetailsContext";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -24,8 +27,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} antialiased`}>
-        {children}
-        <AIAssistant />
+        <CallbackProvider>
+          <PropertyDetailsProvider>
+            {children}
+            <CallbackModal />
+            <AIAssistant />
+          </PropertyDetailsProvider>
+        </CallbackProvider>
       </body>
     </html>
   );

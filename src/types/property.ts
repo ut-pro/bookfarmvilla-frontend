@@ -18,8 +18,10 @@ export interface PropertyCardData {
   bedrooms?: number;
   hasPool: boolean;
   amenities?: string[];
-  startingPrice?: number;
-  priceRange?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  startingPrice?: number | null;
+  endingPrice?: number | null;
   priceSuffix?: string;
   imageUrl: string;
   imageUrls?: string[];
@@ -40,7 +42,10 @@ export interface PropertyApiResponse {
   type: PropertyType;
   address?: string | null;
   city: string;
-  priceRange?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  startingPrice?: number | null;
+  endingPrice?: number | null;
   capacity?: number | null;
   contactPhone?: string | null;
   status: PropertyStatus;

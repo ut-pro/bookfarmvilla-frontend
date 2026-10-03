@@ -1,30 +1,18 @@
 import type {
   PropertyApiResponse,
   PropertyCardData,
-  PropertyPageResponse,
 } from "@/types/property";
 
 const PROPERTY_PLACEHOLDER = "/images/property-placeholder.svg";
-
-function getBackendUrl(): string {
-  const backendUrl = process.env.BACKEND_API_URL;
-
-  if (!backendUrl) {
-    throw new Error(
-      "BACKEND_API_URL is missing. Add it to .env.local and restart the development server.",
-    );
-  }
-
-  return backendUrl.replace(/\/$/, "");
-}
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  "https://book-farm-villa-be.onrender.com";
 
 function isSupportedImageUrl(imageUrl: string): boolean {
   try {
     const parsedUrl = new URL(imageUrl);
 
-    // images.unsplash.com is already allowed in the current next.config.ts.
-    // Add the real backend image host to next.config.ts before allowing it here.
-    return parsedUrl.hostname === "images.unsplash.com";
+    return parsedUrl.protocol === "https:" && parsedUrl.hostname.length > 0;
   } catch {
     return false;
   }
@@ -71,7 +59,8 @@ function mapPropertyToCard(
     guestCapacity: property.capacity ?? 0,
     hasPool,
     amenities,
-    priceRange: property.priceRange?.trim() || undefined,
+    startingPrice: property.startingPrice ?? undefined,
+    endingPrice: property.endingPrice ?? undefined,
     imageUrl: imageUrls[0],
     imageUrls,
     status: property.status,
@@ -87,15 +76,18 @@ interface GetActivePropertiesOptions {
   size?: number;
 }
 
-export async function getActiveProperties({
-  type,
-  city,
-  minCapacity,
-  keyword,
-  page = 0,
-  size = 100,
-}: GetActivePropertiesOptions = {}): Promise<PropertyCardData[]> {
-  const url = new URL("/api/properties", getBackendUrl());
+export async function getActiveProperties(
+  {
+    type,
+    city,
+    minCapacity,
+    keyword,
+    page = 0,
+    size = 100,
+  }: GetActivePropertiesOptions = {},
+  signal?: AbortSignal,
+): Promise<PropertyCardData[]> {
+  const url = new URL("/api/properties", API_BASE_URL);
 
   url.searchParams.set("status", "ACTIVE");
   url.searchParams.set("page", String(page));
@@ -132,6 +124,7 @@ export async function getActiveProperties({
       Accept: "application/json",
     },
     cache: "no-store",
+    signal,
   });
 
   if (!response.ok) {
@@ -140,13 +133,32 @@ export async function getActiveProperties({
     );
   }
 
-  const data = (await response.json()) as PropertyPageResponse;
+  const data: unknown = await response.json();
+  let properties: PropertyApiResponse[];
 
-  if (!Array.isArray(data.content)) {
+  if (Array.isArray(data)) {
+    properties = data as PropertyApiResponse[];
+  } else if (
+    typeof data === "object" &&
+    data !== null &&
+    "content" in data &&
+    Array.isArray(data.content)
+  ) {
+    properties = data.content as PropertyApiResponse[];
+  } else if (
+    typeof data === "object" &&
+    data !== null &&
+    "id" in data &&
+    "title" in data &&
+    "city" in data &&
+    "images" in data
+  ) {
+    properties = [data as PropertyApiResponse];
+  } else {
     throw new Error("Property API returned an invalid response.");
   }
 
-  return data.content
+  return properties
     .filter(
       (property) =>
         property.status === "ACTIVE" &&

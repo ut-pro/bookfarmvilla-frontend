@@ -4,11 +4,9 @@ import CallbackModal from "@/components/callback/CallbackModal";
 import { CallbackProvider } from "@/components/callback/CallbackContext";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
-import PropertyCard from "@/components/property/PropertyCard";
 import { PropertyDetailsProvider } from "@/components/property/PropertyDetailsContext";
-import { getActiveProperties } from "@/lib/property-api";
+import PropertyListingResults from "@/components/property/PropertyListingResults";
 import type {
-  PropertyCardData,
   PropertyType,
 } from "@/types/property";
 
@@ -107,21 +105,6 @@ export default async function PropertiesPage({
       resolvedSearchParams.minCapacity,
     );
 
-  let properties: PropertyCardData[] = [];
-  let propertyLoadError = false;
-
-  try {
-    properties = await getActiveProperties({
-      type: selectedType,
-      city: selectedCity || undefined,
-      minCapacity: selectedMinimumCapacity,
-      size: 100,
-    });
-  } catch (error) {
-    propertyLoadError = true;
-    console.error("Unable to load property listing:", error);
-  }
-
   const pageContent = selectedType
     ? propertyTypeDetails[selectedType]
     : {
@@ -201,40 +184,11 @@ export default async function PropertiesPage({
               })}
             </nav>
 
-            {propertyLoadError ? (
-              <div
-                className="rounded-2xl border border-amber-200 bg-amber-50 px-6 py-12 text-center"
-                role="alert"
-              >
-                <p className="font-semibold text-amber-900">
-                  Properties could not be loaded right now.
-                </p>
-                <p className="mt-2 text-sm text-amber-800">
-                  Please refresh the page or try again shortly.
-                </p>
-              </div>
-            ) : properties.length > 0 ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {properties.map((property) => (
-                  <div
-                    key={property.id}
-                    className="flex justify-center md:block"
-                  >
-                    <PropertyCard property={property} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-                <p className="text-base font-semibold text-[#0F172A]">
-                  No properties available
-                </p>
-                <p className="mt-2 text-sm text-gray-500">
-                  No active properties are currently available in this
-                  category.
-                </p>
-              </div>
-            )}
+            <PropertyListingResults
+              type={selectedType}
+              city={selectedCity || undefined}
+              minCapacity={selectedMinimumCapacity}
+            />
           </div>
         </section>
       </main>

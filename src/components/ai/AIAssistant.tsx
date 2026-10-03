@@ -44,6 +44,43 @@ const quickActions = [
   "Near me",
 ];
 
+function parseBudget(message: string): number | null {
+  const normalizedMessage = message.toLowerCase().replace(/,/g, "");
+  const match = normalizedMessage.match(
+    /(?:under|below|less than|within|budget(?:\s+is)?|under\s+₹|₹)\s*₹?\s*(\d+(?:\.\d+)?)\s*(k|thousand)?|(\d+(?:\.\d+)?)\s*(k|thousand)\b/,
+  );
+  if (!match) return null;
+
+  const amount = Number(match[1] ?? match[3]);
+  const multiplier = match[2] ?? match[4];
+  return Number.isFinite(amount) ? amount * (multiplier ? 1000 : 1) : null;
+}
+
+function distanceInKm(
+  from: { latitude: number; longitude: number },
+  to: { latitude?: number | null; longitude?: number | null },
+): number | undefined {
+  if (
+    typeof to.latitude !== "number" ||
+    typeof to.longitude !== "number" ||
+    !Number.isFinite(to.latitude) ||
+    !Number.isFinite(to.longitude)
+  ) {
+    return undefined;
+  }
+
+  const radians = (degrees: number) => (degrees * Math.PI) / 180;
+  const latitudeDifference = radians(to.latitude - from.latitude);
+  const longitudeDifference = radians(to.longitude - from.longitude);
+  const haversine =
+    Math.sin(latitudeDifference / 2) ** 2 +
+    Math.cos(radians(from.latitude)) *
+      Math.cos(radians(to.latitude)) *
+      Math.sin(longitudeDifference / 2) ** 2;
+
+  return 6371 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+}
+
 export default function AIAssistant() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -56,9 +93,35 @@ export default function AIAssistant() {
     },
   ]);
   const [properties, setProperties] = useState<AIProperty[]>([]);
+  const [budget, setBudget] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+
+  const matchingProperties = useMemo(() => {
+    const filtered = properties.filter((property) => {
+      if (budget === null) return true;
+      const startingPrice = Number(property.startingPrice);
+      return Number.isFinite(startingPrice) && startingPrice < budget;
+    });
+
+    if (!location) return filtered;
+
+    return filtered
+      .map((property) => ({
+        property,
+        distance: distanceInKm(location, property),
+      }))
+      .sort((first, second) => {
+        if (first.distance === undefined && second.distance === undefined) {
+          return 0;
+        }
+        if (first.distance === undefined) return 1;
+        if (second.distance === undefined) return -1;
+        return first.distance - second.distance;
+      })
+      .map(({ property }) => property);
+  }, [budget, location, properties]);
 
   const canSend = useMemo(() => input.trim().length > 0 && !loading, [input, loading]);
 
@@ -127,6 +190,9 @@ export default function AIAssistant() {
         { role: "assistant", content: data.message },
       ]);
       setProperties(data.properties ?? []);
+      setBudget(
+        parseBudget(message) ?? data.requirements?.budget ?? budget,
+      );
 
       if (data.locationMessage) {
         setLocationError(data.locationMessage);
@@ -228,15 +294,33 @@ export default function AIAssistant() {
                 </div>
               )}
 
-              {properties.length > 0 && (
+              {matchingProperties.length > 0 && (
                 <div className="space-y-2.5 pt-1">
                   <p className="px-1 text-xs font-semibold uppercase tracking-wider text-[#2EAD45]">
                     Matching properties
                   </p>
-                  {properties.map((property) => (
-                    <AIPropertyCard key={property.id} property={property} />
+                  {matchingProperties.map((property) => (
+                    <AIPropertyCard
+                      key={property.id}
+                      property={property}
+                      distanceKm={
+                        location
+                          ? distanceInKm(location, property)
+                          : undefined
+                      }
+                    />
                   ))}
                 </div>
+              )}
+              {properties.length > 0 && matchingProperties.length === 0 && budget !== null && (
+                <p className="rounded-xl bg-white p-3 text-xs text-gray-600 shadow-sm">
+                  No properties found with a starting price under{" "}
+                  {new Intl.NumberFormat("en-IN", {
+                    style: "currency",
+                    currency: "INR",
+                    maximumFractionDigits: 0,
+                  }).format(budget)}.
+                </p>
               )}
             </div>
 

@@ -104,6 +104,7 @@ export default function PropertyDetailsModal({
             alt={`${property.name} — image ${activeImageIndex + 1}`}
             fill
             priority
+            unoptimized
             sizes="(max-width: 1024px) 100vw, 896px"
             className="object-cover"
           />

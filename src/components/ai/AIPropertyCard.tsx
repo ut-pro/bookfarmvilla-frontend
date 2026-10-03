@@ -1,45 +1,114 @@
 "use client";
 
-import { useState } from "react";
+import { usePropertyDetails } from "@/components/property/PropertyDetailsContext";
+import type { PropertyCardData, PropertyType } from "@/types/property";
 import { Eye, MapPin, MessageCircle, Users, Waves } from "lucide-react";
-import { formatIndianCurrency } from "@/lib/formatters";
 
 export interface AIProperty {
   id: string;
   title: string;
   description?: string | null;
-  type?: string | null;
+  type?: PropertyType | null;
   address?: string | null;
   city?: string | null;
-  priceRange?: string | null;
+  startingPrice?: number | string | null;
+  endingPrice?: number | string | null;
   capacity?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
   contactPhone?: string | null;
   amenities?: string[];
   averageRating?: number | null;
-  images?: { id: string; url: string; primary: boolean }[];
+  images?: {
+    id: string;
+    url: string;
+    primary?: boolean;
+    isPrimary?: boolean;
+  }[];
 }
 
 interface Props {
   property: AIProperty;
+  distanceKm?: number;
 }
 
-function whatsappUrl(phone?: string | null) {
+function whatsappUrl(phone: string, propertyTitle: string) {
   if (!phone) return null;
   const digits = phone.replace(/\D/g, "");
-  return digits ? `https://wa.me/${digits}` : null;
+  if (!digits) return null;
+
+  const message = `Hi, I'm interested in booking ${propertyTitle}. Could you please share availability and booking details?`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }
 
-export default function AIPropertyCard({ property }: Props) {
-  const [showDetails, setShowDetails] = useState(false);
+function toPropertyCardData(property: AIProperty): PropertyCardData | null {
+  if (
+    property.type !== "FARMHOUSE" &&
+    property.type !== "VILLA" &&
+    property.type !== "WEDDING_LAWN"
+  ) {
+    return null;
+  }
 
-  const image = property.images?.find((item) => item.primary)?.url
+  const images =
+    property.images
+      ?.slice()
+      .sort(
+        (firstImage, secondImage) =>
+          Number(secondImage.primary || secondImage.isPrimary) -
+          Number(firstImage.primary || firstImage.isPrimary),
+      )
+      .map((item) => item.url)
+      .filter(Boolean) ?? [];
+  const startingPrice =
+    property.startingPrice == null ? null : Number(property.startingPrice);
+  const endingPrice =
+    property.endingPrice == null ? null : Number(property.endingPrice);
+
+  return {
+    id: property.id,
+    name: property.title,
+    type: property.type,
+    description: property.description ?? undefined,
+    location: property.address?.trim() || property.city || "India",
+    city: property.city ?? undefined,
+    rating: property.averageRating ?? undefined,
+    guestCapacity: property.capacity ?? 0,
+    hasPool:
+      property.amenities?.some((amenity) =>
+        amenity.toLowerCase().includes("pool"),
+      ) ?? false,
+    amenities: property.amenities ?? [],
+    latitude: property.latitude ?? null,
+    longitude: property.longitude ?? null,
+    startingPrice:
+      startingPrice !== null && Number.isFinite(startingPrice)
+        ? startingPrice
+        : null,
+    endingPrice:
+      endingPrice !== null && Number.isFinite(endingPrice)
+        ? endingPrice
+        : null,
+    imageUrl: images[0] ?? "/images/property-placeholder.svg",
+    imageUrls: images,
+    status: "ACTIVE",
+  };
+}
+
+export default function AIPropertyCard({ property, distanceKm }: Props) {
+  const { openPropertyDetails } = usePropertyDetails();
+
+  const image = property.images?.find(
+    (item) => item.primary || item.isPrimary,
+  )?.url
     ?? property.images?.[0]?.url;
 
   const hasPool = property.amenities?.some((a) =>
     a.toLowerCase().includes("pool"),
   );
 
-  const whatsapp = whatsappUrl(property.contactPhone);
+  const whatsapp = whatsappUrl("87663 67427", property.title);
+  const propertyCardData = toPropertyCardData(property);
 
   return (
     <article className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -82,6 +151,11 @@ export default function AIPropertyCard({ property }: Props) {
             <span className="line-clamp-1">{property.city}</span>
           </p>
         )}
+        {distanceKm !== undefined && Number.isFinite(distanceKm) && (
+          <p className="mt-1 text-xs font-medium text-[#1E8A32]">
+            {distanceKm.toFixed(1)} km away
+          </p>
+        )}
 
         <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 text-[11px] text-gray-600">
           {typeof property.capacity === "number" && (
@@ -107,7 +181,7 @@ export default function AIPropertyCard({ property }: Props) {
 
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-gray-100 pt-3">
           <span className="line-clamp-1 text-sm font-bold text-[#0F172A]">
-            {property.priceRange || "Price on request"}
+            {`₹${property.startingPrice}-₹${property.endingPrice}` || "Price on request"}
           </span>
 
           <div className="flex gap-1.5">
@@ -125,28 +199,19 @@ export default function AIPropertyCard({ property }: Props) {
 
             <button
               type="button"
-              onClick={() => setShowDetails((current) => !current)}
+              onClick={() => {
+                if (propertyCardData) {
+                  openPropertyDetails(propertyCardData);
+                }
+              }}
+              disabled={!propertyCardData}
               className="flex items-center gap-1 rounded-lg bg-[#2EAD45] px-3 py-2 text-[11px] font-semibold text-white hover:bg-[#1E8A32]"
             >
               <Eye size={13} />
-              {showDetails ? "Hide" : "View"}
+              View
             </button>
           </div>
         </div>
-
-        {showDetails && (
-          <div className="mt-3 rounded-xl bg-gray-50 p-3 text-[11px] leading-relaxed text-gray-600">
-            {property.address && (
-              <p><strong className="text-gray-800">Address:</strong> {property.address}</p>
-            )}
-            {property.description && (
-              <p className="mt-1 line-clamp-4">{property.description}</p>
-            )}
-            {!property.address && !property.description && (
-              <p>No additional verified details are available.</p>
-            )}
-          </div>
-        )}
       </div>
     </article>
   );

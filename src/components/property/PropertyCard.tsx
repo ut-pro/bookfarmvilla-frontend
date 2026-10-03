@@ -49,6 +49,7 @@ export default function PropertyCard({
           src={property.imageUrl}
           alt={`${property.name} in ${property.location}`}
           fill
+          unoptimized
           sizes="(max-width: 767px) 300px, (max-width: 1023px) 50vw, 25vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
@@ -122,13 +123,13 @@ export default function PropertyCard({
 
         <div className="flex items-end justify-between gap-2 border-t border-gray-100 pt-3">
           <div className="min-w-0">
-            {property.priceRange ? (
+            {property.startingPrice && property.endingPrice ? (
               <>
                 <p className="mb-0.5 text-[10px] font-medium text-gray-400">
                   Price range
                 </p>
                 <p className="text-sm font-bold text-[#0F172A]">
-                  {property.priceRange}
+                  {`₹${property.startingPrice}-₹${property.endingPrice}`}
                 </p>
               </>
             ) : typeof property.startingPrice === "number" ? (
@@ -149,7 +150,7 @@ export default function PropertyCard({
               </>
             ) : (
               <p className="text-sm font-semibold text-[#0F172A]">
-                Price on request
+                {`₹${property.startingPrice}-₹${property.endingPrice}` || "Price on request"}
               </p>
             )}
           </div>

@@ -11,6 +11,7 @@ interface PropertySectionProps {
   viewAllLabel: string;
   viewAllHref: string;
   backgroundClassName?: string;
+  isLoading?: boolean;
 }
 
 export default function PropertySection({
@@ -21,6 +22,7 @@ export default function PropertySection({
   viewAllLabel,
   viewAllHref,
   backgroundClassName = "bg-white",
+  isLoading = false,
 }: PropertySectionProps) {
   return (
     <section
@@ -58,7 +60,14 @@ export default function PropertySection({
         </div>
 
         {/* Property cards */}
-        {properties.length > 0 ? (
+        {isLoading ? (
+          <div
+            className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center text-sm text-gray-500"
+            role="status"
+          >
+            Loading properties...
+          </div>
+        ) : properties.length > 0 ? (
           <div className="scrollbar-hide flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 md:grid md:snap-none md:grid-cols-2 md:overflow-visible lg:grid-cols-3 xl:grid-cols-4">
             {properties.map((property) => (
               <PropertyCard
