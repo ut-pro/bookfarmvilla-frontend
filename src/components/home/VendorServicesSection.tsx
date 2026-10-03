@@ -129,7 +129,7 @@ export default async function VendorServicesSection() {
         <div className="mb-10 flex items-end justify-between gap-6">
           <div>
             <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
-              Vendors & Services
+              EVERYTHING ELSE, SORTED
             </p>
 
             <h2
@@ -139,7 +139,7 @@ export default async function VendorServicesSection() {
                 fontSize: "clamp(24px, 3vw, 36px)",
               }}
             >
-              Everything you need for your event
+              Vendors & Services
             </h2>
 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-500 sm:text-base">
