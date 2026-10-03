@@ -9,6 +9,8 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 
+export const revalidate = 300;
+
 export default function Home() {
   return (
     <>

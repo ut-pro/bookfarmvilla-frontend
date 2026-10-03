@@ -165,3 +165,37 @@ export async function getActiveProperties(
     )
     .map(mapPropertyToCard);
 }
+
+export async function getActivePropertyCities(
+  signal?: AbortSignal,
+): Promise<string[]> {
+  const cities = new Set<string>();
+  const pageSize = 100;
+  const maximumPages = 20;
+
+  for (let page = 0; page < maximumPages; page += 1) {
+    const properties = await getActiveProperties(
+      {
+        page,
+        size: pageSize,
+      },
+      signal,
+    );
+
+    properties.forEach((property) => {
+      const city = property.city?.trim();
+
+      if (city) {
+        cities.add(city);
+      }
+    });
+
+    if (properties.length < pageSize) {
+      break;
+    }
+  }
+
+  return Array.from(cities).sort((firstCity, secondCity) =>
+    firstCity.localeCompare(secondCity),
+  );
+}

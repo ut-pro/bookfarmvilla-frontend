@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import { Building2, MapPin, Search, Users } from "lucide-react";
+import { getActivePropertyCities } from "@/lib/property-api";
 
 const heroStatistics = [
   {
@@ -26,10 +32,121 @@ export default function HeroSection() {
   const [propertyType, setPropertyType] = useState("");
   const [minimumCapacity, setMinimumCapacity] = useState("");
 
+  const [availableCities, setAvailableCities] =
+    useState<string[]>([]);
+
+  const [isLocationFocused, setIsLocationFocused] =
+    useState(false);
+
+  const [highlightedCityIndex, setHighlightedCityIndex] =
+    useState(0);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    getActivePropertyCities(controller.signal)
+      .then((cities) => {
+        console.log("Loaded city suggestions:", cities);
+
+        if (!controller.signal.aborted) {
+          setAvailableCities(cities);
+        }
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        console.error(
+          "Unable to load city suggestions:",
+          error,
+        );
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  const normalizedLocationQuery = location
+    .trim()
+    .toLocaleLowerCase();
+
+  const citySuggestions =
+    normalizedLocationQuery.length >= 2
+      ? availableCities
+          .filter((city) => {
+            const normalizedCity = city.toLocaleLowerCase();
+
+            return normalizedCity
+              .split(/[\s,./()-]+/)
+              .some((word) =>
+                word.startsWith(normalizedLocationQuery),
+              );
+          })
+          .slice(0, 6)
+      : [];
+
+  const showCitySuggestions =
+    isLocationFocused && citySuggestions.length > 0;
+
+  const activeCityIndex = Math.min(
+    highlightedCityIndex,
+    Math.max(citySuggestions.length - 1, 0),
+  );
+
+  const selectCity = (city: string) => {
+    setLocation(city);
+    setHighlightedCityIndex(0);
+    setIsLocationFocused(false);
+  };
+
+  const handleLocationKeyDown = (
+    event: KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (!showCitySuggestions) {
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+
+      setHighlightedCityIndex((currentIndex) =>
+        Math.min(
+          currentIndex + 1,
+          citySuggestions.length - 1,
+        ),
+      );
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+
+      setHighlightedCityIndex((currentIndex) =>
+        Math.max(currentIndex - 1, 0),
+      );
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+
+      const selectedCity =
+        citySuggestions[activeCityIndex];
+
+      if (selectedCity) {
+        selectCity(selectedCity);
+      }
+    }
+
+    if (event.key === "Escape") {
+      setIsLocationFocused(false);
+    }
+  };
+
   const handleSearch = (
-  event: FormEvent<HTMLFormElement>,
+    event: FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+
+    setIsLocationFocused(false);
 
     const searchParams = new URLSearchParams();
 
@@ -134,7 +251,20 @@ export default function HeroSection() {
         >
           <div className="flex flex-col items-stretch gap-2 md:flex-row md:gap-1">
             {/* Location field */}
-            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white px-4 py-3 text-left">
+            <div
+              className="relative z-20 flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white px-4 py-3 text-left"
+              onFocus={() => setIsLocationFocused(true)}
+              onBlur={(event) => {
+                const nextFocusedElement = event.relatedTarget;
+
+                if (
+                  !(nextFocusedElement instanceof Node) ||
+                  !event.currentTarget.contains(nextFocusedElement)
+                ) {
+                  setIsLocationFocused(false);
+                }
+              }}
+            >
               <MapPin
                 size={20}
                 className="shrink-0 text-[#2EAD45]"
@@ -149,11 +279,62 @@ export default function HeroSection() {
                 <input
                   type="text"
                   value={location}
-                  onChange={(event) => setLocation(event.target.value)}
+                  onChange={(event) => {
+                    setLocation(event.target.value);
+                    setHighlightedCityIndex(0);
+                  }}
+                  onKeyDown={handleLocationKeyDown}
                   placeholder="Where do you want to go?"
+                  autoComplete="off"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded={showCitySuggestions}
+                  aria-controls="hero-city-suggestions"
+                  aria-activedescendant={
+                    showCitySuggestions
+                      ? `hero-city-option-${activeCityIndex}`
+                      : undefined
+                  }
                   className="w-full bg-transparent text-sm font-medium text-gray-800 outline-none placeholder:text-gray-400"
                 />
               </label>
+              {showCitySuggestions && (
+                <ul
+                  id="hero-city-suggestions"
+                  role="listbox"
+                  aria-label="Available cities"
+                  className="absolute left-0 right-0 top-[calc(100%+0.5rem)] overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
+                >
+                  {citySuggestions.map((city, index) => {
+                    const isActive = index === activeCityIndex;
+
+                    return (
+                      <li key={city}>
+                        <button
+                          id={`hero-city-option-${index}`}
+                          type="button"
+                          role="option"
+                          aria-selected={isActive}
+                          onClick={() => selectCity(city)}
+                          className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition-colors ${
+                            isActive
+                              ? "bg-[#F0FDF4] text-[#1E8A32]"
+                              : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          <MapPin
+                            size={15}
+                            className="shrink-0 text-[#2EAD45]"
+                            aria-hidden="true"
+                          />
+
+                          <span>{city}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
 
             {/* Desktop divider */}
