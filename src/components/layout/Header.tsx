@@ -10,6 +10,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Menu, X } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 import Logo from "@/components/layout/Logo";
 
@@ -205,10 +206,15 @@ export default function Header() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-[#2EAD45] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-green-500/25 transition-colors hover:bg-[#1E8A32]"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#2EAD45] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-green-500/25 transition-colors hover:bg-[#1E8A32]"
                 aria-label="Get event assistance on WhatsApp"
               >
-                Get Event Assistance
+                <FaWhatsapp
+                  size={18}
+                  aria-hidden="true"
+                />
+
+                <span>Get Event Assistance</span>
               </a>
             </div>
 

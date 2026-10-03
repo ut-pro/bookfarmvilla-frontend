@@ -7,11 +7,13 @@ import {
   Users,
   Waves,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
 import { usePropertyDetails } from "@/components/property/PropertyDetailsContext";
 import Rating from "@/components/ui/Rating";
 import { getPropertyPriceDisplay } from "@/lib/formatters";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type { PropertyCardData } from "@/types/property";
 
 interface PropertyCardProps {
@@ -30,6 +32,10 @@ export default function PropertyCard({
     property.startingPrice,
     property.endingPrice,
     property.priceSuffix,
+  );
+
+  const whatsappUrl = buildWhatsAppUrl(
+    `Hi BookFarmVilla team, I am interested in ${property.name}. Please share its availability and enquiry details.`,
   );
 
   const handleRequestCallback = () => {
@@ -140,14 +146,29 @@ export default function PropertyCard({
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleRequestCallback}
-            className="relative z-20 shrink-0 whitespace-nowrap rounded-lg bg-[#DCFCE7] px-3 py-2 text-xs font-semibold text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
-            aria-label={`Request a callback for ${property.name}`}
-          >
-            Request Callback
-          </button>
+          <div className="relative z-20 flex shrink-0 items-center gap-1.5">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`WhatsApp about ${property.name}`}
+              className="rounded-lg bg-green-50 p-2 text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+            >
+              <FaWhatsapp
+                size={17}
+                aria-hidden="true"
+              />
+            </a>
+
+            <button
+              type="button"
+              onClick={handleRequestCallback}
+              className="shrink-0 whitespace-nowrap rounded-lg bg-[#DCFCE7] px-3 py-2 text-xs font-semibold text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+              aria-label={`Request a callback for ${property.name}`}
+            >
+              Request Callback
+            </button>
+          </div>
         </div>
       </div>
     </article>

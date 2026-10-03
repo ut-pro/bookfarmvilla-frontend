@@ -7,8 +7,11 @@ import {
   MapPin,
   Star,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
+import { useVendorDetails } from "@/components/vendor/VendorDetailsContext";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type {
   VendorCategory,
   VendorResponse,
@@ -62,10 +65,15 @@ export default function VendorCard({
   vendor: VendorResponse;
 }) {
   const { openVendorCallback } = useCallbackModal();
+  const { openVendorDetails } = useVendorDetails();
   const [imageFailed, setImageFailed] = useState(false);
 
   const imageUrl = getPrimaryVendorImage(vendor);
   const categoryLabel = categoryLabels[vendor.category];
+
+  const whatsappUrl = buildWhatsAppUrl(
+    `Hi BookFarmVilla team, I am interested in ${vendor.name} for ${categoryLabel}. Please share service availability and enquiry details.`,
+  );
   const description =
     vendor.description?.trim() ||
     "Professional event services available for your celebration.";
@@ -77,7 +85,13 @@ export default function VendorCard({
     Number.isFinite(vendor.averageRating);
 
   return (
-    <article className="group w-[300px] flex-shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl md:w-auto">
+    <article className="group relative w-[300px] flex-shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl md:w-auto">
+      <button
+        type="button"
+        onClick={() => openVendorDetails(vendor)}
+        className="absolute inset-0 z-10 cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2EAD45] focus-visible:ring-inset"
+        aria-label={`View details for ${vendor.name}`}
+      />
       <div className="relative h-[200px] overflow-hidden bg-[#F0FDF4]">
         {imageUrl && !imageFailed ? (
           <Image
@@ -164,14 +178,29 @@ export default function VendorCard({
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => openVendorCallback(vendor)}
-            className="shrink-0 whitespace-nowrap rounded-lg bg-[#DCFCE7] px-3 py-2 text-xs font-semibold text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
-            aria-label={`Request a callback for ${vendor.name}`}
-          >
-            Request Callback
-          </button>
+          <div className="relative z-20 flex shrink-0 items-center gap-1.5">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`WhatsApp about ${vendor.name}`}
+              className="rounded-lg bg-green-50 p-2 text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+            >
+              <FaWhatsapp
+                size={17}
+                aria-hidden="true"
+              />
+            </a>
+
+            <button
+              type="button"
+              onClick={() => openVendorCallback(vendor)}
+              className="shrink-0 whitespace-nowrap rounded-lg bg-[#DCFCE7] px-3 py-2 text-xs font-semibold text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+              aria-label={`Request a callback for ${vendor.name}`}
+            >
+              Request Callback
+            </button>
+          </div>
         </div>
       </div>
     </article>

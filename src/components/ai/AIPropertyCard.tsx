@@ -3,7 +3,13 @@
 import { usePropertyDetails } from "@/components/property/PropertyDetailsContext";
 import type { PropertyCardData, PropertyType } from "@/types/property";
 import Image from "next/image";
-import { Eye, MapPin, MessageCircle, Users, Waves } from "lucide-react";
+import {
+  Eye,
+  MapPin,
+  Users,
+  Waves,
+} from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { getPropertyPriceDisplay } from "@/lib/formatters";
 
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -206,7 +212,10 @@ export default function AIPropertyCard({ property, distanceKm }: Props) {
                 aria-label={`WhatsApp ${property.title}`}
                 className="rounded-lg bg-green-50 p-2 text-[#1E8A32] hover:bg-[#2EAD45] hover:text-white"
               >
-                <MessageCircle size={15} />
+                <FaWhatsapp
+                  size={17}
+                  aria-hidden="true"
+                />
               </a>
             )}
 

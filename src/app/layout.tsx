@@ -5,6 +5,7 @@ import AIAssistant from "@/components/ai/AIAssistant";
 import CallbackModal from "@/components/callback/CallbackModal";
 import { CallbackProvider } from "@/components/callback/CallbackContext";
 import { PropertyDetailsProvider } from "@/components/property/PropertyDetailsContext";
+import { VendorDetailsProvider } from "@/components/vendor/VendorDetailsContext";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -29,9 +30,11 @@ export default function RootLayout({
       <body className={`${poppins.variable} antialiased`}>
         <CallbackProvider>
           <PropertyDetailsProvider>
-            {children}
-            <CallbackModal />
-            <AIAssistant />
+            <VendorDetailsProvider>
+              {children}
+              <CallbackModal />
+              <AIAssistant />
+            </VendorDetailsProvider>
           </PropertyDetailsProvider>
         </CallbackProvider>
       </body>

@@ -282,6 +282,7 @@ export default function HeroSection() {
                   onChange={(event) => {
                     setLocation(event.target.value);
                     setHighlightedCityIndex(0);
+                    setIsLocationFocused(true);
                   }}
                   onKeyDown={handleLocationKeyDown}
                   placeholder="Where do you want to go?"

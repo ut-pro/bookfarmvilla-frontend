@@ -13,9 +13,11 @@ import {
   Waves,
   X,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
 import { getPropertyPriceDisplay } from "@/lib/formatters";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type {
   PropertyCardData,
   PropertyType,
@@ -48,6 +50,10 @@ export default function PropertyDetailsModal({
     property.startingPrice,
     property.endingPrice,
     property.priceSuffix,
+  );
+
+  const whatsappUrl = buildWhatsAppUrl(
+    `Hi BookFarmVilla team, I am interested in ${property.name}. Please share its availability and enquiry details.`,
   );
 
   const closeModal = useCallback(() => {
@@ -301,14 +307,29 @@ export default function PropertyDetailsModal({
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={handleRequestCallback}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2EAD45] px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-green-500/20 transition-colors hover:bg-[#1E8A32]"
-            >
-              <PhoneCall size={18} aria-hidden="true" />
-              Request Callback
-            </button>
+            <div className="flex w-full items-center gap-2 sm:w-auto">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`WhatsApp about ${property.name}`}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-50 text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+              >
+                <FaWhatsapp
+                  size={20}
+                  aria-hidden="true"
+                />
+              </a>
+
+              <button
+                type="button"
+                onClick={handleRequestCallback}
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#2EAD45] px-6 py-3.5 text-sm font-semibold text-white shadow-md shadow-green-500/20 transition-colors hover:bg-[#1E8A32] sm:flex-none"
+              >
+                <PhoneCall size={18} aria-hidden="true" />
+                Request Callback
+              </button>
+            </div>
           </div>
         </div>
       </article>
