@@ -48,7 +48,7 @@ export default function PropertyCard({
   };
 
   return (
-    <article className="group relative w-[300px] flex-shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl md:w-auto">
+    <article className="group relative flex h-full w-[300px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl md:w-auto">
       <button
         type="button"
         onClick={() => openPropertyDetails(property)}
@@ -56,7 +56,7 @@ export default function PropertyCard({
         aria-label={`View details for ${property.name}`}
       />
 
-      <div className="relative h-[200px] overflow-hidden">
+      <div className="relative h-[200px] shrink-0 overflow-hidden">
         <Image
           src={property.imageUrl}
           alt={`${property.name} in ${property.location}`}
@@ -73,7 +73,7 @@ export default function PropertyCard({
         )}
       </div>
 
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <div className="mb-1 flex items-start justify-between gap-2">
           <h3
             className="line-clamp-1 text-base font-semibold leading-tight text-[#0F172A]"
@@ -102,7 +102,7 @@ export default function PropertyCard({
           </span>
         </div>
 
-        <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-600">
+        <div className="mb-4 flex min-h-10 flex-wrap items-start gap-x-3 gap-y-2 text-xs text-gray-600">
           {property.guestCapacity > 0 && (
             <span className="flex items-center gap-1">
               <Users
@@ -133,15 +133,15 @@ export default function PropertyCard({
           )}
         </div>
 
-        <div className="flex items-end justify-between gap-2 border-t border-gray-100 pt-3">
-          <div className="min-w-0">
+        <div className="mt-auto flex items-end justify-between gap-2 border-t border-gray-100 pt-3">
+          <div className="flex min-h-10 min-w-0 flex-col justify-end">
             {priceDisplay.label && (
               <p className="mb-0.5 text-[10px] font-medium text-gray-400">
                 {priceDisplay.label}
               </p>
             )}
 
-            <p className="text-sm font-bold text-[#0F172A]">
+            <p className="text-sm font-bold leading-tight text-[#0F172A]">
               {priceDisplay.value}
             </p>
           </div>
