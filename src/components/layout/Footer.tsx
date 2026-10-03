@@ -72,7 +72,7 @@ const footerColumns: FooterColumn[] = [
       },
       {
         label: "Staff Login",
-        href: "/staff/login",
+        href: "/admin/login",
       },
     ],
   },

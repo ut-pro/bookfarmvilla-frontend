@@ -3,6 +3,9 @@
 import { usePropertyDetails } from "@/components/property/PropertyDetailsContext";
 import type { PropertyCardData, PropertyType } from "@/types/property";
 import { Eye, MapPin, MessageCircle, Users, Waves } from "lucide-react";
+import { getPropertyPriceDisplay } from "@/lib/formatters";
+
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
 export interface AIProperty {
   id: string;
@@ -30,15 +33,6 @@ export interface AIProperty {
 interface Props {
   property: AIProperty;
   distanceKm?: number;
-}
-
-function whatsappUrl(phone: string, propertyTitle: string) {
-  if (!phone) return null;
-  const digits = phone.replace(/\D/g, "");
-  if (!digits) return null;
-
-  const message = `Hi, I'm interested in booking ${propertyTitle}. Could you please share availability and booking details?`;
-  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }
 
 function toPropertyCardData(property: AIProperty): PropertyCardData | null {
@@ -107,8 +101,16 @@ export default function AIPropertyCard({ property, distanceKm }: Props) {
     a.toLowerCase().includes("pool"),
   );
 
-  const whatsapp = whatsappUrl("87663 67427", property.title);
+  const whatsapp = buildWhatsAppUrl(
+    `Hi BookFarmVilla team, I am interested in ${property.title}. Please share its availability and enquiry details.`,
+  );
+
   const propertyCardData = toPropertyCardData(property);
+
+  const priceDisplay = getPropertyPriceDisplay(
+    property.startingPrice,
+    property.endingPrice,
+  );
 
   return (
     <article className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -180,9 +182,17 @@ export default function AIPropertyCard({ property, distanceKm }: Props) {
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-gray-100 pt-3">
-          <span className="line-clamp-1 text-sm font-bold text-[#0F172A]">
-            {`₹${property.startingPrice}-₹${property.endingPrice}` || "Price on request"}
-          </span>
+          <div className="min-w-0">
+            {priceDisplay.label && (
+              <p className="text-[10px] font-medium text-gray-400">
+                {priceDisplay.label}
+              </p>
+            )}
+
+            <p className="line-clamp-1 text-sm font-bold text-[#0F172A]">
+              {priceDisplay.value}
+            </p>
+          </div>
 
           <div className="flex gap-1.5">
             {whatsapp && (

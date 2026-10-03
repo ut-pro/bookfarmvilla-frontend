@@ -11,7 +11,7 @@ import {
 import { useCallbackModal } from "@/components/callback/CallbackContext";
 import { usePropertyDetails } from "@/components/property/PropertyDetailsContext";
 import Rating from "@/components/ui/Rating";
-import { formatIndianCurrency } from "@/lib/formatters";
+import { getPropertyPriceDisplay } from "@/lib/formatters";
 import type { PropertyCardData } from "@/types/property";
 
 interface PropertyCardProps {
@@ -25,6 +25,12 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   const { openPropertyCallback } = useCallbackModal();
   const { openPropertyDetails } = usePropertyDetails();
+
+  const priceDisplay = getPropertyPriceDisplay(
+    property.startingPrice,
+    property.endingPrice,
+    property.priceSuffix,
+  );
 
   const handleRequestCallback = () => {
     if (onRequestCallback) {
@@ -123,36 +129,15 @@ export default function PropertyCard({
 
         <div className="flex items-end justify-between gap-2 border-t border-gray-100 pt-3">
           <div className="min-w-0">
-            {property.startingPrice && property.endingPrice ? (
-              <>
-                <p className="mb-0.5 text-[10px] font-medium text-gray-400">
-                  Price range
-                </p>
-                <p className="text-sm font-bold text-[#0F172A]">
-                  {`₹${property.startingPrice}-₹${property.endingPrice}`}
-                </p>
-              </>
-            ) : typeof property.startingPrice === "number" ? (
-              <>
-                <p className="mb-0.5 text-[10px] font-medium text-gray-400">
-                  Starting from
-                </p>
-                <div>
-                  <span className="text-lg font-bold text-[#0F172A]">
-                    {formatIndianCurrency(property.startingPrice)}
-                  </span>
-                  {property.priceSuffix && (
-                    <span className="ml-1 text-xs text-gray-400">
-                      {property.priceSuffix}
-                    </span>
-                  )}
-                </div>
-              </>
-            ) : (
-              <p className="text-sm font-semibold text-[#0F172A]">
-                {`₹${property.startingPrice}-₹${property.endingPrice}` || "Price on request"}
+            {priceDisplay.label && (
+              <p className="mb-0.5 text-[10px] font-medium text-gray-400">
+                {priceDisplay.label}
               </p>
             )}
+
+            <p className="text-sm font-bold text-[#0F172A]">
+              {priceDisplay.value}
+            </p>
           </div>
 
           <button

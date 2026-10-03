@@ -13,6 +13,8 @@ import { Menu, X } from "lucide-react";
 
 import Logo from "@/components/layout/Logo";
 
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
+
 const navigationItems = [
   {
     label: "Farmhouses",
@@ -36,9 +38,6 @@ const navigationItems = [
   },
 ];
 
-const whatsappNumber =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "";
-
 const whatsappMessage = `Hi BookFarmVilla team, I need assistance in finding a suitable venue.
 
 Event type:
@@ -48,9 +47,7 @@ Expected guests:
 
 Please help me with available options.`;
 
-const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-  whatsappMessage,
-)}`;
+const whatsappUrl = buildWhatsAppUrl(whatsappMessage);
 
 export default function Header() {
   const pathname = usePathname();

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
-import { formatIndianCurrency } from "@/lib/formatters";
+import { getPropertyPriceDisplay } from "@/lib/formatters";
 import type {
   PropertyCardData,
   PropertyType,
@@ -43,6 +43,12 @@ export default function PropertyDetailsModal({
     property.imageUrls && property.imageUrls.length > 0
       ? property.imageUrls
       : [property.imageUrl];
+
+  const priceDisplay = getPropertyPriceDisplay(
+    property.startingPrice,
+    property.endingPrice,
+    property.priceSuffix,
+  );
 
   const closeModal = useCallback(() => {
     onClose();
@@ -284,15 +290,14 @@ export default function PropertyDetailsModal({
 
           <div className="mt-8 flex flex-col gap-4 border-t border-gray-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-medium text-gray-400">
-                {property.startingPrice ? "Price range" : "Starting from"}
-              </p>
+              {priceDisplay.label && (
+                <p className="text-xs font-medium text-gray-400">
+                  {priceDisplay.label}
+                </p>
+              )}
+
               <p className="mt-1 text-xl font-bold text-[#0F172A]">
-                {property.startingPrice && property.endingPrice
-                  ? `${formatIndianCurrency(property.startingPrice)} - ${formatIndianCurrency(property.endingPrice)}`
-                  : typeof property.startingPrice === "number"
-                    ? `${formatIndianCurrency(property.startingPrice)}${property.priceSuffix ?? ""}`
-                    : "Price on request"}
+                {priceDisplay.value}
               </p>
             </div>
 

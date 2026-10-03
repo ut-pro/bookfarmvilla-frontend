@@ -126,13 +126,16 @@ export default function CallbackModal() {
               </div>
 
               <h3 className="mt-5 text-2xl font-bold text-[#0F172A]">
-                Request Received
+                Request Submitted
               </h3>
 
-              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
-                Your callback request has been captured in the frontend
-                preview. Backend submission will be connected after
-                confirming the exact lead request format.
+              <p
+                className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500"
+                role="status"
+              >
+                Your callback request has been submitted successfully.
+                Our team will contact you shortly regarding the selected
+                property.
               </p>
 
               <button
