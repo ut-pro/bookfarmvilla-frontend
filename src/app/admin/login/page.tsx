@@ -2,13 +2,19 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Mail } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+} from "lucide-react";
 import { login, setToken, setStoredUser, isAuthenticated, AdminApiError } from "@/lib/admin-api";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -85,15 +91,37 @@ export default function AdminLoginPage() {
               <Lock size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 id="admin-password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 autoComplete="current-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
                 placeholder="••••••••"
-                className="w-full rounded-xl border border-gray-200 py-3 pl-11 pr-4 text-sm outline-none focus:border-violet-500"
+                className="w-full rounded-xl border border-gray-200 py-3 pl-11 pr-12 text-sm outline-none focus:border-violet-500"
               />
+              <button
+                type="button"
+                onClick={() =>
+                  setShowPassword((currentValue) => !currentValue)
+                }
+                className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center justify-center text-gray-400 transition-colors hover:text-violet-600 focus:outline-none focus-visible:text-violet-600"
+                aria-label={
+                  showPassword
+                    ? "Hide password"
+                    : "Show password"
+                }
+                aria-pressed={showPassword}
+              >
+                {showPassword ? (
+                  <EyeOff size={18} aria-hidden="true" />
+                ) : (
+                  <Eye size={18} aria-hidden="true" />
+                )}
+              </button>
             </div>
+      
           </div>
 
           {error && (

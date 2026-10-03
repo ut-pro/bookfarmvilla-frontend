@@ -21,6 +21,7 @@ import { siteConfig } from "@/data/site";
 interface FooterLink {
   label: string;
   href: string;
+  openInNewTab?: boolean;
 }
 
 interface FooterColumn {
@@ -73,6 +74,7 @@ const footerColumns: FooterColumn[] = [
       {
         label: "Staff Login",
         href: "/admin/login",
+        openInNewTab: true,
       },
     ],
   },
@@ -234,6 +236,12 @@ export default function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
+                      target={link.openInNewTab ? "_blank" : undefined}
+                      rel={
+                        link.openInNewTab
+                          ? "noopener noreferrer"
+                          : undefined
+                      }
                       className="text-sm text-gray-400 transition-colors hover:text-[#4CAF50]"
                     >
                       {link.label}
