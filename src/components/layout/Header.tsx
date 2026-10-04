@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useState,
+  type MouseEvent,
 } from "react";
 
 import Link from "next/link";
@@ -63,6 +64,42 @@ export default function Header() {
   const closeMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(false);
   }, []);
+
+  const handleBrandClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+  ) => {
+    closeMobileMenu();
+
+    const isModifiedClick =
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey;
+
+    if (
+      pathname !== "/" ||
+      isModifiedClick ||
+      event.button !== 0
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (window.location.hash) {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        window.location.pathname +
+          window.location.search,
+      );
+    }
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   // Detect page scroll for Header color change
   useEffect(() => {
@@ -140,7 +177,8 @@ export default function Header() {
             {/* Logo */}
             <Link
               href="/"
-              onClick={closeMobileMenu}
+              scroll
+              onClick={handleBrandClick}
               className="group flex items-center gap-3"
               aria-label="BookFarmVilla homepage"
             >

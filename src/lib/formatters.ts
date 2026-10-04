@@ -69,3 +69,76 @@ export function getPropertyPriceDisplay(
     value: "Price on request",
   };
 }
+
+function parseVendorPriceAmount(
+  value: string,
+): number | null {
+  const normalizedValue = value
+    .replace(/[₹,\s]/g, "")
+    .trim();
+
+  if (!/^\d+(?:\.\d+)?$/.test(normalizedValue)) {
+    return null;
+  }
+
+  const numericValue = Number(normalizedValue);
+
+  return Number.isFinite(numericValue)
+    ? numericValue
+    : null;
+}
+
+export function getVendorPriceDisplay(
+  priceRange: string | null | undefined,
+): PropertyPriceDisplay {
+  const normalizedPrice = priceRange?.trim();
+
+  if (!normalizedPrice) {
+    return {
+      label: null,
+      value: "Price on request",
+    };
+  }
+
+  const priceParts = normalizedPrice
+    .split(/\s*(?:-|–|—|\bto\b)\s*/i)
+    .filter(Boolean);
+
+  if (priceParts.length === 2) {
+    const start = parseVendorPriceAmount(
+      priceParts[0],
+    );
+    const end = parseVendorPriceAmount(
+      priceParts[1],
+    );
+
+    if (start !== null && end !== null) {
+      if (start === end) {
+        return {
+          label: "Starting from",
+          value: formatIndianCurrency(start),
+        };
+      }
+
+      return {
+        label: "Price range",
+        value: `${formatIndianCurrency(start)} – ${formatIndianCurrency(end)}`,
+      };
+    }
+  }
+
+  const singlePrice =
+    parseVendorPriceAmount(normalizedPrice);
+
+  if (singlePrice !== null) {
+    return {
+      label: "Starting from",
+      value: formatIndianCurrency(singlePrice),
+    };
+  }
+
+  return {
+    label: null,
+    value: "Price on request",
+  };
+}

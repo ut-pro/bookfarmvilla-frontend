@@ -11,6 +11,7 @@ import { FaWhatsapp } from "react-icons/fa";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
 import { useVendorDetails } from "@/components/vendor/VendorDetailsContext";
+import { getVendorPriceDisplay } from "@/lib/formatters";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type {
   VendorCategory,
@@ -77,8 +78,9 @@ export default function VendorCard({
   const description =
     vendor.description?.trim() ||
     "Professional event services available for your celebration.";
-  const priceDisplay =
-    vendor.priceRange?.trim() || "Price on request";
+  const priceDisplay = getVendorPriceDisplay(
+    vendor.priceRange,
+  );
 
   const hasRating =
     typeof vendor.averageRating === "number" &&
@@ -167,14 +169,14 @@ export default function VendorCard({
         <div className="mt-auto border-t border-gray-100 pt-3">
           <div className="min-w-0">
             <p className="mb-0.5 text-[10px] font-medium text-gray-400">
-              Service pricing
+              {priceDisplay.label || "Pricing"}
             </p>
 
             <p
               className="text-sm font-bold leading-tight text-[#0F172A]"
-              title={priceDisplay}
+              title={priceDisplay.value}
             >
-              {priceDisplay}
+              {priceDisplay.value}
             </p>
           </div>
 
