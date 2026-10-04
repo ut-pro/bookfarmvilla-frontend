@@ -15,7 +15,7 @@ import AIPropertyCard, { AIProperty } from "./AIPropertyCard";
 import { getActiveProperties } from "@/lib/property-api";
 import { useUserLocation } from "@/components/location/UserLocationContext";
 import { calculateDistanceInKm } from "@/lib/distance";
-import VendorCard from "@/components/vendor/VendorCard";
+import AIVendorCard from "@/components/ai/AIVendorCard";
 import type { PropertyType } from "@/types/property";
 import type { VendorCategory, VendorResponse } from "@/types/vendor";
 
@@ -446,7 +446,10 @@ export default function AIAssistant() {
                     Recommended vendors
                   </p>
                   {vendors.map((vendor) => (
-                    <VendorCard key={vendor.id} vendor={vendor} />
+                    <AIVendorCard
+                      key={vendor.id}
+                      vendor={vendor}
+                    />
                   ))}
                 </div>
               )}
