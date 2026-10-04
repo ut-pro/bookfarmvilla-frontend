@@ -133,26 +133,24 @@ export default function PropertyCard({
           )}
         </div>
 
-        <div className="mt-auto flex items-end justify-between gap-2 border-t border-gray-100 pt-3">
-          <div className="flex min-h-10 min-w-0 flex-col justify-end">
-            {priceDisplay.label && (
-              <p className="mb-0.5 text-[10px] font-medium text-gray-400">
-                {priceDisplay.label}
-              </p>
-            )}
+        <div className="mt-auto border-t border-gray-100 pt-3">
+          <div className="min-w-0">
+            <p className="mb-0.5 text-[10px] font-medium text-gray-400">
+              {priceDisplay.label || "Pricing"}
+            </p>
 
             <p className="text-sm font-bold leading-tight text-[#0F172A]">
               {priceDisplay.value}
             </p>
           </div>
 
-          <div className="relative z-20 flex shrink-0 items-center gap-1.5">
+          <div className="relative z-20 mt-3 flex items-center gap-2">
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`WhatsApp about ${property.name}`}
-              className="rounded-lg bg-green-50 p-2 text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-50 text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
             >
               <FaWhatsapp
                 size={17}
@@ -163,7 +161,7 @@ export default function PropertyCard({
             <button
               type="button"
               onClick={handleRequestCallback}
-              className="shrink-0 whitespace-nowrap rounded-lg bg-[#DCFCE7] px-3 py-2 text-xs font-semibold text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+              className="flex h-10 flex-1 items-center justify-center whitespace-nowrap rounded-lg bg-[#DCFCE7] px-3 text-xs font-semibold text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
               aria-label={`Request a callback for ${property.name}`}
             >
               Request Callback

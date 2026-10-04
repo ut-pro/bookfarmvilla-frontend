@@ -85,14 +85,14 @@ export default function VendorCard({
     Number.isFinite(vendor.averageRating);
 
   return (
-    <article className="group relative w-[300px] flex-shrink-0 snap-start overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl md:w-auto">
+    <article className="group relative flex h-full w-[300px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl md:w-auto">
       <button
         type="button"
         onClick={() => openVendorDetails(vendor)}
         className="absolute inset-0 z-10 cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2EAD45] focus-visible:ring-inset"
         aria-label={`View details for ${vendor.name}`}
       />
-      <div className="relative h-[200px] overflow-hidden bg-[#F0FDF4]">
+      <div className="relative h-[200px] shrink-0 overflow-hidden bg-[#F0FDF4]">
         {imageUrl && !imageFailed ? (
           <Image
             src={imageUrl}
@@ -124,7 +124,7 @@ export default function VendorCard({
         </span>
       </div>
 
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <div className="mb-1 flex items-start justify-between gap-2">
           <h3
             className="line-clamp-1 text-base font-semibold leading-tight text-[#0F172A]"
@@ -164,27 +164,27 @@ export default function VendorCard({
           {description}
         </p>
 
-        <div className="flex items-end justify-between gap-2 border-t border-gray-100 pt-3">
+        <div className="mt-auto border-t border-gray-100 pt-3">
           <div className="min-w-0">
             <p className="mb-0.5 text-[10px] font-medium text-gray-400">
               Service pricing
             </p>
 
             <p
-              className="line-clamp-1 text-sm font-bold text-[#0F172A]"
+              className="text-sm font-bold leading-tight text-[#0F172A]"
               title={priceDisplay}
             >
               {priceDisplay}
             </p>
           </div>
 
-          <div className="relative z-20 flex shrink-0 items-center gap-1.5">
+          <div className="relative z-20 mt-3 flex items-center gap-2">
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`WhatsApp about ${vendor.name}`}
-              className="rounded-lg bg-green-50 p-2 text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-50 text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
             >
               <FaWhatsapp
                 size={17}
@@ -195,7 +195,7 @@ export default function VendorCard({
             <button
               type="button"
               onClick={() => openVendorCallback(vendor)}
-              className="shrink-0 whitespace-nowrap rounded-lg bg-[#DCFCE7] px-3 py-2 text-xs font-semibold text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+              className="flex h-10 flex-1 items-center justify-center whitespace-nowrap rounded-lg bg-[#DCFCE7] px-3 text-xs font-semibold text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
               aria-label={`Request a callback for ${vendor.name}`}
             >
               Request Callback

@@ -1,18 +1,14 @@
 "use client";
 
 import {
+  useEffect,
   useState,
   type FormEvent,
   type KeyboardEvent,
 } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Building2,
-  ChevronDown,
-  MapPin,
-  Search,
-  Users,
-} from "lucide-react";
+import { Building2, MapPin, Search, ChevronDown, Users } from "lucide-react";
+import { getActivePropertyCities } from "@/lib/property-api";
 
 const heroStatistics = [
   {
@@ -29,171 +25,6 @@ const heroStatistics = [
   },
 ];
 
-const northIndianCities = [
-  "Delhi",
-  "Gurugram",
-  "Noida",
-  "Jaipur",
-  "Chandigarh",
-  "Lucknow",
-  "Agra",
-  "Dehradun",
-  "Haridwar",
-  "Rishikesh",
-  "Shimla",
-  "Manali",
-  "Amritsar",
-  "Ludhiana",
-  "Jammu",
-  "Srinagar",
-];
-
-const propertyTypeOptions = [
-  { label: "All Properties", value: "" },
-  { label: "Farmhouse", value: "FARMHOUSE" },
-  { label: "Villa", value: "VILLA" },
-  { label: "Wedding Lawn", value: "WEDDING_LAWN" },
-];
-
-const capacityOptions = [
-  { label: "Any Capacity", value: "" },
-  { label: "10+ Guests", value: "10" },
-  { label: "20+ Guests", value: "20" },
-  { label: "50+ Guests", value: "50" },
-  { label: "100+ Guests", value: "100" },
-  { label: "200+ Guests", value: "200" },
-  { label: "300+ Guests", value: "300" },
-  { label: "500+ Guests", value: "500" },
-  { label: "750+ Guests", value: "750" },
-  { label: "1000+ Guests", value: "1000" },
-];
-
-interface SearchDropdownProps {
-  id: string;
-  label: string;
-  value: string;
-  options: Array<{ label: string; value: string }>;
-  icon: React.ReactNode;
-  onChange: (value: string) => void;
-}
-
-function SearchDropdown({
-  id,
-  label,
-  value,
-  options,
-  icon,
-  onChange,
-}: SearchDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const selectedOption =
-    options.find((option) => option.value === value) ?? options[0];
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape") {
-      setIsOpen(false);
-      return;
-    }
-
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      event.preventDefault();
-      setIsOpen(true);
-      const optionButtons =
-        event.currentTarget.querySelectorAll<HTMLButtonElement>(
-          '[role="option"]',
-        );
-      const currentIndex = Array.from(optionButtons).indexOf(
-        document.activeElement as HTMLButtonElement,
-      );
-      const nextIndex =
-        event.key === "ArrowDown"
-          ? Math.min(currentIndex + 1, options.length - 1)
-          : Math.max(currentIndex - 1, 0);
-      optionButtons[nextIndex]?.focus();
-      return;
-    }
-
-    if (event.key === "Enter" && event.target === event.currentTarget) {
-      event.preventDefault();
-      setIsOpen((open) => !open);
-    }
-  };
-
-  return (
-    <div
-      className={`relative flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white px-4 py-3 text-left ${
-        isOpen ? "z-30" : ""
-      }`}
-      onBlur={(event) => {
-        if (
-          !(event.relatedTarget instanceof Node) ||
-          !event.currentTarget.contains(event.relatedTarget)
-        ) {
-          setIsOpen(false);
-        }
-      }}
-      onKeyDown={handleKeyDown}
-    >
-      {icon}
-      <div className="min-w-0 flex-1">
-        <span className="mb-0.5 block text-xs font-medium text-gray-400">
-          {label}
-        </span>
-        <button
-          id={id}
-          type="button"
-          role="combobox"
-          aria-haspopup="listbox"
-          aria-expanded={isOpen}
-          aria-controls={`${id}-options`}
-          onClick={() => setIsOpen((open) => !open)}
-          className="flex w-full items-center justify-between gap-2 bg-transparent text-left text-sm font-medium text-gray-800 outline-none"
-        >
-          <span className="truncate">{selectedOption.label}</span>
-          <ChevronDown
-            size={16}
-            className={`shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`}
-            aria-hidden="true"
-          />
-        </button>
-      </div>
-      {isOpen && (
-        <ul
-          id={`${id}-options`}
-          role="listbox"
-          aria-labelledby={id}
-          className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
-        >
-          {options.map((option) => {
-            const isSelected = option.value === value;
-
-            return (
-              <li key={option.value || "all"} role="presentation">
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={isSelected}
-                  onClick={() => {
-                    onChange(option.value);
-                    setIsOpen(false);
-                  }}
-                  className={`flex w-full items-center px-4 py-3 text-left text-sm font-medium transition-colors ${
-                    isSelected
-                      ? "bg-[#F0FDF4] text-[#1E8A32]"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 export default function HeroSection() {
   const router = useRouter();
 
@@ -201,25 +32,58 @@ export default function HeroSection() {
   const [propertyType, setPropertyType] = useState("");
   const [minimumCapacity, setMinimumCapacity] = useState("");
 
+  const [availableCities, setAvailableCities] =
+    useState<string[]>([]);
+
   const [isLocationFocused, setIsLocationFocused] =
     useState(false);
 
   const [highlightedCityIndex, setHighlightedCityIndex] =
     useState(0);
 
+  useEffect(() => {
+    const controller = new AbortController();
+
+    getActivePropertyCities(controller.signal)
+      .then((cities) => {
+        console.log("Loaded city suggestions:", cities);
+
+        if (!controller.signal.aborted) {
+          setAvailableCities(cities);
+        }
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        console.error(
+          "Unable to load city suggestions:",
+          error,
+        );
+      });
+
+    return () => controller.abort();
+  }, []);
+
   const normalizedLocationQuery = location
     .trim()
     .toLocaleLowerCase();
 
-  const matchingCities = normalizedLocationQuery
-    ? northIndianCities.filter((city) =>
-        city.toLocaleLowerCase().includes(normalizedLocationQuery),
-      )
-    : northIndianCities;
-  const citySuggestions = matchingCities.slice(
-    0,
-    normalizedLocationQuery ? 6 : 8,
-  );
+  const citySuggestions =
+    normalizedLocationQuery.length >= 2
+      ? availableCities
+          .filter((city) => {
+            const normalizedCity = city.toLocaleLowerCase();
+
+            return normalizedCity
+              .split(/[\s,./()-]+/)
+              .some((word) =>
+                word.startsWith(normalizedLocationQuery),
+              );
+          })
+          .slice(0, 6)
+      : [];
 
   const showCitySuggestions =
     isLocationFocused && citySuggestions.length > 0;
@@ -315,7 +179,7 @@ export default function HeroSection() {
   return (
     <section
       id="home"
-      className="relative flex min-h-screen items-center justify-center overflow-visible"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden"
     >
       {/* Background image */}
       <div
@@ -421,7 +285,7 @@ export default function HeroSection() {
                     setIsLocationFocused(true);
                   }}
                   onKeyDown={handleLocationKeyDown}
-                  placeholder="Where do you want to go?"
+                  placeholder="Search your preferred city"
                   autoComplete="off"
                   role="combobox"
                   aria-autocomplete="list"
@@ -440,7 +304,7 @@ export default function HeroSection() {
                   id="hero-city-suggestions"
                   role="listbox"
                   aria-label="Available cities"
-                  className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
+                  className="absolute left-0 right-0 top-[calc(100%+0.5rem)] overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
                 >
                   {citySuggestions.map((city, index) => {
                     const isActive = index === activeCityIndex;
@@ -478,39 +342,63 @@ export default function HeroSection() {
             <div className="my-2 hidden w-px bg-white/30 md:block" />
 
             {/* Property type field */}
-            <SearchDropdown
-              id="hero-property-type"
-              label="Property Type"
-              value={propertyType}
-              options={propertyTypeOptions}
-              onChange={setPropertyType}
-              icon={
-                <Building2
-                  size={20}
-                  className="shrink-0 text-[#2EAD45]"
-                  aria-hidden="true"
-                />
-              }
-            />
+            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white px-4 py-3 text-left">
+              <Building2
+                size={20}
+                className="shrink-0 text-[#2EAD45]"
+                aria-hidden="true"
+              />
+
+              <label className="min-w-0 flex-1">
+                <span className="mb-0.5 block text-xs font-medium text-gray-400">
+                  Property Type
+                </span>
+
+                <select
+                  value={propertyType}
+                  onChange={(event) => setPropertyType(event.target.value)}
+                  className="w-full cursor-pointer bg-transparent text-sm font-medium text-gray-800 outline-none"
+                >
+                  <option value="">All Properties</option>
+                  <option value="FARMHOUSE">Farmhouse</option>
+                  <option value="VILLA">Villa</option>
+                  <option value="WEDDING_LAWN">Wedding Lawn</option>
+                </select>
+              </label>
+            </div>
 
             {/* Desktop divider */}
             <div className="my-2 hidden w-px bg-white/30 md:block" />
 
             {/* Guest capacity field */}
-            <SearchDropdown
-              id="hero-minimum-capacity"
-              label="Minimum Capacity"
-              value={minimumCapacity}
-              options={capacityOptions}
-              onChange={setMinimumCapacity}
-              icon={
-                <Users
-                  size={20}
-                  className="shrink-0 text-[#2EAD45]"
-                  aria-hidden="true"
-                />
-              }
-            />
+            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white px-4 py-3 text-left">
+              <Users
+                size={20}
+                className="shrink-0 text-[#2EAD45]"
+                aria-hidden="true"
+              />
+
+              <label className="min-w-0 flex-1">
+                <span className="mb-0.5 block text-xs font-medium text-gray-400">
+                  Minimum Capacity
+                </span>
+
+                <select
+                  value={minimumCapacity}
+                  onChange={(event) => setMinimumCapacity(event.target.value)}
+                  className="w-full cursor-pointer bg-transparent text-sm font-medium text-gray-800 outline-none"
+                >
+                  <option value="">Any Capacity</option>
+                  <option value="50">50+ Guests</option>
+                  <option value="100">100+ Guests</option>
+                  <option value="200">200+ Guests</option>
+                  <option value="300">300+ Guests</option>
+                  <option value="500">500+ Guests</option>
+                  <option value="750">750+ Guests</option>
+                  <option value="1000">1000+ Guests</option>
+                </select>
+              </label>
+            </div>
 
             {/* Search button */}
             <button
