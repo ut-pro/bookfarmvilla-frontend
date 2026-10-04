@@ -51,6 +51,17 @@ function mapPropertyToCard(
     description: property.description?.trim() || undefined,
     location: property.address?.trim() || property.city,
     city: property.city,
+    latitude:
+      typeof property.latitude === "number" &&
+      Number.isFinite(property.latitude)
+        ? property.latitude
+        : null,
+
+    longitude:
+      typeof property.longitude === "number" &&
+      Number.isFinite(property.longitude)
+        ? property.longitude
+        : null,
     rating:
       typeof property.averageRating === "number"
         ? property.averageRating

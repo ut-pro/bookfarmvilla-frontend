@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
+import { useUserLocation } from "@/components/location/UserLocationContext";
+import { calculateDistanceInKm } from "@/lib/distance";
 import { useCallbackModal } from "@/components/callback/CallbackContext";
 import { getPropertyPriceDisplay } from "@/lib/formatters";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -40,6 +42,13 @@ export default function PropertyDetailsModal({
 }: PropertyDetailsModalProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const { openPropertyCallback } = useCallbackModal();
+
+  const { location: userLocation } =
+    useUserLocation();
+
+  const distanceKm = userLocation
+    ? calculateDistanceInKm(userLocation, property)
+    : undefined;
 
   const images =
     property.imageUrls && property.imageUrls.length > 0
@@ -200,6 +209,11 @@ export default function PropertyDetailsModal({
                 />
                 {property.location}
               </p>
+              {distanceKm !== undefined && (
+                <p className="mt-2 text-sm font-semibold text-[#1E8A32]">
+                  {distanceKm.toFixed(1)} km away from your location
+                </p>
+              )}
             </div>
 
             {typeof property.rating === "number" && (

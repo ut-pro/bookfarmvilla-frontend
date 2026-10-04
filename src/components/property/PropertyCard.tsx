@@ -11,6 +11,8 @@ import { FaWhatsapp } from "react-icons/fa";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
 import { usePropertyDetails } from "@/components/property/PropertyDetailsContext";
+import { useUserLocation } from "@/components/location/UserLocationContext";
+import { calculateDistanceInKm } from "@/lib/distance";
 import Rating from "@/components/ui/Rating";
 import { getPropertyPriceDisplay } from "@/lib/formatters";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -27,6 +29,13 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   const { openPropertyCallback } = useCallbackModal();
   const { openPropertyDetails } = usePropertyDetails();
+
+  const { location: userLocation } =
+    useUserLocation();
+
+  const distanceKm = userLocation
+    ? calculateDistanceInKm(userLocation, property)
+    : undefined;
 
   const priceDisplay = getPropertyPriceDisplay(
     property.startingPrice,
@@ -90,16 +99,24 @@ export default function PropertyCard({
           )}
         </div>
 
-        <div className="mb-3 flex items-center gap-1 text-xs text-gray-500">
-          <MapPin
-            size={12}
-            className="shrink-0"
-            aria-hidden="true"
-          />
+        <div className="mb-3">
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <MapPin
+              size={12}
+              className="shrink-0"
+              aria-hidden="true"
+            />
 
-          <span className="line-clamp-1">
-            {property.location}
-          </span>
+            <span className="line-clamp-1">
+              {property.location}
+            </span>
+          </div>
+
+          {distanceKm !== undefined && (
+            <p className="mt-1 text-xs font-medium text-[#1E8A32]">
+              {distanceKm.toFixed(1)} km away
+            </p>
+          )}
         </div>
 
         <div className="mb-4 flex min-h-10 flex-wrap items-start gap-x-3 gap-y-2 text-xs text-gray-600">

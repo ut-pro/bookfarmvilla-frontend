@@ -3,6 +3,8 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import AIAssistant from "@/components/ai/AIAssistant";
 import CallbackModal from "@/components/callback/CallbackModal";
+import { UserLocationProvider } from "@/components/location/UserLocationContext";
+import LocationPermissionPrompt from "@/components/location/LocationPermissionPrompt";
 import { CallbackProvider } from "@/components/callback/CallbackContext";
 import { PropertyDetailsProvider } from "@/components/property/PropertyDetailsContext";
 import { VendorDetailsProvider } from "@/components/vendor/VendorDetailsContext";
@@ -28,15 +30,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} antialiased`}>
-        <CallbackProvider>
-          <PropertyDetailsProvider>
-            <VendorDetailsProvider>
-              {children}
-              <CallbackModal />
-              <AIAssistant />
-            </VendorDetailsProvider>
-          </PropertyDetailsProvider>
-        </CallbackProvider>
+        <UserLocationProvider>
+          <CallbackProvider>
+            <PropertyDetailsProvider>
+              <VendorDetailsProvider>
+                {children}
+                <CallbackModal />
+                <LocationPermissionPrompt />
+                <AIAssistant />
+              </VendorDetailsProvider>
+            </PropertyDetailsProvider>
+          </CallbackProvider>
+        </UserLocationProvider>
       </body>
     </html>
   );

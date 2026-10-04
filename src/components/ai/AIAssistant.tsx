@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import AIPropertyCard, { AIProperty } from "./AIPropertyCard";
 import { getActiveProperties } from "@/lib/property-api";
+import { useUserLocation } from "@/components/location/UserLocationContext";
+import { calculateDistanceInKm } from "@/lib/distance";
 import VendorCard from "@/components/vendor/VendorCard";
 import type { PropertyType } from "@/types/property";
 import type { VendorCategory, VendorResponse } from "@/types/vendor";
@@ -55,31 +57,6 @@ function parseBudget(message: string): number | null {
   const amount = Number(match[1] ?? match[3]);
   const multiplier = match[2] ?? match[4];
   return Number.isFinite(amount) ? amount * (multiplier ? 1000 : 1) : null;
-}
-
-function distanceInKm(
-  from: { latitude: number; longitude: number },
-  to: { latitude?: number | null; longitude?: number | null },
-): number | undefined {
-  if (
-    typeof to.latitude !== "number" ||
-    typeof to.longitude !== "number" ||
-    !Number.isFinite(to.latitude) ||
-    !Number.isFinite(to.longitude)
-  ) {
-    return undefined;
-  }
-
-  const radians = (degrees: number) => (degrees * Math.PI) / 180;
-  const latitudeDifference = radians(to.latitude - from.latitude);
-  const longitudeDifference = radians(to.longitude - from.longitude);
-  const haversine =
-    Math.sin(latitudeDifference / 2) ** 2 +
-    Math.cos(radians(from.latitude)) *
-      Math.cos(radians(to.latitude)) *
-      Math.sin(longitudeDifference / 2) ** 2;
-
-  return 6371 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 }
 
 function toAIProperty(
@@ -179,6 +156,11 @@ function toVendorResponse(value: unknown): VendorResponse | null {
 
 export default function AIAssistant() {
   const pathname = usePathname();
+  const {
+    location,
+    locationError,
+    requestLocation,
+  } = useUserLocation();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -193,8 +175,7 @@ export default function AIAssistant() {
   const [vendors, setVendors] = useState<VendorResponse[]>([]);
   const [budget, setBudget] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [locationError, setLocationError] = useState<string | null>(null);
+  const [locationMessage, setLocationMessage] = useState<string | null>(null);
 
   const matchingProperties = useMemo(() => {
     const matchesBudget = (property: AIProperty) => {
@@ -213,7 +194,7 @@ export default function AIAssistant() {
     return filtered
       .map((property) => ({
         property,
-        distance: distanceInKm(location, property),
+        distance: calculateDistanceInKm(location, property),
       }))
       .sort((first, second) => {
         if (first.distance === undefined && second.distance === undefined) {
@@ -227,32 +208,6 @@ export default function AIAssistant() {
   }, [budget, location, properties, similarProperties]);
 
   const canSend = useMemo(() => input.trim().length > 0 && !loading, [input, loading]);
-
-  const requestLocation = (): Promise<{ latitude: number; longitude: number } | null> => {
-    if (!navigator.geolocation) {
-      setLocationError("Your browser does not support location access.");
-      return Promise.resolve(null);
-    }
-
-    return new Promise((resolve) => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          };
-          setLocation(coords);
-          setLocationError(null);
-          resolve(coords);
-        },
-        () => {
-          setLocationError("Please allow location access, or search by city/area.");
-          resolve(null);
-        },
-        { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 },
-      );
-    });
-  };
 
   const sendMessage = async (messageOverride?: string, locationOverride?: { latitude: number; longitude: number } | null) => {
     const message = (messageOverride ?? input).trim();
@@ -357,9 +312,9 @@ export default function AIAssistant() {
         { role: "assistant", content: assistantMessage },
       ]);
 
-      if (data.locationMessage) {
-        setLocationError(data.locationMessage);
-      }
+      setLocationMessage(
+        data.locationMessage ?? null,
+      );
     } catch (error) {
       setMessages((current) => [
         ...current,
@@ -468,7 +423,7 @@ export default function AIAssistant() {
                       property={property}
                       distanceKm={
                         location
-                          ? distanceInKm(location, property)
+                          ? calculateDistanceInKm(location, property)
                           : undefined
                       }
                     />
@@ -497,7 +452,7 @@ export default function AIAssistant() {
               )}
             </div>
 
-            {locationError && (
+            {(locationError || locationMessage) && (
               <div className="border-t border-amber-100 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800">
                 <div className="flex items-start gap-2">
                   <MapPin size={14} className="mt-0.5 shrink-0" />
