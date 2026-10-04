@@ -1,9 +1,17 @@
 "use client";
 import { API_BASE_URL } from "@/lib/api-config";
 
-import { FormEvent, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { usePathname } from "next/navigation";
 import {
+  ArrowDown,
   Bot,
   LocateFixed,
   MapPin,
@@ -176,6 +184,15 @@ export default function AIAssistant() {
   const [budget, setBudget] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
+  
+  const chatScrollRef =
+   useRef<HTMLDivElement>(null);
+
+  const autoScrollToLatestRef =
+   useRef(false);
+
+  const [showScrollToLatest, setShowScrollToLatest] =
+   useState(false);
 
   const matchingProperties = useMemo(() => {
     const matchesBudget = (property: AIProperty) => {
@@ -209,9 +226,74 @@ export default function AIAssistant() {
 
   const canSend = useMemo(() => input.trim().length > 0 && !loading, [input, loading]);
 
+  const updateScrollToLatestVisibility =
+    useCallback(() => {
+      const scrollContainer = chatScrollRef.current;
+
+      if (!scrollContainer) {
+        return;
+      }
+
+      const distanceFromBottom =
+        scrollContainer.scrollHeight -
+        scrollContainer.scrollTop -
+        scrollContainer.clientHeight;
+
+      setShowScrollToLatest(
+        distanceFromBottom > 120,
+      );
+    }, []);
+
+  const scrollToLatest = useCallback(() => {
+    const scrollContainer = chatScrollRef.current;
+
+    if (!scrollContainer) {
+      return;
+    }
+
+    scrollContainer.scrollTo({
+      top: scrollContainer.scrollHeight,
+      behavior: "smooth",
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const animationFrame =
+      window.requestAnimationFrame(() => {
+        if (autoScrollToLatestRef.current) {
+          scrollToLatest();
+
+          if (!loading) {
+            autoScrollToLatestRef.current = false;
+          }
+
+          return;
+        }
+
+        updateScrollToLatestVisibility();
+      });
+
+    return () =>
+      window.cancelAnimationFrame(animationFrame);
+  }, [
+    loading,
+    matchingProperties.length,
+    messages,
+    open,
+    scrollToLatest,
+    updateScrollToLatestVisibility,
+    vendors.length,
+  ]);
+
   const sendMessage = async (messageOverride?: string, locationOverride?: { latitude: number; longitude: number } | null) => {
     const message = (messageOverride ?? input).trim();
     if (!message || loading) return;
+
+    autoScrollToLatestRef.current = true;
 
     const nextMessages = [...messages, { role: "user" as const, content: message }];
     setMessages(nextMessages);
@@ -386,72 +468,91 @@ export default function AIAssistant() {
           </header>
 
           <div className="flex min-h-0 flex-1 flex-col">
-            <div className="scrollbar-hide flex-1 space-y-3 overflow-y-auto bg-[#F8FAFC] p-3.5">
-              {messages.map((message, index) => (
-                <div
-                  key={`${message.role}-${index}`}
-                  className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                >
+            <div className="relative min-h-0 flex-1">
+              <div
+                ref={chatScrollRef}
+                onScroll={updateScrollToLatestVisibility}
+                className="scrollbar-hide h-full space-y-3 overflow-y-auto bg-[#F8FAFC] p-3.5"
+              >
+                {messages.map((message, index) => (
                   <div
-                    className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                      message.role === "user"
-                        ? "rounded-br-md bg-[#2EAD45] text-white"
-                        : "rounded-bl-md border border-gray-100 bg-white text-[#0F172A] shadow-sm"
-                    }`}
+                    key={`${message.role}-${index}`}
+                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    {message.content}
+                    <div
+                      className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                        message.role === "user"
+                          ? "rounded-br-md bg-[#2EAD45] text-white"
+                          : "rounded-bl-md border border-gray-100 bg-white text-[#0F172A] shadow-sm"
+                      }`}
+                    >
+                      {message.content}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
-              {loading && (
-                <div className="flex justify-start">
-                  <div className="rounded-2xl rounded-bl-md bg-white px-4 py-3 text-xs text-gray-500 shadow-sm">
-                    AI is checking verified listings…
+                {loading && (
+                  <div className="flex justify-start">
+                    <div className="rounded-2xl rounded-bl-md bg-white px-4 py-3 text-xs text-gray-500 shadow-sm">
+                      AI is checking verified listings…
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {matchingProperties.length > 0 && (
-                <div className="space-y-2.5 pt-1">
-                  <p className="px-1 text-xs font-semibold uppercase tracking-wider text-[#2EAD45]">
-                    {properties.length > 0 ? "Matching properties" : "Similar properties you may like"}
+                {matchingProperties.length > 0 && (
+                  <div className="space-y-2.5 pt-1">
+                    <p className="px-1 text-xs font-semibold uppercase tracking-wider text-[#2EAD45]">
+                      {properties.length > 0 ? "Matching properties" : "Similar properties you may like"}
+                    </p>
+                    {matchingProperties.map((property) => (
+                      <AIPropertyCard
+                        key={property.id}
+                        property={property}
+                        distanceKm={
+                          location
+                            ? calculateDistanceInKm(location, property)
+                            : undefined
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
+                {properties.length > 0 && matchingProperties.length === 0 && budget !== null && (
+                  <p className="rounded-xl bg-white p-3 text-xs text-gray-600 shadow-sm">
+                    Here are some similar options to explore. Your budget was{" "}
+                    {new Intl.NumberFormat("en-IN", {
+                      style: "currency",
+                      currency: "INR",
+                      maximumFractionDigits: 0,
+                    }).format(budget)}.
                   </p>
-                  {matchingProperties.map((property) => (
-                    <AIPropertyCard
-                      key={property.id}
-                      property={property}
-                      distanceKm={
-                        location
-                          ? calculateDistanceInKm(location, property)
-                          : undefined
-                      }
-                    />
-                  ))}
-                </div>
-              )}
-              {properties.length > 0 && matchingProperties.length === 0 && budget !== null && (
-                <p className="rounded-xl bg-white p-3 text-xs text-gray-600 shadow-sm">
-                  Here are some similar options to explore. Your budget was{" "}
-                  {new Intl.NumberFormat("en-IN", {
-                    style: "currency",
-                    currency: "INR",
-                    maximumFractionDigits: 0,
-                  }).format(budget)}.
-                </p>
-              )}
-              {vendors.length > 0 && (
-                <div className="space-y-2.5 pt-1">
-                  <p className="px-1 text-xs font-semibold uppercase tracking-wider text-[#2EAD45]">
-                    Recommended vendors
-                  </p>
-                  {vendors.map((vendor) => (
-                    <AIVendorCard
-                      key={vendor.id}
-                      vendor={vendor}
-                    />
-                  ))}
-                </div>
+                )}
+                {vendors.length > 0 && (
+                  <div className="space-y-2.5 pt-1">
+                    <p className="px-1 text-xs font-semibold uppercase tracking-wider text-[#2EAD45]">
+                      Recommended vendors
+                    </p>
+                    {vendors.map((vendor) => (
+                      <AIVendorCard
+                        key={vendor.id}
+                        vendor={vendor}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {showScrollToLatest && (
+                <button
+                  type="button"
+                  onClick={scrollToLatest}
+                  className="absolute bottom-4 left-1/2 z-20 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-green-600 bg-[#2EAD45] text-white shadow-lg shadow-green-900/25 transition-all hover:scale-105 hover:bg-[#1E8A32] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2EAD45] focus-visible:ring-offset-2"
+                >
+                  <ArrowDown
+                    size={19}
+                    aria-hidden="true"
+                  />
+                </button>
               )}
             </div>
 
@@ -459,7 +560,9 @@ export default function AIAssistant() {
               <div className="border-t border-amber-100 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800">
                 <div className="flex items-start gap-2">
                   <MapPin size={14} className="mt-0.5 shrink-0" />
-                  <span>{locationError}</span>
+                  <span>
+                    {locationError || locationMessage}
+                  </span>
                 </div>
               </div>
             )}
