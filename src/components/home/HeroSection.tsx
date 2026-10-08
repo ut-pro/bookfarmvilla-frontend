@@ -225,8 +225,7 @@ export default function HeroSection() {
 
         {/* Description */}
         <p className="mb-12 max-w-2xl text-base leading-relaxed text-white/80 md:text-xl">
-          Discover unforgettable experiences with BookFarmVilla and connect
-          with our experts to find the perfect venue for your occasion.
+          Discover farmhouses, villas and wedding venues for your next event. Explore properties on BookFarmVilla and connect with our experts for assistance.
         </p>
 
         {/* Platform statistics */}

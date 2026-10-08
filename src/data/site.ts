@@ -5,9 +5,10 @@ export const siteConfig = {
     "A farmhouse, villa and wedding venue discovery platform that helps guests explore properties and connect with booking experts.",
 
   contact: {
-    location: "Business location to be added",
+    location:
+      "3rd floor, ND Tower, near Rampura Chowk, Rampura, Sector 82A, Gurugram, Haryana 122012, India",
     phone: "+91 87663 67427",
-    email: "contact@yourdomain.com",
-    isPlaceholder: true,
+    email: "info@bookfarmvilla.com",
+    isPlaceholder: false,
   },
 };

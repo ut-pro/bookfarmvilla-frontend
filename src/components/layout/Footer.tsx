@@ -123,6 +123,13 @@ const socialItems: SocialItem[] = [
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
+  const phoneHref = `tel:${siteConfig.contact.phone.replace(
+    /[^\d+]/g,
+    "",
+  )}`;
+
+  const emailHref = `mailto:${siteConfig.contact.email}`;
+
   return (
     <footer
       id="contact"
@@ -181,7 +188,13 @@ export default function Footer() {
                   aria-hidden="true"
                 />
 
-                <span>{siteConfig.contact.phone}</span>
+                <a
+                  href={phoneHref}
+                  className="transition-colors hover:text-[#4CAF50] focus:outline-none focus-visible:text-[#4CAF50]"
+                  aria-label={`Call ${siteConfig.contact.phone}`}
+                >
+                  {siteConfig.contact.phone}
+                </a>
               </div>
 
               <div className="flex items-center gap-2">
@@ -191,7 +204,13 @@ export default function Footer() {
                   aria-hidden="true"
                 />
 
-                <span>{siteConfig.contact.email}</span>
+                <a
+                  href={emailHref}
+                  className="break-all transition-colors hover:text-[#4CAF50] focus:outline-none focus-visible:text-[#4CAF50]"
+                  aria-label={`Email ${siteConfig.contact.email}`}
+                >
+                  {siteConfig.contact.email}
+                </a>
               </div>
             </address>
 

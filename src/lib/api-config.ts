@@ -1,5 +1,5 @@
 const DEFAULT_API_BASE_URL =
-  "https://book-farm-villa-be.onrender.com";
+  "https://api.bookfarmvilla.com";
 
 export const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ||
