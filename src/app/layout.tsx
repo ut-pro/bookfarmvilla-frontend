@@ -17,9 +17,13 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.bookfarmvilla.com"),
   title: "BookFarmVilla | Farmhouses, Villas & Wedding Venues",
   description:
     "Discover premium farmhouses, luxury villas and beautiful wedding venues for your special occasions.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({

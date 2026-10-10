@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   title: "About Us | BookFarmVilla",
   description:
     "Learn how BookFarmVilla makes venue and event-service discovery simple, convenient and hassle-free.",
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 interface InformationCard {

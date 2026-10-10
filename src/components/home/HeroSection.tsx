@@ -217,10 +217,7 @@ export default function HeroSection() {
             fontSize: "clamp(36px, 5vw, 64px)",
           }}
         >
-          Find The Perfect{" "}
-          <span className="text-[#4CAF50]">Farmhouse, Villa</span>
-          <br className="hidden sm:block" />
-          {" "}& Wedding Venue
+          Find The Perfect Farmhouse, Villa & Wedding Lawn
         </h1>
 
         {/* Description */}

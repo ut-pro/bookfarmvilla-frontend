@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   title: "Cookie Policy | BookFarmVilla",
   description:
     "Learn how BookFarmVilla may use cookies and similar technologies, the types of cookies involved, and how you can manage your preferences.",
+  alternates: {
+    canonical: "/cookie-policy",
+  },
 };
 
 interface PolicyNavigationItem {

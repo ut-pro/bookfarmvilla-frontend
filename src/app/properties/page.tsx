@@ -1,11 +1,19 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import JsonLd from "@/components/seo/JsonLd";
+import {
+  getPropertySocialImage,
+  getSeoProperties,
+} from "@/lib/seo-listings";
 import PropertyListingResults from "@/components/property/PropertyListingResults";
 import type {
   PropertyType,
 } from "@/types/property";
+
+const SITE_URL = "https://www.bookfarmvilla.com";
 
 interface PropertiesPageProps {
   searchParams: Promise<{
@@ -20,18 +28,19 @@ const propertyTypeDetails: Record<
   { title: string; description: string }
 > = {
   FARMHOUSE: {
-    title: "All Farmhouses",
+    title: "Farmhouses for Rent",
     description:
-      "Explore active farmhouses available on BookFarmVilla.",
+      "Find farmhouses for rent and booking with guest capacity, amenities, location and pricing details, ideal for parties, family celebrations and private events.",
   },
   VILLA: {
-    title: "All Villas",
-    description: "Explore active villas available on BookFarmVilla.",
+    title: "Villas for Rent",
+    description:
+      "Discover villas for rent and booking with guest capacity, amenities, location and pricing details for private stays, parties, family celebrations and events.",
   },
   WEDDING_LAWN: {
-    title: "All Wedding Lawns",
+    title: "Wedding Lawns & Venues",
     description:
-      "Explore active wedding lawns available on BookFarmVilla.",
+      "Explore wedding lawns and venues for ceremonies, receptions and celebrations, with capacity, amenities, location and pricing details to help plan your event.",
   },
 };
 
@@ -58,6 +67,56 @@ function getValidPropertyType(
   }
 
   return undefined;
+}
+
+export async function generateMetadata({
+  searchParams,
+}: PropertiesPageProps): Promise<Metadata> {
+  const { type, city, minCapacity } = await searchParams;
+  const selectedType = getValidPropertyType(type);
+  const pageContent = selectedType
+    ? propertyTypeDetails[selectedType]
+    : {
+        title: "Properties for Rent",
+        description:
+          "Browse farmhouses, villas and wedding lawns for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next event.",
+      };
+  const canonical = selectedType
+    ? `/properties?type=${selectedType}`
+    : "/properties";
+  const properties = await getSeoProperties(
+    selectedType,
+    getSingleSearchParam(city).trim() || undefined,
+    getValidMinimumCapacity(minCapacity),
+  );
+  const socialImage = getPropertySocialImage(properties);
+
+  return {
+    title: selectedType
+      ? `${pageContent.title} | BookFarmVilla`
+      : `Properties for Rent | BookFarmVilla`,
+    description: pageContent.description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      type: "website",
+      title: selectedType
+        ? `${pageContent.title} | BookFarmVilla`
+        : `Properties for Rent | BookFarmVilla`,
+      description: pageContent.description,
+      url: `${SITE_URL}${canonical}`,
+      images: [{ url: socialImage, alt: pageContent.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: selectedType
+        ? `${pageContent.title} | BookFarmVilla`
+        : `Properties for Rent | BookFarmVilla`,
+      description: pageContent.description,
+      images: [socialImage],
+    },
+  };
 }
 
 function getSingleSearchParam(
@@ -105,17 +164,76 @@ export default async function PropertiesPage({
   const pageContent = selectedType
     ? propertyTypeDetails[selectedType]
     : {
-        title: "All Properties",
+        title: "Properties for Rent",
         description:
-          "Explore active farmhouses, villas and wedding lawns available on BookFarmVilla.",
+          "Browse farmhouses, villas and wedding lawns for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next event.",
       };
 
   const resultTitle = selectedCity
-  ? `${pageContent.title} in ${selectedCity}`
-  : pageContent.title;
+    ? `${pageContent.title} in ${selectedCity}`
+    : pageContent.title;
+  const properties = await getSeoProperties(
+    selectedType,
+    selectedCity || undefined,
+    selectedMinimumCapacity,
+  );
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: pageContent.title,
+          itemListElement: properties.map((property, index) => {
+            const item: Record<string, unknown> = {
+              "@type": "Place",
+              name: property.name,
+              description:
+                property.description ??
+                `${property.name} is a ${property.type
+                  .toLowerCase()
+                  .replace("_", " ")} in ${property.city ?? property.location}.`,
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: property.city ?? property.location,
+                ...(property.location !== property.city
+                  ? { streetAddress: property.location }
+                  : {}),
+              },
+              additionalProperty: [
+                ...(property.guestCapacity > 0
+                  ? [
+                      {
+                        "@type": "PropertyValue",
+                        name: "Guest capacity",
+                        value: property.guestCapacity,
+                      },
+                    ]
+                  : []),
+                ...(property.amenities ?? []).map((amenity) => ({
+                  "@type": "PropertyValue",
+                  name: "Amenity",
+                  value: amenity,
+                })),
+              ],
+            };
+
+            if (
+              property.imageUrl !==
+              "/images/property-placeholder.svg"
+            ) {
+              item.image = property.imageUrl;
+            }
+
+            return {
+              "@type": "ListItem",
+              position: index + 1,
+              item,
+            };
+          }),
+        }}
+      />
       <Header />
 
       <main className="min-h-screen bg-[#F8FAFC] pb-20 pt-28">

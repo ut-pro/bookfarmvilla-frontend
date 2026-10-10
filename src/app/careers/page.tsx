@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   title: "Careers at BookFarmVilla | Build, Learn & Grow With Us",
   description:
     "Explore remote unpaid internship and volunteer opportunities with BookFarmVilla in partner acquisition, lead generation, business development, and operations.",
+  alternates: {
+    canonical: "/careers",
+  },
 };
 
 interface Opportunity {

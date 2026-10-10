@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   title: "Privacy Policy | BookFarmVilla",
   description:
     "Read the BookFarmVilla Privacy Policy to understand how information is collected, used, stored, shared, and protected.",
+  alternates: {
+    canonical: "/privacy-policy",
+  },
 };
 
 interface PolicyNavigationItem {

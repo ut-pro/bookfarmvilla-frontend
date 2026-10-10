@@ -1,17 +1,68 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import JsonLd from "@/components/seo/JsonLd";
+import {
+  getSeoVendors,
+  getVendorSocialImage,
+} from "@/lib/seo-listings";
 import VendorListingResults from "@/components/vendor/VendorListingResults";
 import type {
   VendorCategoryFilter,
 } from "@/types/vendor";
+
+const SITE_URL = "https://www.bookfarmvilla.com";
 
 interface VendorsPageProps {
   searchParams: Promise<{
     category?: string | string[];
   }>;
 }
+
+export async function generateMetadata({
+  searchParams,
+}: VendorsPageProps): Promise<Metadata> {
+  const { category } = await searchParams;
+  const selectedCategory = getValidCategory(category);
+  const pageContent = selectedCategory
+    ? categoryDetails[selectedCategory]
+    : generalVendorDetails;
+  const canonical = selectedCategory
+    ? `/vendors?category=${selectedCategory}`
+    : "/vendors";
+  const vendors = await getSeoVendors(selectedCategory);
+  const socialImage = getVendorSocialImage(vendors);
+  const title = `${pageContent.title} | BookFarmVilla`;
+
+  return {
+    title,
+    description: pageContent.description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      type: "website",
+      title,
+      description: pageContent.description,
+      url: `${SITE_URL}${canonical}`,
+      images: [{ url: socialImage, alt: pageContent.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: pageContent.description,
+      images: [socialImage],
+    },
+  };
+}
+
+const generalVendorDetails = {
+  title: "Event Vendors & Services",
+  description:
+    "Find trusted vendors for weddings, parties and celebrations. Explore caterers, photographers, DJs, decorators and services in your city on BookFarmVilla.",
+};
 
 const categoryDetails: Record<
   VendorCategoryFilter,
@@ -21,29 +72,29 @@ const categoryDetails: Record<
   }
 > = {
   CATERER: {
-    title: "Catering Services",
+    title: "Wedding & Event Caterers",
     description:
-      "Explore active catering service providers available on BookFarmVilla.",
+      "Discover wedding and event caterers. Compare service details, locations, images and ratings, then enquire with BookFarmVilla online for your next event.",
   },
   PHOTOGRAPHER: {
-    title: "Photography Services",
+    title: "Wedding & Event Photographers",
     description:
-      "Explore active photographers available for weddings and events.",
+      "Find wedding and event photographers for your celebration. Compare services, locations, images and ratings, then enquire with BookFarmVilla near you today.",
   },
   DJ: {
-    title: "DJ & Entertainment Services",
+    title: "Wedding & Event DJs",
     description:
-      "Explore active DJs and entertainment service providers for your event.",
+      "Find DJs and entertainment for weddings, parties and celebrations. Compare service details, locations, images and ratings, then enquire with BookFarmVilla.",
   },
   DECORATOR: {
-    title: "Decoration Services",
+    title: "Wedding & Event Decorators",
     description:
-      "Explore active decoration service providers for weddings and events.",
+      "Discover wedding and event decorators for ceremonies, receptions and parties. Compare provider details, locations and images, then enquire with BookFarmVilla.",
   },
   OTHER_SERVICES: {
-    title: "Other Event Services",
+    title: "Makeup Artists & Event Services",
     description:
-      "Explore active makeup artists and other event service providers.",
+      "Explore makeup artists and other event services for weddings and celebrations. Compare provider details, locations and images, then enquire with BookFarmVilla.",
   },
 };
 
@@ -104,14 +155,43 @@ export default async function VendorsPage({
 
   const pageContent = selectedCategory
     ? categoryDetails[selectedCategory]
-    : {
-        title: "Event Vendors & Services",
-        description:
-          "Explore active event service providers available on BookFarmVilla.",
-      };
+    : generalVendorDetails;
+  const vendors = await getSeoVendors(selectedCategory);
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: pageContent.title,
+          itemListElement: vendors.map((vendor, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            item: {
+              "@type": "LocalBusiness",
+              name: vendor.name,
+              description:
+                vendor.description?.trim() ||
+                `${vendor.name} provides event services in ${vendor.city}.`,
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: vendor.city,
+              },
+              ...(vendor.priceRange
+                ? { priceRange: vendor.priceRange }
+                : {}),
+              ...(vendor.images?.length
+                ? {
+                    image: vendor.images
+                      .map((image) => image.url?.trim())
+                      .filter(Boolean),
+                  }
+                : {}),
+            },
+          })),
+        }}
+      />
       <Header />
 
       <main className="min-h-screen bg-[#F8FAFC] pb-20 pt-28">

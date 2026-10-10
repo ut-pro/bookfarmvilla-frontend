@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "Terms & Conditions | BookFarmVilla",
   description:
     "Read the Terms & Conditions governing access to and use of the BookFarmVilla platform and related services.",
+  alternates: {
+    canonical: "/terms-and-conditions",
+  },
 };
 
 interface CancellationRow {

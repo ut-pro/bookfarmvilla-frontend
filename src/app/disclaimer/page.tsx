@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Platform Disclaimer | BookFarmVilla",
   description:
     "Read the BookFarmVilla Platform Disclaimer covering listings, availability, pricing, bookings, Partners, and third-party services.",
+  alternates: {
+    canonical: "/disclaimer",
+  },
 };
 
 interface DisclaimerSection {
