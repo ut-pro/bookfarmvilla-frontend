@@ -2,7 +2,7 @@
 
 import { useRef, useState, type ChangeEvent } from "react";
 import { LoaderCircle, Trash2, Upload } from "lucide-react";
-import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import { uploadMediaToCloudinary } from "@/lib/cloudinary";
 import { parseImageUrls } from "@/lib/image-urls";
 
 interface ImageUrlFieldProps {
@@ -37,7 +37,7 @@ export default function ImageUrlField({
           `Uploading ${index + 1} of ${files.length}: ${file.name} (0%)`,
         );
         try {
-          const url = await uploadImageToCloudinary(file, (percentage) => {
+          const url = await uploadMediaToCloudinary(file, (percentage) => {
             setUploadProgress(
               `Uploading ${index + 1} of ${files.length}: ${file.name} (${percentage}%)`,
             );
@@ -83,14 +83,14 @@ export default function ImageUrlField({
           className="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-violet-500"
         />
         <p className="mt-1 text-xs text-gray-500">
-          You can paste multiple links or upload images below.
+          You can paste multiple links or upload images and videos below.
         </p>
       </div>
 
       <input
         ref={fileInput}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime,.jpg,.jpeg,.png,.webp,.mp4,.webm,.mov"
         multiple
         className="hidden"
         onChange={handleFiles}
@@ -107,7 +107,7 @@ export default function ImageUrlField({
         ) : (
           <Upload size={16} />
         )}
-        {uploading ? uploadProgress : "Upload images to Cloudinary"}
+        {uploading ? uploadProgress : "Upload images or videos to Cloudinary"}
       </button>
 
       {uploadError && (

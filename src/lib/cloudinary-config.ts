@@ -12,3 +12,11 @@ export const CLOUDINARY_ALLOWED_IMAGE_TYPES = [
 ] as const;
 
 export const CLOUDINARY_MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+
+export const CLOUDINARY_ALLOWED_VIDEO_TYPES = [
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+] as const;
+
+export const CLOUDINARY_MAX_VIDEO_SIZE_BYTES = 100 * 1024 * 1024;
