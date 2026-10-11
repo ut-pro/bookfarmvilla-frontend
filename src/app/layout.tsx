@@ -6,8 +6,6 @@ import CallbackModal from "@/components/callback/CallbackModal";
 import { UserLocationProvider } from "@/components/location/UserLocationContext";
 import LocationPermissionPrompt from "@/components/location/LocationPermissionPrompt";
 import { CallbackProvider } from "@/components/callback/CallbackContext";
-import { PropertyDetailsProvider } from "@/components/property/PropertyDetailsContext";
-import { VendorDetailsProvider } from "@/components/vendor/VendorDetailsContext";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -36,14 +34,10 @@ export default function RootLayout({
       <body className={`${poppins.variable} antialiased`}>
         <UserLocationProvider>
           <CallbackProvider>
-            <PropertyDetailsProvider>
-              <VendorDetailsProvider>
-                {children}
-                <CallbackModal />
-                <LocationPermissionPrompt />
-                <AIAssistant />
-              </VendorDetailsProvider>
-            </PropertyDetailsProvider>
+            {children}
+            <CallbackModal />
+            <LocationPermissionPrompt />
+            <AIAssistant />
           </CallbackProvider>
         </UserLocationProvider>
       </body>

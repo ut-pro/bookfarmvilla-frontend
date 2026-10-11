@@ -6,16 +6,23 @@ import { API_BASE_URL } from "@/lib/api-config";
 
 import type {
   VendorPageResponse,
+  VendorResponse,
   VendorSearchParams,
 } from "@/types/vendor";
 
 export class PublicApiError extends Error {
   fieldErrors?: Record<string, string>;
+  status?: number;
 
-  constructor(message: string, fieldErrors?: Record<string, string>) {
+  constructor(
+    message: string,
+    fieldErrors?: Record<string, string>,
+    status?: number,
+  ) {
     super(message);
     this.name = "PublicApiError";
     this.fieldErrors = fieldErrors;
+    this.status = status;
   }
 }
 
@@ -33,7 +40,11 @@ async function publicGet<T>(
 
   if (!response.ok) {
     const message = data?.message ?? "Unable to load data right now.";
-    throw new PublicApiError(message, data?.fieldErrors);
+    throw new PublicApiError(
+      message,
+      data?.fieldErrors,
+      response.status,
+    );
   }
 
   return data as T;
@@ -51,7 +62,11 @@ async function publicPost<T>(path: string, body: unknown): Promise<T> {
 
   if (!response.ok) {
     const message = data?.message ?? "Something went wrong. Please try again.";
-    throw new PublicApiError(message, data?.fieldErrors);
+    throw new PublicApiError(
+      message,
+      data?.fieldErrors,
+      response.status,
+    );
   }
 
   return data as T;
@@ -118,4 +133,35 @@ export async function getActiveVendors(
     `/api/vendors?${searchParams.toString()}`,
     signal,
   );
+}
+
+export async function getVendorById(
+  vendorId: string,
+  signal?: AbortSignal,
+): Promise<VendorResponse | null> {
+  const normalizedId = vendorId.trim();
+
+  if (!normalizedId) {
+    return null;
+  }
+
+  try {
+    const vendor = await publicGet<VendorResponse>(
+      `/api/vendors/${encodeURIComponent(normalizedId)}`,
+      signal,
+    );
+
+    return vendor.status === "ACTIVE"
+      ? vendor
+      : null;
+  } catch (error) {
+    if (
+      error instanceof PublicApiError &&
+      error.status === 404
+    ) {
+      return null;
+    }
+
+    throw error;
+  }
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   BriefcaseBusiness,
   MapPin,
@@ -10,7 +11,6 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
-import { useVendorDetails } from "@/components/vendor/VendorDetailsContext";
 import { getVendorPriceDisplay } from "@/lib/formatters";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type {
@@ -66,7 +66,6 @@ export default function VendorCard({
   vendor: VendorResponse;
 }) {
   const { openVendorCallback } = useCallbackModal();
-  const { openVendorDetails } = useVendorDetails();
   const [imageFailed, setImageFailed] = useState(false);
 
   const imageUrl = getPrimaryVendorImage(vendor);
@@ -88,11 +87,14 @@ export default function VendorCard({
 
   return (
     <article className="group relative flex h-full w-[300px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl md:w-auto">
-      <button
-        type="button"
-        onClick={() => openVendorDetails(vendor)}
+      <Link
+        href={`/vendors/${encodeURIComponent(
+          vendor.id,
+        )}`}
+        target="_blank"
+        rel="noopener noreferrer"
         className="absolute inset-0 z-10 cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2EAD45] focus-visible:ring-inset"
-        aria-label={`View details for ${vendor.name}`}
+        aria-label={`Open details for ${vendor.name} in a new tab`}
       />
       <div className="relative h-[200px] shrink-0 overflow-hidden bg-[#F0FDF4]">
         {imageUrl && !imageFailed ? (

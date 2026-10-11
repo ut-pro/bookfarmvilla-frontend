@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   BriefcaseBusiness,
   Eye,
@@ -10,7 +11,6 @@ import {
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
-import { useVendorDetails } from "@/components/vendor/VendorDetailsContext";
 import { getVendorPriceDisplay } from "@/lib/formatters";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type {
@@ -71,7 +71,6 @@ export default function AIVendorCard({
   vendor,
   distanceKm,
 }: AIVendorCardProps) {
-  const { openVendorDetails } = useVendorDetails();
 
   const [imageFailed, setImageFailed] =
     useState(false);
@@ -202,15 +201,18 @@ export default function AIVendorCard({
               />
             </a>
 
-            <button
-              type="button"
-              onClick={() => openVendorDetails(vendor)}
+            <Link
+              href={`/vendors/${encodeURIComponent(
+                vendor.id,
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1 rounded-lg bg-[#2EAD45] px-3 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-[#1E8A32]"
-              aria-label={`View details for ${vendor.name}`}
+              aria-label={`Open details for ${vendor.name} in a new tab`}
             >
               <Eye size={13} aria-hidden="true" />
               View
-            </button>
+            </Link>
           </div>
         </div>
       </div>

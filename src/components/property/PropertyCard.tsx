@@ -1,16 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import {
   BedDouble,
   MapPin,
   Users,
-  Waves,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa";
+import AmenityIcon from "@/components/ui/AmenityIcon";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
-import { usePropertyDetails } from "@/components/property/PropertyDetailsContext";
 import { useUserLocation } from "@/components/location/UserLocationContext";
 import { calculateDistanceInKm } from "@/lib/distance";
 import Rating from "@/components/ui/Rating";
@@ -28,7 +28,6 @@ export default function PropertyCard({
   onRequestCallback,
 }: PropertyCardProps) {
   const { openPropertyCallback } = useCallbackModal();
-  const { openPropertyDetails } = usePropertyDetails();
 
   const { location: userLocation } =
     useUserLocation();
@@ -47,6 +46,20 @@ export default function PropertyCard({
     `Hi BookFarmVilla team, I am interested in ${property.name}. Please share its availability and enquiry details.`,
   );
 
+  const availableAmenities =
+    property.amenities
+      ?.map((amenity) => amenity.trim())
+      .filter(Boolean) ?? [];
+
+  const visibleAmenities =
+    availableAmenities.slice(0, 2);
+
+  const remainingAmenityCount = Math.max(
+    availableAmenities.length -
+      visibleAmenities.length,
+    0,
+  );
+
   const handleRequestCallback = () => {
     if (onRequestCallback) {
       onRequestCallback(property);
@@ -58,11 +71,14 @@ export default function PropertyCard({
 
   return (
     <article className="group relative flex h-full w-[300px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl md:w-auto">
-      <button
-        type="button"
-        onClick={() => openPropertyDetails(property)}
+      <Link
+        href={`/properties/${encodeURIComponent(
+          property.id,
+        )}`}
+        target="_blank"
+        rel="noopener noreferrer"
         className="absolute inset-0 z-10 cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2EAD45] focus-visible:ring-inset"
-        aria-label={`View details for ${property.name}`}
+        aria-label={`Open details for ${property.name} in a new tab`}
       />
 
       <div className="relative h-[200px] shrink-0 overflow-hidden">
@@ -119,35 +135,48 @@ export default function PropertyCard({
           )}
         </div>
 
-        <div className="mb-4 flex min-h-10 flex-wrap items-start gap-x-3 gap-y-2 text-xs text-gray-600">
+        <div className="mb-4 flex min-h-14 flex-wrap content-start items-start gap-2 text-xs text-gray-600">
           {property.guestCapacity > 0 && (
             <span className="flex items-center gap-1">
               <Users
                 size={13}
-                className="text-[#2EAD45]"
+                className="shrink-0 text-[#2EAD45]"
                 aria-hidden="true"
               />
               Up to {property.guestCapacity} guests
             </span>
           )}
 
-          {typeof property.bedrooms === "number" && (
-            <span className="flex items-center gap-1">
-              <BedDouble
+          {visibleAmenities.map((amenity) => (
+            <span
+              key={amenity}
+              className="flex max-w-full items-center gap-1.5 rounded-full bg-[#F8FAFC] px-2.5 py-1 text-[11px] font-medium text-gray-600"
+              title={amenity}
+            >
+              <AmenityIcon
+                amenity={amenity}
                 size={13}
-                className="text-[#2EAD45]"
-                aria-hidden="true"
+                className="shrink-0 text-[#2EAD45]"
               />
-              {property.bedrooms} Beds
+
+              <span className="line-clamp-1">
+                {amenity}
+              </span>
+            </span>
+          ))}
+
+          {remainingAmenityCount > 0 && (
+            <span className="rounded-full bg-[#DCFCE7] px-2.5 py-1 text-[11px] font-semibold text-[#1E8A32]">
+              +{remainingAmenityCount} more
             </span>
           )}
 
-          {property.hasPool && (
-            <span className="flex items-center gap-1 text-blue-500">
-              <Waves size={13} aria-hidden="true" />
-              Pool
-            </span>
-          )}
+          {property.guestCapacity <= 0 &&
+            visibleAmenities.length === 0 && (
+              <span className="text-xs text-gray-400">
+                Details available on request
+              </span>
+            )}
         </div>
 
         <div className="mt-auto border-t border-gray-100 pt-3">

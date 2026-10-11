@@ -1,8 +1,8 @@
 "use client";
 
-import { usePropertyDetails } from "@/components/property/PropertyDetailsContext";
 import type { PropertyCardData, PropertyType } from "@/types/property";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Eye,
   MapPin,
@@ -97,7 +97,6 @@ function toPropertyCardData(property: AIProperty): PropertyCardData | null {
 }
 
 export default function AIPropertyCard({ property, distanceKm }: Props) {
-  const { openPropertyDetails } = usePropertyDetails();
 
   const image = property.images?.find(
     (item) => item.primary || item.isPrimary,
@@ -220,19 +219,29 @@ export default function AIPropertyCard({ property, distanceKm }: Props) {
               </a>
             )}
 
-            <button
-              type="button"
-              onClick={() => {
-                if (propertyCardData) {
-                  openPropertyDetails(propertyCardData);
-                }
-              }}
-              disabled={!propertyCardData}
-              className="flex items-center gap-1 rounded-lg bg-[#2EAD45] px-3 py-2 text-[11px] font-semibold text-white hover:bg-[#1E8A32]"
-            >
-              <Eye size={13} />
-              View
-            </button>
+            {propertyCardData ? (
+              <Link
+                href={`/properties/${encodeURIComponent(
+                  propertyCardData.id,
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 rounded-lg bg-[#2EAD45] px-3 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-[#1E8A32]"
+                aria-label={`Open details for ${property.title} in a new tab`}
+              >
+                <Eye size={13} aria-hidden="true" />
+                View
+              </Link>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="flex cursor-not-allowed items-center gap-1 rounded-lg bg-gray-300 px-3 py-2 text-[11px] font-semibold text-white"
+              >
+                <Eye size={13} aria-hidden="true" />
+                View
+              </button>
+            )}
           </div>
         </div>
       </div>

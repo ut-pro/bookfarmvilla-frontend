@@ -210,3 +210,60 @@ export async function getActivePropertyCities(
     firstCity.localeCompare(secondCity),
   );
 }
+
+export async function getPropertyById(
+  propertyId: string,
+  signal?: AbortSignal,
+): Promise<PropertyCardData | null> {
+  const normalizedId = propertyId.trim();
+
+  if (!normalizedId) {
+    return null;
+  }
+
+  const url = new URL(
+    `/api/properties/${encodeURIComponent(normalizedId)}`,
+    API_BASE_URL,
+  );
+
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+    },
+    cache: "no-store",
+    signal,
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      `Property detail request failed with status ${response.status}.`,
+    );
+  }
+
+  const data: unknown = await response.json();
+
+  if (
+    typeof data !== "object" ||
+    data === null ||
+    !("id" in data) ||
+    !("title" in data) ||
+    !("city" in data) ||
+    !("type" in data)
+  ) {
+    throw new Error(
+      "Property detail API returned an invalid response.",
+    );
+  }
+
+  const property = data as PropertyApiResponse;
+
+  if (property.status !== "ACTIVE") {
+    return null;
+  }
+
+  return mapPropertyToCard(property);
+}
