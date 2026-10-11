@@ -6,13 +6,15 @@ import Link from "next/link";
 import {
   Eye,
   MapPin,
+  PhoneCall,
+  Sparkles,
   Users,
-  Waves,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { getPropertyPriceDisplay } from "@/lib/formatters";
 
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { siteConfig } from "@/data/site";
 
 export interface AIProperty {
   id: string;
@@ -103,10 +105,6 @@ export default function AIPropertyCard({ property, distanceKm }: Props) {
   )?.url
     ?? property.images?.[0]?.url;
 
-  const hasPool = property.amenities?.some((a) =>
-    a.toLowerCase().includes("pool"),
-  );
-
   const whatsapp = buildWhatsAppUrl(
     `Hi BookFarmVilla team, I am interested in ${property.title}. Please share its availability and enquiry details.`,
   );
@@ -162,6 +160,14 @@ export default function AIPropertyCard({ property, distanceKm }: Props) {
             <span className="line-clamp-1">{property.city}</span>
           </p>
         )}
+        <a
+          href={`tel:${siteConfig.contact.phone.replace(/\D/g, "")}`}
+          className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-[#1E8A32] hover:underline"
+          aria-label={`Call Booksy's booking team at ${siteConfig.contact.phone}`}
+        >
+          <PhoneCall size={12} aria-hidden="true" />
+          {siteConfig.contact.phone}
+        </a>
         {distanceKm !== undefined && Number.isFinite(distanceKm) && (
           <p className="mt-1 text-xs font-medium text-[#1E8A32]">
             {distanceKm.toFixed(1)} km away
@@ -176,15 +182,12 @@ export default function AIPropertyCard({ property, distanceKm }: Props) {
             </span>
           )}
 
-          {hasPool && (
-            <span className="flex items-center gap-1 text-blue-500">
-              <Waves size={12} />
-              Pool
-            </span>
-          )}
-
           {property.amenities?.slice(0, 3).map((amenity) => (
-            <span key={amenity} className="rounded-full bg-gray-50 px-2 py-1">
+            <span
+              key={amenity}
+              className="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2 py-1"
+            >
+              <Sparkles size={11} className="shrink-0 text-[#2EAD45]" aria-hidden="true" />
               {amenity}
             </span>
           ))}
