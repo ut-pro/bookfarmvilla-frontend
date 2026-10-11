@@ -6,6 +6,7 @@ import { Eye, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatusBadge from "@/components/admin/StatusBadge";
 import Pagination from "@/components/admin/Pagination";
+import AdminSortControls from "@/components/admin/AdminSortControls";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import VendorFormModal from "@/components/admin/VendorFormModal";
 import {
@@ -15,7 +16,12 @@ import {
   deleteVendor,
   AdminApiError,
 } from "@/lib/admin-api";
-import type { AdminVendor, AdminVendorPayload } from "@/types/admin";
+import type {
+  AdminVendor,
+  AdminVendorPayload,
+  SortDirection,
+  VendorSortBy,
+} from "@/types/admin";
 
 function VendorsPageContent() {
   const searchParams = useSearchParams();
@@ -26,6 +32,10 @@ function VendorsPageContent() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [keyword, setKeyword] = useState("");
+  const [sort, setSort] = useState<{
+    sortBy: VendorSortBy | "";
+    sortDirection: SortDirection;
+  }>({ sortBy: "", sortDirection: "asc" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,7 +51,13 @@ function VendorsPageContent() {
     setLoading(true);
     setError(null);
     try {
-      const result = await fetchVendors({ keyword: keyword || undefined, page, size: pageSize });
+      const result = await fetchVendors({
+        keyword: keyword || undefined,
+        page,
+        size: pageSize,
+        sortBy: sort.sortBy || undefined,
+        sortDirection: sort.sortBy ? sort.sortDirection : undefined,
+      });
       setVendors(result.content);
       setTotalPages(result.totalPages);
       setTotalElements(result.totalElements);
@@ -50,7 +66,7 @@ function VendorsPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [keyword, page]);
+  }, [keyword, page, sort]);
 
   useEffect(() => {
     load();
@@ -114,7 +130,7 @@ function VendorsPageContent() {
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="flex items-center gap-3 border-b border-gray-100 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-4">
             <div className="relative flex-1 max-w-xs">
               <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
@@ -127,6 +143,20 @@ function VendorsPageContent() {
                 className="w-full rounded-xl border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-violet-400"
               />
             </div>
+            <AdminSortControls<VendorSortBy>
+              options={[
+                { label: "Name", value: "name" },
+                { label: "City", value: "city" },
+                { label: "Status", value: "status" },
+                { label: "Date added", value: "createdAt" },
+              ]}
+              sortBy={sort.sortBy}
+              sortDirection={sort.sortDirection}
+              onChange={(sortBy, sortDirection) => {
+                setPage(0);
+                setSort({ sortBy, sortDirection });
+              }}
+            />
           </div>
 
           {error && (

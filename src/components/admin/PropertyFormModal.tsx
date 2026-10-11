@@ -72,6 +72,7 @@ export default function PropertyFormModal({
   onSubmit,
 }: PropertyFormModalProps) {
   const [title, setTitle] = useState("");
+  const [originalPropertyName, setOriginalPropertyName] = useState("");
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
@@ -112,6 +113,7 @@ export default function PropertyFormModal({
     if (!open) return;
     if (initial) {
       setTitle(initial.title);
+      setOriginalPropertyName(initial.originalPropertyName ?? "");
       setDescription(initial.description ?? "");
       setAddress(initial.address ?? "");
       setCity(initial.city);
@@ -126,6 +128,7 @@ export default function PropertyFormModal({
       setSelectedAmenityNames(initial.amenities);
     } else {
       setTitle("");
+      setOriginalPropertyName("");
       setDescription("");
       setAddress("");
       setCity("");
@@ -190,6 +193,7 @@ export default function PropertyFormModal({
 
     const payload: AdminPropertyPayload = {
       title: title.trim(),
+      originalPropertyName: originalPropertyName.trim() || null,
       description: description.trim() || undefined,
       type: propertyType,
       address: address.trim() || undefined,
@@ -238,6 +242,15 @@ export default function PropertyFormModal({
               onChange={(e) => setTitle(e.target.value)}
               className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-violet-500"
               placeholder={`e.g. Green Valley ${typeLabel}`}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-gray-700">Original property name</label>
+            <input
+              value={originalPropertyName}
+              onChange={(e) => setOriginalPropertyName(e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-violet-500"
             />
           </div>
 

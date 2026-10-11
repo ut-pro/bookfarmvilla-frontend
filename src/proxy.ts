@@ -4,6 +4,13 @@ const CANONICAL_HOST = "www.bookfarmvilla.com";
 
 export function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
+  const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(
+    url.hostname,
+  );
+  if (isLocalHost) {
+    return NextResponse.next();
+  }
+
   const hostIsCanonical = url.hostname === CANONICAL_HOST;
   const forwardedProtocol = request.headers
     .get("x-forwarded-proto")

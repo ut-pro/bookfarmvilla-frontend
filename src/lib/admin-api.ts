@@ -28,7 +28,11 @@ import type {
   PageResponse,
   PartnerStatus,
   PaymentStatus,
+  LeadSortBy,
+  PropertySortBy,
   PropertyType,
+  SortDirection,
+  VendorSortBy,
   VendorCategory,
 } from "@/types/admin";
 
@@ -198,6 +202,8 @@ export async function fetchProperties(params: {
   keyword?: string;
   page?: number;
   size?: number;
+  sortBy?: PropertySortBy;
+  sortDirection?: SortDirection;
 }): Promise<PageResponse<AdminProperty>> {
   const query = buildQuery({
     type: params.type,
@@ -206,12 +212,14 @@ export async function fetchProperties(params: {
     keyword: params.keyword,
     page: params.page ?? 0,
     size: params.size ?? 20,
+    sortBy: params.sortBy,
+    sortDirection: params.sortDirection,
   });
-  return adminApiFetch<PageResponse<AdminProperty>>(`/api/properties${query}`);
+  return adminApiFetch<PageResponse<AdminProperty>>(`/api/v2/properties${query}`);
 }
 
 export async function fetchProperty(id: string): Promise<AdminProperty> {
-  return adminApiFetch<AdminProperty>(`/api/properties/${id}`);
+  return adminApiFetch<AdminProperty>(`/api/v2/properties/${id}`);
 }
 
 export async function createProperty(payload: AdminPropertyPayload): Promise<AdminProperty> {
@@ -246,6 +254,8 @@ export async function fetchVendors(params: {
   keyword?: string;
   page?: number;
   size?: number;
+  sortBy?: VendorSortBy;
+  sortDirection?: SortDirection;
 }): Promise<PageResponse<AdminVendor>> {
   const query = buildQuery({
     category: params.category,
@@ -254,6 +264,8 @@ export async function fetchVendors(params: {
     keyword: params.keyword,
     page: params.page ?? 0,
     size: params.size ?? 20,
+    sortBy: params.sortBy,
+    sortDirection: params.sortDirection,
   });
   return adminApiFetch<PageResponse<AdminVendor>>(`/api/vendors${query}`);
 }
@@ -296,11 +308,15 @@ export async function fetchLeads(params: {
   status?: LeadStatus;
   page?: number;
   size?: number;
+  sortBy?: LeadSortBy;
+  sortDirection?: SortDirection;
 }): Promise<PageResponse<AdminLead>> {
   const query = buildQuery({
     status: params.status,
     page: params.page ?? 0,
     size: params.size ?? 20,
+    sortBy: params.sortBy,
+    sortDirection: params.sortDirection,
   });
   return adminApiFetch<PageResponse<AdminLead>>(`/api/leads${query}`);
 }

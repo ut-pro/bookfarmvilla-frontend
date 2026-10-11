@@ -6,16 +6,24 @@ import { Eye, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatusBadge from "@/components/admin/StatusBadge";
 import Pagination from "@/components/admin/Pagination";
+import AdminSortControls from "@/components/admin/AdminSortControls";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import PropertyFormModal from "@/components/admin/PropertyFormModal";
 import {
   fetchProperties,
+  fetchProperty,
   createProperty,
   updateProperty,
   deleteProperty,
   AdminApiError,
 } from "@/lib/admin-api";
-import type { AdminProperty, AdminPropertyPayload, PropertyType } from "@/types/admin";
+import type {
+  AdminProperty,
+  AdminPropertyPayload,
+  PropertySortBy,
+  PropertyType,
+  SortDirection,
+} from "@/types/admin";
 
 interface PropertyManagerProps {
   propertyType: PropertyType;
@@ -41,12 +49,17 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [keyword, setKeyword] = useState("");
+  const [sort, setSort] = useState<{
+    sortBy: PropertySortBy | "";
+    sortDirection: SortDirection;
+  }>({ sortBy: "", sortDirection: "asc" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<AdminProperty | null>(null);
   const [viewing, setViewing] = useState<AdminProperty | null>(null);
+  const [loadingPropertyId, setLoadingPropertyId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminProperty | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -61,6 +74,8 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
         keyword: keyword || undefined,
         page,
         size: pageSize,
+        sortBy: sort.sortBy || undefined,
+        sortDirection: sort.sortBy ? sort.sortDirection : undefined,
       });
       setProperties(result.content);
       setTotalPages(result.totalPages);
@@ -70,7 +85,7 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
     } finally {
       setLoading(false);
     }
-  }, [propertyType, keyword, page]);
+  }, [propertyType, keyword, page, sort]);
 
   useEffect(() => {
     load();
@@ -94,6 +109,24 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
     setFormOpen(false);
     setEditing(null);
     await load();
+  };
+
+  const openProperty = async (property: AdminProperty, mode: "view" | "edit") => {
+    setError(null);
+    setLoadingPropertyId(property.id);
+    try {
+      const details = await fetchProperty(property.id);
+      if (mode === "view") {
+        setViewing(details);
+      } else {
+        setEditing(details);
+        setFormOpen(true);
+      }
+    } catch (err) {
+      setError(err instanceof AdminApiError ? err.message : "Could not load this listing.");
+    } finally {
+      setLoadingPropertyId(null);
+    }
   };
 
   const handleDelete = async () => {
@@ -134,7 +167,7 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="flex items-center gap-3 border-b border-gray-100 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 p-4">
             <div className="relative flex-1 max-w-xs">
               <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
@@ -147,6 +180,22 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
                 className="w-full rounded-xl border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-violet-400"
               />
             </div>
+            <AdminSortControls<PropertySortBy>
+              options={[
+                { label: "Title", value: "title" },
+                { label: "City", value: "city" },
+                { label: "Price", value: "startingPrice" },
+                { label: "Capacity", value: "capacity" },
+                { label: "Status", value: "status" },
+                { label: "Date added", value: "createdAt" },
+              ]}
+              sortBy={sort.sortBy}
+              sortDirection={sort.sortDirection}
+              onChange={(sortBy, sortDirection) => {
+                setPage(0);
+                setSort({ sortBy, sortDirection });
+              }}
+            />
           </div>
 
           {error && (
@@ -160,6 +209,7 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
               <thead>
                 <tr className="border-b border-gray-100 text-left text-xs font-semibold uppercase tracking-wide text-gray-400">
                   <th className="px-6 py-3">Title</th>
+                  <th className="px-6 py-3">Original property name</th>
                   <th className="px-6 py-3">City</th>
                   <th className="px-6 py-3">Price</th>
                   <th className="px-6 py-3">Capacity</th>
@@ -170,13 +220,13 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
+                    <td colSpan={7} className="px-6 py-8 text-center text-gray-400">
                       Loading…
                     </td>
                   </tr>
                 ) : properties.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
+                    <td colSpan={7} className="px-6 py-8 text-center text-gray-400">
                       No {typeLabelPlural.toLowerCase()} found.
                     </td>
                   </tr>
@@ -184,6 +234,7 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
                   properties.map((property) => (
                     <tr key={property.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                       <td className="px-6 py-3 font-medium text-gray-900">{property.title}</td>
+                      <td className="px-6 py-3 text-gray-600">{property.originalPropertyName ?? "—"}</td>
                       <td className="px-6 py-3 text-gray-600">{property.city}</td>
                       <td className="px-6 py-3 text-gray-600">{formatPrice(property)}</td>
                       <td className="px-6 py-3 text-gray-600">{property.capacity ?? "—"}</td>
@@ -194,19 +245,18 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => setViewing(property)}
-                            className="rounded-lg border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50"
+                            onClick={() => void openProperty(property, "view")}
+                            disabled={loadingPropertyId === property.id}
+                            className="rounded-lg border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                             aria-label="View"
                           >
                             <Eye size={15} />
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
-                              setEditing(property);
-                              setFormOpen(true);
-                            }}
-                            className="rounded-lg border border-gray-200 p-1.5 text-violet-600 hover:bg-violet-50"
+                            onClick={() => void openProperty(property, "edit")}
+                            disabled={loadingPropertyId === property.id}
+                            className="rounded-lg border border-gray-200 p-1.5 text-violet-600 hover:bg-violet-50 disabled:opacity-50"
                             aria-label="Edit"
                           >
                             <Pencil size={15} />
@@ -260,6 +310,7 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
               </button>
             </div>
             <dl className="space-y-2 text-sm">
+              <div className="flex justify-between"><dt className="text-gray-500">Original property name</dt><dd>{viewing.originalPropertyName ?? "—"}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">City</dt><dd>{viewing.city}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">Address</dt><dd>{viewing.address ?? "—"}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">Price</dt><dd>{formatPrice(viewing)}</dd></div>

@@ -16,6 +16,16 @@ export type VendorCategory =
 export type PartnerStatus = "PENDING" | "OPEN" | "ACCEPTED" | "DECLINED";
 export type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
 export type PaymentStatus = "UNPAID" | "PAID" | "REFUNDED";
+export type SortDirection = "asc" | "desc";
+export type PropertySortBy =
+  | "title"
+  | "city"
+  | "startingPrice"
+  | "capacity"
+  | "status"
+  | "createdAt";
+export type LeadSortBy = "name" | "createdAt" | "status";
+export type VendorSortBy = "name" | "city" | "status" | "createdAt";
 
 export interface PageResponse<T> {
   content: T[];
@@ -35,6 +45,7 @@ export interface AdminPropertyImage {
 export interface AdminProperty {
   id: string;
   title: string;
+  originalPropertyName?: string | null;
   description: string | null;
   type: PropertyType;
   address: string | null;
@@ -56,6 +67,7 @@ export interface AdminProperty {
 export interface AdminPropertyPayload {
   id?: string;
   title: string;
+  originalPropertyName?: string | null;
   description?: string;
   type: PropertyType;
   address?: string;
@@ -114,6 +126,7 @@ export interface AdminLead {
   id: string;
   propertyId: string | null;
   propertyTitle: string | null;
+  originalPropertyName?: string | null;
   vendorId: string | null;
   vendorName: string | null;
   name: string;

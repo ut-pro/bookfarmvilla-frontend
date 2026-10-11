@@ -5,8 +5,9 @@ import { Download, Eye } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatusBadge from "@/components/admin/StatusBadge";
 import Pagination from "@/components/admin/Pagination";
+import AdminSortControls from "@/components/admin/AdminSortControls";
 import { fetchLeads, updateLeadStatus, AdminApiError } from "@/lib/admin-api";
-import type { AdminLead, LeadStatus } from "@/types/admin";
+import type { AdminLead, LeadSortBy, LeadStatus, SortDirection } from "@/types/admin";
 
 const tabs: { label: string; value: LeadStatus | "ALL" }[] = [
   { label: "All", value: "ALL" },
@@ -23,6 +24,7 @@ function exportToCsv(leads: AdminLead[]) {
     "Phone",
     "Email",
     "Listing",
+    "Original property name",
     "Event Type",
     "Preferred Date",
     "Message",
@@ -35,6 +37,7 @@ function exportToCsv(leads: AdminLead[]) {
     lead.phone,
     lead.email ?? "",
     lead.propertyTitle ?? lead.vendorName ?? "",
+    lead.propertyId ? lead.originalPropertyName ?? "" : "",
     lead.eventType ?? "",
     lead.preferredDate ?? "",
     lead.message ?? "",
@@ -59,6 +62,10 @@ export default function EnquiriesPage() {
   const [activeTab, setActiveTab] = useState<LeadStatus | "ALL">("ALL");
   const [leads, setLeads] = useState<AdminLead[]>([]);
   const [page, setPage] = useState(0);
+  const [sort, setSort] = useState<{
+    sortBy: LeadSortBy | "";
+    sortDirection: SortDirection;
+  }>({ sortBy: "", sortDirection: "asc" });
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -76,6 +83,8 @@ export default function EnquiriesPage() {
         status: activeTab === "ALL" ? undefined : activeTab,
         page,
         size: pageSize,
+        sortBy: sort.sortBy || undefined,
+        sortDirection: sort.sortBy ? sort.sortDirection : undefined,
       });
       setLeads(result.content);
       setTotalPages(result.totalPages);
@@ -85,7 +94,7 @@ export default function EnquiriesPage() {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, page]);
+  }, [activeTab, page, sort]);
 
   useEffect(() => {
     load();
@@ -146,6 +155,21 @@ export default function EnquiriesPage() {
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <div className="flex justify-end border-b border-gray-100 p-4">
+            <AdminSortControls<LeadSortBy>
+              options={[
+                { label: "Name", value: "name" },
+                { label: "Date received", value: "createdAt" },
+                { label: "Status", value: "status" },
+              ]}
+              sortBy={sort.sortBy}
+              sortDirection={sort.sortDirection}
+              onChange={(sortBy, sortDirection) => {
+                setPage(0);
+                setSort({ sortBy, sortDirection });
+              }}
+            />
+          </div>
           {error && (
             <div className="m-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
@@ -159,6 +183,7 @@ export default function EnquiriesPage() {
                   <th className="px-6 py-3">Customer</th>
                   <th className="px-6 py-3">Phone</th>
                   <th className="px-6 py-3">Listing</th>
+                  <th className="px-6 py-3">Original property name</th>
                   <th className="px-6 py-3">Message</th>
                   <th className="px-6 py-3">Date</th>
                   <th className="px-6 py-3">Status</th>
@@ -167,15 +192,16 @@ export default function EnquiriesPage() {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-400">Loading…</td></tr>
+                  <tr><td colSpan={8} className="px-6 py-8 text-center text-gray-400">Loading…</td></tr>
                 ) : leads.length === 0 ? (
-                  <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-400">No enquiries found.</td></tr>
+                  <tr><td colSpan={8} className="px-6 py-8 text-center text-gray-400">No enquiries found.</td></tr>
                 ) : (
                   leads.map((lead) => (
                     <tr key={lead.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                       <td className="px-6 py-3 font-medium text-gray-900">{lead.name}</td>
                       <td className="px-6 py-3 text-gray-600">{lead.phone}</td>
                       <td className="px-6 py-3 text-gray-600">{lead.propertyTitle ?? lead.vendorName ?? "—"}</td>
+                      <td className="px-6 py-3 text-gray-600">{lead.propertyId ? lead.originalPropertyName ?? "—" : "—"}</td>
                       <td className="max-w-[220px] truncate px-6 py-3 text-gray-600">{lead.message ?? "—"}</td>
                       <td className="px-6 py-3 text-gray-600">{new Date(lead.createdAt).toLocaleDateString()}</td>
                       <td className="px-6 py-3"><StatusBadge status={lead.status} /></td>
@@ -217,6 +243,9 @@ export default function EnquiriesPage() {
               <div className="flex justify-between"><dt className="text-gray-500">Phone</dt><dd>{viewing.phone}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">Email</dt><dd>{viewing.email ?? "—"}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">Listing</dt><dd>{viewing.propertyTitle ?? viewing.vendorName ?? "—"}</dd></div>
+              {viewing.propertyId && (
+                <div className="flex justify-between"><dt className="text-gray-500">Original property name</dt><dd>{viewing.originalPropertyName ?? "—"}</dd></div>
+              )}
               <div className="flex justify-between"><dt className="text-gray-500">Event Type</dt><dd>{viewing.eventType ?? "—"}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">Preferred Date</dt><dd>{viewing.preferredDate ?? "—"}</dd></div>
               <div className="flex justify-between"><dt className="text-gray-500">Received</dt><dd>{new Date(viewing.createdAt).toLocaleString()}</dd></div>
