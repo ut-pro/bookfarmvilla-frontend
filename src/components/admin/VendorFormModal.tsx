@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { X } from "lucide-react";
 import { AdminApiError } from "@/lib/admin-api";
+import ImageUrlField from "@/components/admin/ImageUrlField";
 import type { AdminVendor, AdminVendorPayload, ListingStatus, VendorCategory } from "@/types/admin";
 
 interface VendorFormModalProps {
@@ -29,7 +30,8 @@ export default function VendorFormModal({ open, initial, onClose, onSubmit }: Ve
   const [priceRange, setPriceRange] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [status, setStatus] = useState<ListingStatus>("ACTIVE");
-  const [imageUrlsText, setImageUrlsText] = useState("");
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -44,7 +46,7 @@ export default function VendorFormModal({ open, initial, onClose, onSubmit }: Ve
       setPriceRange(initial.priceRange ?? "");
       setContactPhone(initial.contactPhone);
       setStatus(initial.status);
-      setImageUrlsText(initial.images.map((img) => img.url).join("\n"));
+      setImageUrls(initial.images.map((img) => img.url));
     } else {
       setName("");
       setCategory("CATERER");
@@ -53,7 +55,7 @@ export default function VendorFormModal({ open, initial, onClose, onSubmit }: Ve
       setPriceRange("");
       setContactPhone("");
       setStatus("ACTIVE");
-      setImageUrlsText("");
+      setImageUrls([]);
     }
     setError(null);
   }, [open, initial]);
@@ -64,8 +66,6 @@ export default function VendorFormModal({ open, initial, onClose, onSubmit }: Ve
     event.preventDefault();
     setError(null);
     setSaving(true);
-
-    const imageUrls = imageUrlsText.split("\n").map((u) => u.trim()).filter(Boolean);
 
     try {
       await onSubmit({
@@ -90,7 +90,7 @@ export default function VendorFormModal({ open, initial, onClose, onSubmit }: Ve
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl">
         <div className="sticky top-0 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4">
           <h3 className="text-lg font-bold text-gray-900">{initial ? "Edit Vendor" : "Add Vendor"}</h3>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700">
+          <button type="button" onClick={onClose} disabled={saving || uploadingImages} className="text-gray-400 hover:text-gray-700 disabled:opacity-50">
             <X size={20} />
           </button>
         </div>
@@ -173,17 +173,11 @@ export default function VendorFormModal({ open, initial, onClose, onSubmit }: Ve
             </select>
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
-              Image URLs <span className="font-normal text-gray-400">(one per line)</span>
-            </label>
-            <textarea
-              value={imageUrlsText}
-              onChange={(e) => setImageUrlsText(e.target.value)}
-              rows={3}
-              className="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-violet-500"
-            />
-          </div>
+          <ImageUrlField
+            value={imageUrls}
+            onChange={setImageUrls}
+            onUploadingChange={setUploadingImages}
+          />
 
           {error && (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -195,17 +189,17 @@ export default function VendorFormModal({ open, initial, onClose, onSubmit }: Ve
             <button
               type="button"
               onClick={onClose}
-              disabled={saving}
+              disabled={saving || uploadingImages}
               className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || uploadingImages}
               className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-60"
             >
-              {saving ? "Saving…" : initial ? "Save Changes" : "Add Vendor"}
+              {uploadingImages ? "Uploading images…" : saving ? "Saving…" : initial ? "Save Changes" : "Add Vendor"}
             </button>
           </div>
         </form>
