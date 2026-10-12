@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -29,15 +30,24 @@ export default function AdminSidebar() {
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col bg-[#0f0b24] text-white">
-      <div className="flex items-center gap-3 px-6 py-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-lg">
-          🏡
-        </div>
-        <div>
-          <p className="text-base font-bold leading-tight">BookFarm</p>
-          <p className="text-sm font-semibold leading-tight text-violet-400">Villa</p>
-        </div>
-      </div>
+      <Link
+        href="/admin"
+        aria-label="BookFarmVilla admin home"
+        className="flex h-[72px] shrink-0 items-center gap-2.5 px-4"
+      >
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white">
+          <Image
+            src="/logo/brand-logo-transparent.png"
+            alt=""
+            width={30}
+            height={30}
+            priority
+          />
+        </span>
+        <span className="whitespace-nowrap text-[15px] font-bold tracking-tight">
+          BookFarmVilla
+        </span>
+      </Link>
 
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
         {navItems.map((item) => {

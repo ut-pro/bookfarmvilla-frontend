@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Download, Pencil, Plus, Search } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatusBadge from "@/components/admin/StatusBadge";
@@ -58,12 +59,15 @@ function exportToCsv(bookings: AdminBooking[]) {
   URL.revokeObjectURL(url);
 }
 
-export default function BookingsPage() {
+function BookingsPageContent() {
+  const searchParams = useSearchParams();
   const [bookings, setBookings] = useState<AdminBooking[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(
+    () => searchParams.get("search") ?? "",
+  );
   const [typeFilter, setTypeFilter] = useState<PropertyType | "">("");
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "">("");
   const [paymentFilter, setPaymentFilter] = useState<PaymentStatus | "">("");
@@ -98,8 +102,17 @@ export default function BookingsPage() {
   }, [keyword, typeFilter, statusFilter, paymentFilter, page]);
 
   useEffect(() => {
+    // Loading is an intentional effect because server-side filters change with the controls.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
+
+  useEffect(() => {
+    // Sync the routed global-search query when navigation changes on this page.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setKeyword(searchParams.get("search") ?? "");
+    setPage(0);
+  }, [searchParams]);
 
   const handleCreateOrUpdate = async (payload: AdminBookingPayload) => {
     if (editing) {
@@ -285,5 +298,13 @@ export default function BookingsPage() {
         onSubmit={handleCreateOrUpdate}
       />
     </>
+  );
+}
+
+export default function BookingsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-gray-400">Loading…</div>}>
+      <BookingsPageContent />
+    </Suspense>
   );
 }

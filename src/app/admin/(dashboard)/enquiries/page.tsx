@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Download, Eye } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatusBadge from "@/components/admin/StatusBadge";
@@ -58,7 +60,8 @@ function exportToCsv(leads: AdminLead[]) {
   URL.revokeObjectURL(url);
 }
 
-export default function EnquiriesPage() {
+function EnquiriesPageContent() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<LeadStatus | "ALL">("ALL");
   const [leads, setLeads] = useState<AdminLead[]>([]);
   const [page, setPage] = useState(0);
@@ -72,8 +75,10 @@ export default function EnquiriesPage() {
   const [error, setError] = useState<string | null>(null);
   const [viewing, setViewing] = useState<AdminLead | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const globalSearch = searchParams.get("search") ?? "";
 
   const pageSize = 10;
+  const searchPageSize = 100;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -81,8 +86,8 @@ export default function EnquiriesPage() {
     try {
       const result = await fetchLeads({
         status: activeTab === "ALL" ? undefined : activeTab,
-        page,
-        size: pageSize,
+        page: globalSearch ? 0 : page,
+        size: globalSearch ? searchPageSize : pageSize,
         sortBy: sort.sortBy || undefined,
         sortDirection: sort.sortBy ? sort.sortDirection : undefined,
       });
@@ -94,11 +99,29 @@ export default function EnquiriesPage() {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, page, sort]);
+  }, [activeTab, globalSearch, page, sort]);
 
   useEffect(() => {
+    // Loading is an intentional effect because server-side filters change with the controls.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
+
+  const visibleLeads = globalSearch
+    ? leads.filter((lead) =>
+        [
+          lead.name,
+          lead.phone,
+          lead.email,
+          lead.propertyTitle,
+          lead.originalPropertyName,
+          lead.vendorName,
+          lead.eventType,
+          lead.message,
+          lead.status,
+        ].some((value) => value?.toLowerCase().includes(globalSearch.toLowerCase())),
+      )
+    : leads;
 
   const handleStatusChange = async (status: LeadStatus) => {
     if (!viewing) return;
@@ -112,6 +135,7 @@ export default function EnquiriesPage() {
     } finally {
       setUpdatingStatus(false);
     }
+
   };
 
   return (
@@ -122,6 +146,12 @@ export default function EnquiriesPage() {
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900">Enquiries</h2>
           <p className="text-sm text-gray-500">Manage customer enquiries and leads</p>
+          {globalSearch && (
+            <p className="mt-2 text-sm text-violet-700">
+              Global search: <strong>{globalSearch}</strong> · latest 100 enquiries
+              <Link href="/admin/enquiries" className="ml-2 underline">Clear</Link>
+            </p>
+          )}
         </div>
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -146,8 +176,8 @@ export default function EnquiriesPage() {
           </div>
           <button
             type="button"
-            onClick={() => exportToCsv(leads)}
-            disabled={loading || leads.length === 0}
+            onClick={() => exportToCsv(visibleLeads)}
+            disabled={loading || visibleLeads.length === 0}
             className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Download size={15} /> Export
@@ -193,10 +223,10 @@ export default function EnquiriesPage() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={8} className="px-6 py-8 text-center text-gray-400">Loading…</td></tr>
-                ) : leads.length === 0 ? (
+                ) : visibleLeads.length === 0 ? (
                   <tr><td colSpan={8} className="px-6 py-8 text-center text-gray-400">No enquiries found.</td></tr>
                 ) : (
-                  leads.map((lead) => (
+                  visibleLeads.map((lead) => (
                     <tr key={lead.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                       <td className="px-6 py-3 font-medium text-gray-900">{lead.name}</td>
                       <td className="px-6 py-3 text-gray-600">{lead.phone}</td>
@@ -222,13 +252,15 @@ export default function EnquiriesPage() {
             </table>
           </div>
 
-          <Pagination
-            pageNumber={page}
-            totalPages={totalPages}
-            totalElements={totalElements}
-            pageSize={pageSize}
-            onPageChange={setPage}
-          />
+          {!globalSearch && (
+            <Pagination
+              pageNumber={page}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={pageSize}
+              onPageChange={setPage}
+            />
+          )}
         </div>
       </main>
 
@@ -275,5 +307,13 @@ export default function EnquiriesPage() {
         </div>
       )}
     </>
+  );
+}
+
+export default function EnquiriesPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-gray-400">Loading…</div>}>
+      <EnquiriesPageContent />
+    </Suspense>
   );
 }
