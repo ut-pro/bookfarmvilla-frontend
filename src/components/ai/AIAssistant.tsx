@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { API_BASE_URL } from "@/lib/api-config";
 
 import {
@@ -76,7 +76,7 @@ const quickActions = [
   "Villa in Delhi",
   "Wedding lawn in Noida",
   "Villa in Gurugram",
-  "Farmhouse near me",
+  "Properties near me",
 ];
 
 function isBookingIntent(message: string): boolean {
@@ -456,12 +456,56 @@ export default function AIAssistant() {
   const chatScrollRef =
    useRef<HTMLDivElement>(null);
 
-  const pendingScrollToMessageIndexRef = useRef<number | null>(null);
+
 
   const [showScrollToLatest, setShowScrollToLatest] =
    useState(false);
 
-  const canSend = useMemo(() => input.trim().length > 0 && !loading, [input, loading]);
+  const canSend = useMemo(
+    () => input.trim().length > 0 && !loading,
+    [input, loading],
+  );
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    const mobileMediaQuery = window.matchMedia("(max-width: 639px)");
+
+    const updatePageScrollLock = () => {
+      document.body.style.overflow = mobileMediaQuery.matches
+        ? "hidden"
+        : previousOverflow;
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    updatePageScrollLock();
+
+    mobileMediaQuery.addEventListener(
+      "change",
+      updatePageScrollLock,
+    );
+
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+
+      mobileMediaQuery.removeEventListener(
+        "change",
+        updatePageScrollLock,
+      );
+
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [open]);
 
   const updateScrollToLatestVisibility =
     useCallback(() => {
@@ -498,26 +542,7 @@ export default function AIAssistant() {
 
     const animationFrame =
       window.requestAnimationFrame(() => {
-        const targetIndex = pendingScrollToMessageIndexRef.current;
-        const scrollContainer = chatScrollRef.current;
-        if (targetIndex !== null && scrollContainer) {
-          const messageElement = scrollContainer.querySelector<HTMLElement>(
-            `[data-message-index="${targetIndex}"]`,
-          );
-          if (messageElement) {
-            const messageTop =
-              messageElement.getBoundingClientRect().top -
-              scrollContainer.getBoundingClientRect().top +
-              scrollContainer.scrollTop;
-            scrollContainer.scrollTo({
-              top: Math.max(0, messageTop - 14),
-              behavior: "smooth",
-            });
-            pendingScrollToMessageIndexRef.current = null;
-          }
-          return;
-        }
-
+        scrollToLatest();
         updateScrollToLatestVisibility();
       });
 
@@ -534,7 +559,7 @@ export default function AIAssistant() {
     const message = (messageOverride ?? input).trim();
     if (!message || loading) return;
 
-    pendingScrollToMessageIndexRef.current = messages.length;
+
 
     const nextMessages = [...messages, { role: "user" as const, content: message }];
     setMessages(nextMessages);
@@ -1160,7 +1185,7 @@ export default function AIAssistant() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-5 right-5 z-[70] flex items-center gap-2 rounded-full bg-[#2EAD45] px-4 py-3 text-sm font-semibold text-white shadow-xl shadow-green-900/20 transition-all hover:-translate-y-0.5 hover:bg-[#1E8A32] sm:bottom-6 sm:right-6"
+          className="fixed bottom-4 right-4 z-[70] flex min-h-12 items-center gap-2 rounded-full bg-[#2EAD45] px-4 py-2.5 text-sm font-semibold text-white shadow-xl shadow-green-900/20 transition-all hover:-translate-y-0.5 hover:bg-[#1E8A32] sm:bottom-6 sm:right-6 sm:py-3"
           aria-label="Open Booksy assistant"
         >
           <span className="grid h-8 w-8 place-items-center rounded-full bg-white/15">
@@ -1172,190 +1197,216 @@ export default function AIAssistant() {
 
       {/* Chat */}
       {open && (
-        <section
-          className="fixed inset-x-0 bottom-0 z-[80] flex h-[min(760px,calc(100dvh-1rem))] flex-col overflow-hidden rounded-t-3xl border border-gray-200 bg-white shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:h-[680px] sm:w-[410px] sm:rounded-3xl"
-          aria-label="Booksy chat"
-        >
-          <header className="flex items-center justify-between bg-[#2EAD45] px-4 py-3.5 text-white">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-white/15">
-                <Bot size={21} />
-              </div>
-              <div>
-                <p className="text-sm font-bold">Booksy</p>
-                <p className="text-[11px] text-white/80">Verified property assistant</p>
-              </div>
-            </div>
+        <>
+          {/* Mobile-only blurred backdrop */}
+          <div
+            className="fixed inset-0 z-[75] bg-black/25 backdrop-blur-[3px] sm:hidden"
+            aria-hidden="true"
+          />
 
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-full p-2 hover:bg-white/10"
-              aria-label="Close AI chat"
-            >
-              <X size={19} />
-            </button>
-          </header>
-
-          <div className="flex min-h-0 flex-1 flex-col">
-            <div className="relative min-h-0 flex-1">
-              <div
-                ref={chatScrollRef}
-                onScroll={updateScrollToLatestVisibility}
-                className="scrollbar-hide h-full space-y-3 overflow-y-auto bg-[#F8FAFC] p-3.5"
-              >
-                {messages.map((message, index) => (
-                  <div
-                    key={`${message.role}-${index}`}
-                    data-message-index={index}
-                    className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"}`}
-                  >
-                    <div
-                      className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                        message.role === "user"
-                          ? "rounded-br-md bg-[#2EAD45] text-white"
-                          : "rounded-bl-md border border-gray-100 bg-white text-[#0F172A] shadow-sm"
-                      }`}
-                      style={{ whiteSpace: "pre-line" }}
-                    >
-                      {message.role === "assistant"
-                        ? formatAssistantMessage(message.content)
-                        : message.content}
-                    </div>
-                    {message.recommendations?.properties.length ? (
-                      <div className="mt-2 w-full max-w-[94%] space-y-2.5">
-                        {message.recommendations.properties.map((property) => (
-                          <AIPropertyCard
-                            key={property.id}
-                            property={property}
-                            distanceKm={
-                              location
-                                ? calculateDistanceInKm(location, property)
-                                : undefined
-                            }
-                          />
-                        ))}
-                      </div>
-                    ) : null}
-                    {message.recommendations?.vendors.length ? (
-                      <div className="mt-2 w-full max-w-[94%] space-y-2.5">
-                        {message.recommendations.vendors.map((vendor) => (
-                          <AIVendorCard key={vendor.id} vendor={vendor} />
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
-
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="rounded-2xl rounded-bl-md bg-white px-4 py-3 text-xs text-gray-500 shadow-sm">
-                      AI is checking verified listings…
-                    </div>
-                  </div>
-                )}
-
-              </div>
-
-              {showScrollToLatest && (
-                <button
-                  type="button"
-                  onClick={scrollToLatest}
-                  className="absolute bottom-4 left-1/2 z-20 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-green-600 bg-[#2EAD45] text-white shadow-lg shadow-green-900/25 transition-all hover:scale-105 hover:bg-[#1E8A32] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2EAD45] focus-visible:ring-offset-2"
-                >
-                  <ArrowDown
-                    size={19}
-                    aria-hidden="true"
-                  />
-                </button>
-              )}
-            </div>
-
-            {(locationError || locationMessage) && (
-              <div className="border-t border-amber-100 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800">
-                <div className="flex items-start gap-2">
-                  <MapPin size={14} className="mt-0.5 shrink-0" />
-                  <span>
-                    {locationError || locationMessage}
-                  </span>
+          <section
+            className="fixed inset-x-0 bottom-0 z-[80] flex h-[calc(100dvh-0.5rem)] max-h-[760px] flex-col overflow-hidden rounded-t-3xl border border-gray-200 bg-white shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:h-[min(680px,calc(100dvh-3rem))] sm:w-[410px] sm:rounded-3xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="booksy-chat-title"
+          >
+            <header className="flex shrink-0 items-center justify-between bg-[#2EAD45] px-4 py-3 text-white sm:py-3.5">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-white/15">
+                  <Bot size={21} />
+                </div>
+                <div>
+                  <p id="booksy-chat-title" className="text-sm font-bold">Booksy</p>
+                  <p className="text-[11px] text-white/80">Verified property assistant</p>
                 </div>
               </div>
-            )}
 
-            <div className="border-t border-gray-100 bg-white p-3">
-              <div className="mb-2 flex gap-2 overflow-x-auto pb-1">
-                {quickActions.map((action) => (
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-white/10"
+                aria-label="Close AI chat"
+              >
+                <X size={19} />
+              </button>
+            </header>
+
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="relative min-h-0 flex-1">
+                <div
+                  ref={chatScrollRef}
+                  onScroll={updateScrollToLatestVisibility}
+                  className="scrollbar-hide h-full overscroll-contain space-y-3 overflow-y-auto bg-[#F8FAFC] p-3 sm:p-3.5"
+                >
+                  {messages.map((message, index) => (
+                    <div
+                      key={`${message.role}-${index}`}
+                      data-message-index={index}
+                      className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"}`}
+                    >
+                      <div
+                        className={`max-w-[92%] break-words rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed sm:max-w-[88%] ${
+                          message.role === "user"
+                            ? "rounded-br-md bg-[#2EAD45] text-white"
+                            : "rounded-bl-md border border-gray-100 bg-white text-[#0F172A] shadow-sm"
+                        }`}
+                        style={{ whiteSpace: "pre-line" }}
+                      >
+                        {message.role === "assistant"
+                          ? formatAssistantMessage(message.content)
+                          : message.content}
+                      </div>
+                      {message.recommendations?.properties.length ? (
+                        <div className="mt-2 w-full min-w-0 max-w-full space-y-2.5 sm:max-w-[94%]">
+                          {message.recommendations.properties.map((property) => (
+                            <AIPropertyCard
+                              key={property.id}
+                              property={property}
+                              distanceKm={
+                                location
+                                  ? calculateDistanceInKm(location, property)
+                                  : undefined
+                              }
+                            />
+                          ))}
+                        </div>
+                      ) : null}
+                      {message.recommendations?.vendors.length ? (
+                        <div className="mt-2 w-full min-w-0 max-w-full space-y-2.5 sm:max-w-[94%]">
+                          {message.recommendations.vendors.map((vendor) => (
+                            <AIVendorCard key={vendor.id} vendor={vendor} />
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
+
+                  {loading && (
+                    <div className="flex justify-start">
+                      <div className="rounded-2xl rounded-bl-md bg-white px-4 py-3 text-xs text-gray-500 shadow-sm">
+                        AI is checking verified listings…
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+
+                {showScrollToLatest && (
                   <button
-                    key={action}
+                    type="button"
+                    onClick={scrollToLatest}
+                    className="absolute bottom-3 left-1/2 z-20 flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-green-600 bg-[#2EAD45] text-white shadow-lg shadow-green-900/25 transition-all hover:scale-105 hover:bg-[#1E8A32] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2EAD45] focus-visible:ring-offset-2 sm:bottom-4"
+                    aria-label="Scroll to latest message"
+                  >
+                    <ArrowDown
+                      size={19}
+                      aria-hidden="true"
+                    />
+                  </button>
+                )}
+              </div>
+
+              {(locationError || locationMessage) && (
+                <div className="border-t border-amber-100 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800">
+                  <div className="flex items-start gap-2">
+                    <MapPin size={14} className="mt-0.5 shrink-0" />
+                    <span>
+                      {locationError || locationMessage}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="shrink-0 border-t border-gray-100 bg-white p-3">
+                {/* Quick actions */}
+                <div className="mb-1.5 flex h-9 min-w-0 items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {quickActions.map((action) => (
+                    <button
+                      key={action}
+                      type="button"
+                      onClick={() => {
+                        if (action === "Farmhouse near me") {
+                          void (async () => {
+                            const coords = await requestLocation();
+
+                            if (coords) {
+                              void sendMessage(
+                                "Farmhouses near me",
+                                coords,
+                              );
+                            }
+                          })();
+
+                          return;
+                        }
+
+                        void sendMessage(action);
+                      }}
+                      className="flex h-8 shrink-0 items-center whitespace-nowrap rounded-full border border-gray-200 bg-white px-2.5 text-[10px] font-medium leading-none text-gray-600 transition-colors hover:border-[#2EAD45] hover:text-[#1E8A32]"
+                    >
+                      {action}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Message input */}
+                <form
+                  onSubmit={submit}
+                  className="flex items-center gap-2"
+                >
+                  <button
                     type="button"
                     onClick={() => {
-                      if (action === "Near me") {
-                        void (async () => {
-                          const coords = await requestLocation();
-                          if (coords) {
-                            void sendMessage("Farmhouses near me", coords);
-                          }
-                        })();
-                        return;
-                      }
-                      void sendMessage(action);
+                      void requestLocation();
                     }}
-                    className="shrink-0 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-medium text-gray-600 hover:border-[#2EAD45] hover:text-[#1E8A32]"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition-colors hover:border-[#2EAD45] hover:text-[#2EAD45]"
+                    aria-label="Use my location"
+                    title="Use my location"
                   >
-                    {action}
+                    <LocateFixed size={17} aria-hidden="true" />
                   </button>
-                ))}
-              </div>
 
-              <form onSubmit={submit} className="flex items-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => { void requestLocation(); }}
-                  className="mb-0.5 rounded-xl border border-gray-200 p-3 text-gray-500 hover:border-[#2EAD45] hover:text-[#2EAD45]"
-                  aria-label="Use my location"
-                  title="Use my location"
-                >
-                  <LocateFixed size={17} />
-                </button>
-
-                <div className="flex min-w-0 flex-1 items-center rounded-2xl border border-gray-200 bg-gray-50 px-3 focus-within:border-[#2EAD45] focus-within:ring-2 focus-within:ring-green-100">
-                  <textarea
-                    value={input}
-                    onChange={(event) => setInput(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (
-                        event.key === "Enter" &&
-                        !event.shiftKey &&
-                        !event.nativeEvent.isComposing
-                      ) {
-                        event.preventDefault();
-                        void sendMessage();
+                  <div className="flex h-12 min-w-0 flex-1 items-center rounded-2xl border border-gray-200 bg-gray-50 px-3 transition-colors focus-within:border-[#2EAD45] focus-within:ring-2 focus-within:ring-green-100">
+                    <input
+                      type="text"
+                      value={input}
+                      onChange={(event) =>
+                        setInput(event.target.value)
                       }
-                    }}
-                    placeholder="Try: Pool farmhouse in Gurugram..."
-                    rows={1}
-                    className="min-h-11 min-w-0 flex-1 resize-none bg-transparent py-3 text-sm leading-5 text-[#0F172A] outline-none placeholder:text-gray-400"
-                    maxLength={1200}
-                  />
-                </div>
+                      onKeyDown={(event) => {
+                        if (
+                          event.key === "Enter" &&
+                          !event.nativeEvent.isComposing
+                        ) {
+                          event.preventDefault();
+                          void sendMessage();
+                        }
+                      }}
+                      placeholder="Try: Pool farmhouse in Gurugram..."
+                      className="h-full min-w-0 flex-1 bg-transparent text-sm leading-5 text-[#0F172A] outline-none placeholder:text-gray-400"
+                      maxLength={1200}
+                    />
+                  </div>
 
-                <button
-                  type="submit"
-                  disabled={!canSend}
-                  className="mb-0.5 rounded-xl bg-[#2EAD45] p-3 text-white transition-colors hover:bg-[#1E8A32] disabled:cursor-not-allowed disabled:opacity-40"
-                  aria-label="Send message"
-                >
-                  <Send size={17} />
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    disabled={!canSend}
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#2EAD45] text-white transition-colors hover:bg-[#1E8A32] disabled:cursor-not-allowed disabled:opacity-40"
+                    aria-label="Send message"
+                  >
+                    <Send size={17} aria-hidden="true" />
+                  </button>
+                </form>
 
-              <p className="mt-2 text-center text-[9px] text-gray-400">
-                Suggestions are based on verified BookFarmVilla listing data.
-              </p>
+                <p className="mt-2 text-center text-[9px] leading-3 text-gray-400">
+                  Suggestions are based on verified BookFarmVilla listing data.
+                </p>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </>
       )}
     </>
   );
 }
+

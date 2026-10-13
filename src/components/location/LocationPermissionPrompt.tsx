@@ -147,7 +147,7 @@ export default function LocationPermissionPrompt() {
 
   return (
     <div
-        className="fixed inset-0 z-[140] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+        className="fixed inset-0 z-[140] flex h-[100dvh] items-center justify-center bg-black/50 p-3 backdrop-blur-sm sm:p-4"
         onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
                 hideForCurrentPage();
@@ -159,19 +159,19 @@ export default function LocationPermissionPrompt() {
             aria-modal="true"
             aria-labelledby="location-prompt-title"
             aria-describedby="location-prompt-description"
-            className="relative w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl sm:p-7"
+            className="relative max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto overscroll-contain rounded-3xl border border-gray-100 bg-white p-5 shadow-2xl sm:p-7"
         >
         <button
             type="button"
             onClick={hideForCurrentPage}
-            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#0F172A]"
+            className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#0F172A] sm:right-4 sm:top-4"
             aria-label="Dismiss location request"
         >
             <X size={18} aria-hidden="true" />
         </button>
 
-        <div className="flex items-start gap-4 pr-8">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#DCFCE7]">
+        <div className="flex items-start gap-3 pr-10 sm:gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#DCFCE7] sm:h-14 sm:w-14">
             <LocateFixed
                 size={25}
                 className="text-[#2EAD45]"
@@ -212,7 +212,7 @@ export default function LocationPermissionPrompt() {
                 type="button"
                 onClick={hideForCurrentPage}
                 disabled={isRequesting}
-                className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-60"
+                className="min-h-11 w-full rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-60 sm:w-auto"
             >
             Not now
             </button>
@@ -224,7 +224,7 @@ export default function LocationPermissionPrompt() {
                     void handleAllowLocation();
                 }}
                 disabled={isRequesting}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#2EAD45] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1E8A32] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#2EAD45] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1E8A32] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
             <LocateFixed
                 size={16}

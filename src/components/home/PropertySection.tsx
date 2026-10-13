@@ -27,14 +27,14 @@ export default function PropertySection({
   return (
     <section
       id={id}
-      className={`scroll-mt-20 py-20 ${backgroundClassName}`}
+      className={`scroll-mt-16 py-12 sm:scroll-mt-20 sm:py-16 lg:py-20 ${backgroundClassName}`}
       aria-labelledby={`${id}-heading`}
     >
-      <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
         {/* Section heading */}
-        <div className="mb-10 flex items-end justify-between gap-6">
+        <div className="mb-7 flex items-end justify-between gap-4 sm:mb-10 sm:gap-6">
           <div>
-            <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-[#2EAD45] sm:mb-2 sm:text-sm">
               {subtitle}
             </p>
 
@@ -62,22 +62,23 @@ export default function PropertySection({
         {/* Property cards */}
         {isLoading ? (
           <div
-            className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center text-sm text-gray-500"
+            className="rounded-2xl border border-gray-200 bg-white px-6 py-12 text-center sm:py-16 text-sm text-gray-500"
             role="status"
           >
             Loading properties...
           </div>
         ) : properties.length > 0 ? (
-          <div className="scrollbar-hide flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 md:grid md:snap-none md:grid-cols-2 md:overflow-visible lg:grid-cols-3 xl:grid-cols-4">
+          <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 scroll-px-4 sm:-mx-6 sm:gap-5 sm:px-6 sm:scroll-px-6 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3 xl:grid-cols-4">
             {properties.map((property) => (
               <PropertyCard
                 key={property.id}
                 property={property}
+                displayMode="carousel"
               />
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
+          <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center sm:py-16">
             <p className="text-base font-semibold text-[#0F172A]">
               No properties available
             </p>

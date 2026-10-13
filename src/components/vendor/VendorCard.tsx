@@ -12,6 +12,7 @@ import { FaWhatsapp } from "react-icons/fa";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
 import { getVendorPriceDisplay } from "@/lib/formatters";
+import { isVideoUrl } from "@/lib/media";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type {
   VendorCategory,
@@ -38,7 +39,8 @@ function getPrimaryVendorImage(
         Number(firstImage.isPrimary),
     )
     .map((image) => image.url?.trim())
-    .find(Boolean);
+    .filter((mediaUrl): mediaUrl is string => Boolean(mediaUrl))
+    .find((mediaUrl) => !isVideoUrl(mediaUrl));
 
   if (!imageUrl) {
     return null;
@@ -86,7 +88,7 @@ export default function VendorCard({
     Number.isFinite(vendor.averageRating);
 
   return (
-    <article className="group relative flex h-full w-[300px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl md:w-auto">
+    <article className="group relative flex h-full w-full min-w-0 max-w-[420px] flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:max-w-none">
       <Link
         href={`/vendors/${encodeURIComponent(
           vendor.id,
@@ -96,14 +98,14 @@ export default function VendorCard({
         className="absolute inset-0 z-10 cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2EAD45] focus-visible:ring-inset"
         aria-label={`Open details for ${vendor.name} in a new tab`}
       />
-      <div className="relative h-[200px] shrink-0 overflow-hidden bg-[#F0FDF4]">
+      <div className="relative h-44 shrink-0 overflow-hidden bg-[#F0FDF4] sm:h-[200px]">
         {imageUrl && !imageFailed ? (
           <Image
             src={imageUrl}
             alt={`${vendor.name} in ${vendor.city}`}
             fill
             unoptimized
-            sizes="(max-width: 767px) 300px, (max-width: 1023px) 50vw, 25vw"
+            sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) 50vw, 25vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             onError={() => setImageFailed(true)}
           />
@@ -128,7 +130,7 @@ export default function VendorCard({
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-3.5 sm:p-4">
         <div className="mb-1 flex items-start justify-between gap-2">
           <h3
             className="line-clamp-1 text-base font-semibold leading-tight text-[#0F172A]"
@@ -164,7 +166,7 @@ export default function VendorCard({
           </span>
         </div>
 
-        <p className="mb-4 line-clamp-2 min-h-10 text-xs leading-5 text-gray-600">
+        <p className="mb-4 line-clamp-2 min-h-10 break-words text-xs leading-5 text-gray-600">
           {description}
         </p>
 
@@ -175,7 +177,7 @@ export default function VendorCard({
             </p>
 
             <p
-              className="text-sm font-bold leading-tight text-[#0F172A]"
+              className="break-words text-sm font-bold leading-tight text-[#0F172A]"
               title={priceDisplay.value}
             >
               {priceDisplay.value}

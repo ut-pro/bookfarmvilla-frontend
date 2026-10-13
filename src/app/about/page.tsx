@@ -169,7 +169,7 @@ export default function AboutPage() {
 
       <main>
         {/* Hero */}
-        <section className="relative flex min-h-[68vh] items-center overflow-hidden">
+        <section className="relative flex min-h-[68svh] items-center overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
@@ -214,7 +214,7 @@ export default function AboutPage() {
         </section>
 
         {/* About introduction */}
-        <section className="bg-white py-20">
+        <section className="bg-white py-12 sm:py-16 lg:py-20">
           <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:px-12">
             <div>
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
@@ -268,7 +268,7 @@ export default function AboutPage() {
         </section>
 
         {/* Our Story */}
-        <section className="bg-[#F8FAFC] py-20">
+        <section className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-[1000px] px-6 text-center lg:px-12">
             <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
               Our Story
@@ -301,8 +301,8 @@ export default function AboutPage() {
         </section>
 
         {/* What We Offer */}
-        <section className="bg-white py-20">
-          <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+        <section className="bg-white py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="mb-14 text-center">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
                 What We Offer
@@ -341,9 +341,9 @@ export default function AboutPage() {
         </section>
 
         {/* Vision and Mission */}
-        <section className="bg-[#F8FAFC] py-20">
+        <section className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20">
           <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-6 px-6 lg:grid-cols-2 lg:px-12">
-            <article className="rounded-3xl bg-[#0F172A] p-8 text-white md:p-10">
+            <article className="rounded-2xl bg-[#0F172A] p-5 text-white sm:rounded-3xl sm:p-8 md:p-10">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#2EAD45]/20">
                 <Target size={24} className="text-[#4CAF50]" aria-hidden="true" />
               </div>
@@ -366,7 +366,7 @@ export default function AboutPage() {
               </div>
             </article>
 
-            <article className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
+            <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:rounded-3xl sm:p-8 md:p-10">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#DCFCE7]">
                 <Sparkles size={24} className="text-[#2EAD45]" aria-hidden="true" />
               </div>
@@ -402,8 +402,8 @@ export default function AboutPage() {
         </section>
 
         {/* How BookFarmVilla Helps */}
-        <section className="bg-white py-20">
-          <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+        <section className="bg-white py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="mb-14 text-center">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
                 How BookFarmVilla Helps
@@ -441,7 +441,7 @@ export default function AboutPage() {
         </section>
 
         {/* Why Choose BookFarmVilla */}
-        <section className="relative overflow-hidden bg-[#0F172A] py-20">
+        <section className="relative overflow-hidden bg-[#0F172A] py-12 sm:py-16 lg:py-20">
           <div
             className="absolute inset-0 opacity-5"
             style={{
@@ -450,7 +450,7 @@ export default function AboutPage() {
               backgroundSize: "40px 40px",
             }}
           />
-          <div className="relative mx-auto max-w-[1440px] px-6 lg:px-12">
+          <div className="relative mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="mb-14 text-center">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#4CAF50]">
                 Why Choose BookFarmVilla?
@@ -483,7 +483,7 @@ export default function AboutPage() {
         </section>
 
         {/* Our Commitment */}
-        <section className="bg-white py-20">
+        <section className="bg-white py-12 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-[1100px] px-6 text-center lg:px-12">
             <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
               Our Commitment
@@ -511,8 +511,8 @@ export default function AboutPage() {
         </section>
 
         {/* Final statement */}
-        <section className="bg-[#F8FAFC] py-20">
-          <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+        <section className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="rounded-3xl bg-gradient-to-r from-[#1E8A32] via-[#2EAD45] to-[#4CAF50] px-6 py-14 text-center text-white md:px-12">
               <p className="text-sm font-semibold uppercase tracking-widest text-green-100">
                 One occasion. Multiple requirements.
@@ -546,3 +546,4 @@ export default function AboutPage() {
     </>
   );
 }
+

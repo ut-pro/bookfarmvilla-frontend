@@ -194,11 +194,11 @@ export default async function VendorsPage({
       />
       <Header />
 
-      <main className="min-h-screen bg-[#F8FAFC] pb-20 pt-28">
+      <main className="min-h-screen bg-[#F8FAFC] pb-12 pt-24 sm:pb-16 sm:pt-28 lg:pb-20">
         <section aria-labelledby="vendors-page-heading">
-          <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-            <div className="mb-8">
-              <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
+            <div className="mb-7 sm:mb-8">
+              <p className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-[#2EAD45] sm:mb-2 sm:text-sm">
                 Vendors & Services
               </p>
 
@@ -218,12 +218,14 @@ export default async function VendorsPage({
             </div>
 
             <nav
-              className="mb-10 flex gap-3 overflow-x-auto pb-2"
+              className="scrollbar-hide -mx-4 mb-8 flex snap-x gap-2.5 overflow-x-auto px-4 pb-2 scroll-px-4 sm:-mx-6 sm:mb-10 sm:gap-3 sm:px-6 sm:scroll-px-6 lg:mx-0 lg:px-0"
               aria-label="Filter service providers by category"
             >
               <Link
                 href="/vendors"
-                className={`shrink-0 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors ${
+                scroll={false}
+                aria-current={!selectedCategory ? "page" : undefined}
+                className={`min-h-11 shrink-0 snap-start rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors sm:px-5 ${
                   !selectedCategory
                     ? "border-[#2EAD45] bg-[#2EAD45] text-white"
                     : "border-gray-200 bg-white text-gray-600 hover:border-[#2EAD45] hover:text-[#1E8A32]"
@@ -240,7 +242,9 @@ export default async function VendorsPage({
                   <Link
                     key={item.category}
                     href={`/vendors?category=${item.category}`}
-                    className={`shrink-0 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors ${
+                    scroll={false}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`min-h-11 shrink-0 snap-start rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors sm:px-5 ${
                       isActive
                         ? "border-[#2EAD45] bg-[#2EAD45] text-white"
                         : "border-gray-200 bg-white text-gray-600 hover:border-[#2EAD45] hover:text-[#1E8A32]"

@@ -86,7 +86,7 @@ export default function CareersPage() {
 
       <main>
         {/* Hero */}
-        <section className="relative flex min-h-[72vh] items-center overflow-hidden bg-[#0F172A] pb-20 pt-36 text-white">
+        <section className="relative flex min-h-[72svh] items-center overflow-hidden bg-[#0F172A] pb-12 pt-28 text-white sm:pb-16 sm:pt-32 lg:pb-20 lg:pt-36">
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25"
             style={{
@@ -105,7 +105,7 @@ export default function CareersPage() {
           />
           <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#2EAD45]/20 blur-3xl" />
 
-          <div className="relative mx-auto w-full max-w-[1440px] px-6 lg:px-12">
+          <div className="relative mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="max-w-4xl">
               <div className="text-sm">
                 <Link
@@ -123,7 +123,7 @@ export default function CareersPage() {
                 Join Our Startup Journey
               </div>
 
-              <h1 className="mt-6 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+              <h1 className="mt-6 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl">
                 Careers at BookFarmVilla
               </h1>
 
@@ -166,10 +166,10 @@ export default function CareersPage() {
         {/* Opportunities */}
         <section
           id="opportunities"
-          className="scroll-mt-20 bg-white py-20"
+          className="scroll-mt-20 bg-white py-12 sm:py-16 lg:py-20"
           aria-labelledby="opportunities-heading"
         >
-          <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="mb-14 text-center">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
                 Opportunities With Us
@@ -216,9 +216,9 @@ export default function CareersPage() {
         </section>
 
         {/* What You Can Expect */}
-        <section className="bg-[#F8FAFC] py-20">
+        <section className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20">
           <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-center gap-10 px-6 lg:grid-cols-2 lg:px-12">
-            <div className="rounded-3xl bg-[#0F172A] p-8 text-white md:p-10">
+            <div className="rounded-2xl bg-[#0F172A] p-5 text-white sm:rounded-3xl sm:p-8 md:p-10">
               <div className="flex h-13 w-13 items-center justify-center rounded-2xl bg-[#2EAD45]/20">
                 <Laptop
                   size={25}
@@ -282,7 +282,7 @@ export default function CareersPage() {
             </div>
           </div>
 
-          <div className="mx-auto mt-10 max-w-[1440px] px-6 lg:px-12">
+          <div className="mx-auto mt-10 max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="rounded-2xl border border-green-100 bg-[#DCFCE7]/40 p-6 text-center">
               <p className="mx-auto max-w-4xl leading-8 text-[#166534]">
                 We encourage people to think independently, bring new ideas
@@ -295,9 +295,9 @@ export default function CareersPage() {
         </section>
 
         {/* Compensation */}
-        <section className="bg-white py-20">
-          <div className="mx-auto max-w-[1100px] px-6 lg:px-12">
-            <div className="rounded-3xl border border-amber-100 bg-amber-50 p-8 md:p-10">
+        <section className="bg-white py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-[1100px] px-4 sm:px-6 lg:px-8 xl:px-12">
+            <div className="rounded-2xl border border-amber-100 bg-amber-50 p-5 sm:rounded-3xl sm:p-8 md:p-10">
               <div className="flex flex-col gap-6 md:flex-row md:items-start">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
                   <Award size={27} aria-hidden="true" />
@@ -336,7 +336,7 @@ export default function CareersPage() {
         </section>
 
         {/* Future Opportunities */}
-        <section className="bg-[#F8FAFC] py-20">
+        <section className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20">
           <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-center gap-10 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-12">
             <div className="flex min-h-[320px] items-center justify-center rounded-3xl bg-gradient-to-br from-[#1E8A32] via-[#2EAD45] to-[#4CAF50] p-8 text-center text-white">
               <div>
@@ -377,7 +377,7 @@ export default function CareersPage() {
         </section>
 
         {/* Who We Look For */}
-        <section className="bg-white py-20">
+        <section className="bg-white py-12 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-[1200px] px-6 text-center lg:px-12">
             <p className="text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
               Who We Look For
@@ -405,8 +405,8 @@ export default function CareersPage() {
         </section>
 
         {/* Final CTA */}
-        <section className="bg-[#F8FAFC] py-20">
-          <div className="mx-auto max-w-[1200px] px-6 lg:px-12">
+        <section className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="rounded-3xl bg-[#0F172A] px-6 py-14 text-center text-white md:px-12">
               <Briefcase
                 size={38}
@@ -436,3 +436,4 @@ export default function CareersPage() {
     </>
   );
 }
+

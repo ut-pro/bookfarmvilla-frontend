@@ -4,16 +4,16 @@ import {
   Building2,
   MapPin,
   PhoneCall,
+  Sparkles,
   Star,
   Users,
-  Sparkles,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
-import AmenityIcon from "@/components/ui/AmenityIcon";
-import DetailsImageGallery from "@/components/ui/DetailsImageGallery";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
 import { useUserLocation } from "@/components/location/UserLocationContext";
+import AmenityIcon from "@/components/ui/AmenityIcon";
+import DetailsImageGallery from "@/components/ui/DetailsImageGallery";
 import { calculateDistanceInKm } from "@/lib/distance";
 import { getPropertyPriceDisplay } from "@/lib/formatters";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -35,18 +35,22 @@ const propertyTypeLabels: Record<PropertyType, string> = {
 export default function PropertyDetailsPageContent({
   property,
 }: PropertyDetailsPageContentProps) {
-
   const { openPropertyCallback } = useCallbackModal();
-  const { location: userLocation } =
-    useUserLocation();
+  const { location: userLocation } = useUserLocation();
 
-  const images =
-    property.imageUrls && property.imageUrls.length > 0
-      ? property.imageUrls
-      : [property.imageUrl];
+  const mediaUrls =
+    property.mediaUrls && property.mediaUrls.length > 0
+      ? property.mediaUrls
+      : property.imageUrls && property.imageUrls.length > 0
+        ? property.imageUrls
+        : [property.imageUrl];
 
-  const amenityCount =
-    property.amenities?.length ?? 0;
+  const amenities =
+    property.amenities
+      ?.map((amenity) => amenity.trim())
+      .filter(Boolean) ?? [];
+
+  const amenityCount = amenities.length;
 
   const priceDisplay = getPropertyPriceDisplay(
     property.startingPrice,
@@ -63,33 +67,32 @@ export default function PropertyDetailsPageContent({
   );
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-gray-100 bg-white">
+    <article className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm sm:rounded-3xl">
       <DetailsImageGallery
-        images={images}
+        mediaUrls={mediaUrls}
         title={property.name}
         badge={propertyTypeLabels[property.type]}
       />
 
-      <div className="p-6 sm:p-8 lg:p-10">
-        <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
+      <div className="p-4 sm:p-8 lg:p-10">
+        <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start sm:gap-6">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold leading-tight text-[#0F172A] sm:text-4xl">
+            <h1 className="break-words text-2xl font-bold leading-tight text-[#0F172A] sm:text-3xl lg:text-4xl">
               {property.name}
             </h1>
 
-            <p className="mt-3 flex items-start gap-2 text-sm leading-6 text-gray-500 sm:text-base">
+            <p className="mt-3 flex items-start gap-2 break-words text-sm leading-6 text-gray-500 sm:text-base">
               <MapPin
                 size={18}
                 className="mt-0.5 shrink-0 text-[#2EAD45]"
                 aria-hidden="true"
               />
-              {property.location}
+              <span className="min-w-0">{property.location}</span>
             </p>
 
             {distanceKm !== undefined && (
               <p className="mt-2 text-sm font-semibold text-[#1E8A32]">
-                {distanceKm.toFixed(1)} km away from your
-                location
+                {distanceKm.toFixed(1)} km away from your location
               </p>
             )}
           </div>
@@ -104,159 +107,158 @@ export default function PropertyDetailsPageContent({
                 className="fill-amber-400 text-amber-400"
                 aria-hidden="true"
               />
-              <span className="font-bold">
-                {property.rating}
-              </span>
+              <span className="font-bold">{property.rating}</span>
             </div>
           )}
-        </div>
+        </header>
 
-        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl bg-[#F8FAFC] p-5">
-            <Building2
-              size={21}
-              className="text-[#2EAD45]"
-              aria-hidden="true"
-            />
-            <p className="mt-2 text-xs text-gray-500">
-              Property type
-            </p>
-            <p className="mt-1 text-sm font-semibold text-[#0F172A]">
-              {propertyTypeLabels[property.type]}
-            </p>
-          </div>
+        <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_320px] xl:gap-10 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="min-w-0">
+            <section aria-label="Property summary">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="min-w-0 rounded-2xl bg-[#F8FAFC] p-4 sm:p-5">
+                  <Building2
+                    size={21}
+                    className="text-[#2EAD45]"
+                    aria-hidden="true"
+                  />
+                  <p className="mt-2 text-xs text-gray-500">
+                    Property type
+                  </p>
+                  <p className="mt-1 break-words text-sm font-semibold text-[#0F172A]">
+                    {propertyTypeLabels[property.type]}
+                  </p>
+                </div>
 
-          <div className="rounded-2xl bg-[#F8FAFC] p-5">
-            <Users
-              size={21}
-              className="text-[#2EAD45]"
-              aria-hidden="true"
-            />
-            <p className="mt-2 text-xs text-gray-500">
-              Guest capacity
-            </p>
-            <p className="mt-1 text-sm font-semibold text-[#0F172A]">
-              {property.guestCapacity > 0
-                ? `Up to ${property.guestCapacity} guests`
-                : "Contact for capacity"}
-            </p>
-          </div>
+                <div className="min-w-0 rounded-2xl bg-[#F8FAFC] p-4 sm:p-5">
+                  <Users
+                    size={21}
+                    className="text-[#2EAD45]"
+                    aria-hidden="true"
+                  />
+                  <p className="mt-2 text-xs text-gray-500">
+                    Guest capacity
+                  </p>
+                  <p className="mt-1 break-words text-sm font-semibold text-[#0F172A]">
+                    {property.guestCapacity > 0
+                      ? `Up to ${property.guestCapacity} guests`
+                      : "Contact for capacity"}
+                  </p>
+                </div>
 
-          <div className="rounded-2xl bg-[#F8FAFC] p-5">
-            <Sparkles
-              size={21}
-              className="text-[#2EAD45]"
-              aria-hidden="true"
-            />
-
-            <p className="mt-2 text-xs text-gray-500">
-              Amenities
-            </p>
-
-            <p className="mt-1 text-sm font-semibold text-[#0F172A]">
-              {amenityCount > 0
-                ? `${amenityCount} ${
-                    amenityCount === 1
-                      ? "amenity"
-                      : "amenities"
-                  } included`
-                : "Contact for amenities"}
-            </p>
-          </div>
-        </div>
-
-        {property.description && (
-          <section
-            className="mt-10"
-            aria-labelledby="property-page-description"
-          >
-            <h2
-              id="property-page-description"
-              className="text-xl font-bold text-[#0F172A]"
-            >
-              About this property
-            </h2>
-
-            <p className="mt-4 whitespace-pre-line text-sm leading-8 text-gray-600 sm:text-base">
-              {property.description}
-            </p>
-          </section>
-        )}
-
-        {property.amenities &&
-          property.amenities.length > 0 && (
-            <section
-              className="mt-10"
-              aria-labelledby="property-page-amenities"
-            >
-              <h2
-                id="property-page-amenities"
-                className="text-xl font-bold text-[#0F172A]"
-              >
-                Amenities
-              </h2>
-
-              <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {property.amenities.map((amenity) => (
-                  <div
-                    key={amenity}
-                    className="flex items-center gap-3 rounded-2xl border border-green-100 bg-[#F0FDF4] px-4 py-3.5"
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#2EAD45]">
-                      <AmenityIcon
-                        amenity={amenity}
-                        size={18}
-                      />
-                    </span>
-
-                    <span className="text-sm font-semibold text-[#0F172A]">
-                      {amenity}
-                    </span>
-                  </div>
-                ))}
+                <div className="col-span-2 min-w-0 rounded-2xl bg-[#F8FAFC] p-4 sm:col-span-1 sm:p-5">
+                  <Sparkles
+                    size={21}
+                    className="text-[#2EAD45]"
+                    aria-hidden="true"
+                  />
+                  <p className="mt-2 text-xs text-gray-500">
+                    Amenities
+                  </p>
+                  <p className="mt-1 break-words text-sm font-semibold text-[#0F172A]">
+                    {amenityCount > 0
+                      ? `${amenityCount} ${
+                          amenityCount === 1
+                            ? "amenity"
+                            : "amenities"
+                        } included`
+                      : "Contact for amenities"}
+                  </p>
+                </div>
               </div>
             </section>
-          )}
 
-        <div className="mt-10 flex flex-col gap-5 border-t border-gray-100 pt-7 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+            {property.description && (
+              <section
+                className="mt-8 sm:mt-10"
+                aria-labelledby="property-page-description"
+              >
+                <h2
+                  id="property-page-description"
+                  className="text-xl font-bold text-[#0F172A]"
+                >
+                  About this property
+                </h2>
+
+                <p className="mt-4 whitespace-pre-line break-words text-sm leading-7 text-gray-600 sm:text-base sm:leading-8">
+                  {property.description}
+                </p>
+              </section>
+            )}
+
+            {amenities.length > 0 && (
+              <section
+                className="mt-8 sm:mt-10"
+                aria-labelledby="property-page-amenities"
+              >
+                <h2
+                  id="property-page-amenities"
+                  className="text-xl font-bold text-[#0F172A]"
+                >
+                  Amenities
+                </h2>
+
+                <div className="mt-5 grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-3">
+                  {amenities.map((amenity) => (
+                    <div
+                      key={amenity}
+                      className="flex min-w-0 items-center gap-2.5 rounded-2xl border border-green-100 bg-[#F0FDF4] px-3 py-3 sm:gap-3 sm:px-4 sm:py-3.5"
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-[#2EAD45] sm:h-9 sm:w-9">
+                        <AmenityIcon
+                          amenity={amenity}
+                          size={18}
+                        />
+                      </span>
+
+                      <span className="min-w-0 break-words text-xs font-semibold text-[#0F172A] sm:text-sm">
+                        {amenity}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+
+          <aside className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:sticky lg:top-28 sm:p-6">
             <p className="text-xs font-medium text-gray-400">
               {priceDisplay.label || "Pricing"}
             </p>
 
-            <p className="mt-1 text-2xl font-bold text-[#0F172A]">
+            <p
+              className="mt-1 break-words text-2xl font-bold text-[#0F172A]"
+              title={priceDisplay.value}
+            >
               {priceDisplay.value}
             </p>
-          </div>
 
-          <div className="flex w-full items-center gap-2 sm:w-auto">
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`WhatsApp about ${property.name}`}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-50 text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
-            >
-              <FaWhatsapp
-                size={20}
-                aria-hidden="true"
-              />
-            </a>
+            <p className="mt-3 text-sm leading-6 text-gray-500">
+              Contact our team to confirm availability and final pricing for your event.
+            </p>
 
-            <button
-              type="button"
-              onClick={() =>
-                openPropertyCallback(property)
-              }
-              className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[#2EAD45] px-6 text-sm font-semibold text-white shadow-md shadow-green-500/20 transition-colors hover:bg-[#1E8A32] sm:flex-none"
-            >
-              <PhoneCall
-                size={18}
-                aria-hidden="true"
-              />
-              Request Callback
-            </button>
-          </div>
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`WhatsApp about ${property.name}`}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#2EAD45] bg-green-50 px-4 text-sm font-semibold text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+              >
+                <FaWhatsapp size={20} aria-hidden="true" />
+                WhatsApp
+              </a>
+
+              <button
+                type="button"
+                onClick={() => openPropertyCallback(property)}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#2EAD45] px-4 text-sm font-semibold text-white shadow-md shadow-green-500/20 transition-colors hover:bg-[#1E8A32]"
+              >
+                <PhoneCall size={18} aria-hidden="true" />
+                Request Callback
+              </button>
+            </div>
+          </aside>
         </div>
       </div>
     </article>

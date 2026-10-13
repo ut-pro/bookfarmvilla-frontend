@@ -42,12 +42,12 @@ export default function PartnerSection() {
     <>
       <section
         id="partner"
-        className="scroll-mt-20 bg-[#F8FAFC] py-20"
+        className="scroll-mt-16 bg-[#F8FAFC] py-12 sm:scroll-mt-20 sm:py-16 lg:py-20"
         aria-labelledby="partner-heading"
       >
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
           <div
-            className="relative overflow-hidden rounded-3xl p-8 sm:p-10 md:p-16"
+            className="relative overflow-hidden rounded-2xl p-5 sm:rounded-3xl sm:p-10 lg:p-14 xl:p-16"
             style={{
               background:
                 "linear-gradient(135deg, #1E8A32 0%, #2EAD45 50%, #4CAF50 100%)",
@@ -58,15 +58,15 @@ export default function PartnerSection() {
             <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-white/10" />
             <div className="absolute right-1/4 top-1/2 h-32 w-32 -translate-y-1/2 rounded-full bg-white/5" />
 
-            <div className="relative flex flex-col items-center justify-between gap-12 lg:flex-row">
+            <div className="relative flex flex-col items-center justify-between gap-8 sm:gap-10 lg:flex-row lg:gap-12">
               <div className="flex-1 text-center lg:text-left">
-                <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-green-200">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-green-200 sm:mb-3 sm:text-sm">
                   Property Owners
                 </p>
 
                 <h2
                   id="partner-heading"
-                  className="mb-6 font-bold leading-tight text-white"
+                  className="mb-4 font-bold leading-tight text-white sm:mb-6"
                   style={{
                     fontSize: "clamp(28px, 3vw, 42px)",
                   }}
@@ -76,13 +76,13 @@ export default function PartnerSection() {
                   BookFarmVilla
                 </h2>
 
-                <p className="mb-8 max-w-xl text-base leading-relaxed text-green-100 md:text-lg">
+                <p className="mb-6 max-w-xl text-sm leading-relaxed text-green-100 sm:mb-8 sm:text-base md:text-lg">
                   Own a farmhouse, villa or wedding venue? Connect with our
                   team to discuss your property and start the listing review
                   process.
                 </p>
 
-                <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="mb-6 grid grid-cols-1 gap-3 sm:mb-8 sm:grid-cols-2">
                   {partnerBenefits.map((benefit) => (
                     <div
                       key={benefit}
@@ -103,18 +103,18 @@ export default function PartnerSection() {
                 <button
                   type="button"
                   onClick={() => setIsPartnerModalOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-bold text-[#2EAD45] shadow-xl shadow-green-900/20 transition-colors hover:bg-green-50"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm sm:w-auto sm:px-8 sm:py-4 sm:text-base font-bold text-[#2EAD45] shadow-xl shadow-green-900/20 transition-colors hover:bg-green-50"
                 >
                   Talk to Our Team
                   <ArrowRight size={18} aria-hidden="true" />
                 </button>
               </div>
 
-              <div className="grid w-full shrink-0 grid-cols-2 gap-3 sm:gap-4 lg:w-auto">
+              <div className="grid w-full shrink-0 grid-cols-2 gap-2.5 sm:gap-4 lg:w-auto">
                 {onboardingSteps.map((step) => (
                   <article
                     key={step.number}
-                    className="rounded-2xl border border-white/20 bg-white/20 p-4 text-center backdrop-blur-sm sm:p-5 lg:w-44"
+                    className="rounded-2xl border border-white/20 bg-white/20 p-3 text-center backdrop-blur-sm sm:p-5 lg:w-44"
                   >
                     <p className="text-2xl font-bold text-white">
                       {step.number}
@@ -137,3 +137,4 @@ export default function PartnerSection() {
     </>
   );
 }
+

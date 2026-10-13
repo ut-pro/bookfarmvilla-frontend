@@ -41,8 +41,8 @@ export default function TrustFeatures() {
       className="border-b border-gray-100 bg-white shadow-sm"
       aria-label="Why users trust BookFarmVilla"
     >
-      <div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-12">
-        <div className="grid grid-cols-2 gap-2 sm:gap-6 lg:grid-cols-4">
+      <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 xl:px-12">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4 lg:gap-6">
           {trustFeatures.map((feature) => {
             const Icon = feature.icon;
 

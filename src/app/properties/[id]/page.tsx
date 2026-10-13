@@ -29,22 +29,17 @@ export default async function PropertyDetailsPage({
     <>
       <Header />
 
-      <main className="min-h-screen bg-[#F8FAFC] pb-20 pt-28">
-        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-12">
+      <main className="min-h-screen bg-[#F8FAFC] pb-12 pt-24 sm:pb-16 sm:pt-28 lg:pb-20">
+        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8 xl:px-12">
           <Link
             href="/properties"
-            className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-[#1E8A32] transition-colors hover:text-[#0F172A]"
+            className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-semibold text-[#1E8A32] transition-colors hover:text-[#0F172A] sm:mb-6"
           >
-            <ArrowLeft
-              size={17}
-              aria-hidden="true"
-            />
+            <ArrowLeft size={17} aria-hidden="true" />
             Back to Properties
           </Link>
 
-          <PropertyDetailsPageContent
-            property={property}
-          />
+          <PropertyDetailsPageContent property={property} />
         </div>
       </main>
 

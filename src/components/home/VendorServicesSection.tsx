@@ -122,13 +122,13 @@ export default async function VendorServicesSection() {
   return (
     <section
       id="vendors-services"
-      className="scroll-mt-20 bg-[#F8FAFC] py-20"
+      className="scroll-mt-16 bg-[#F8FAFC] py-12 sm:scroll-mt-20 sm:py-16 lg:py-20"
       aria-labelledby="vendor-services-heading"
     >
-      <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-        <div className="mb-10 flex items-end justify-between gap-6">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
+        <div className="mb-7 flex items-end justify-between gap-4 sm:mb-10 sm:gap-6">
           <div>
-            <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-[#2EAD45] sm:mb-2 sm:text-sm">
               EVERYTHING ELSE, SORTED
             </p>
 
@@ -158,16 +158,16 @@ export default async function VendorServicesSection() {
           </Link>
         </div>
 
-        <div className="scrollbar-hide flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 md:grid md:snap-none md:grid-cols-2 md:overflow-visible lg:grid-cols-3 xl:grid-cols-5">
+        <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 scroll-px-4 sm:-mx-6 sm:gap-5 sm:px-6 sm:scroll-px-6 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3 xl:grid-cols-5">
           {serviceCards.map((service) => {
             const Icon = service.icon;
 
             return (
               <article
                 key={service.category}
-                className="group flex min-h-[280px] w-[300px] flex-shrink-0 snap-start flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#BBF7D0] hover:shadow-xl md:w-auto"
+                className="group flex min-h-[260px] w-[82vw] min-w-[260px] max-w-[320px] flex-shrink-0 snap-start flex-col rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#BBF7D0] hover:shadow-xl sm:min-h-[280px] sm:p-6 md:w-auto md:min-w-0 md:max-w-none"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#DCFCE7]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#DCFCE7] sm:h-14 sm:w-14">
                   <Icon
                     size={25}
                     className="text-[#2EAD45]"
@@ -175,7 +175,7 @@ export default async function VendorServicesSection() {
                   />
                 </div>
 
-                <h3 className="mt-5 text-xl font-bold text-[#0F172A]">
+                <h3 className="mt-4 text-lg font-bold text-[#0F172A] sm:mt-5 sm:text-xl">
                   {service.title}
                 </h3>
 

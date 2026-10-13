@@ -131,7 +131,7 @@ export default function CallbackForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-5"
+      className="space-y-4 sm:space-y-5"
       noValidate
     >
       {/* Property or vendor selection */}
@@ -149,7 +149,7 @@ export default function CallbackForm({
             type="text"
             value={`${initialVendor.name} — ${initialVendor.city}`}
             readOnly
-            className="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-sm text-[#0F172A] outline-none"
+            className="min-h-12 w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-base text-[#0F172A] outline-none sm:text-sm"
           />
 
           <p className="mt-1.5 text-xs text-gray-500">
@@ -180,7 +180,7 @@ export default function CallbackForm({
               }
             }}
             disabled={Boolean(initialProperty)}
-            className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-[#0F172A] outline-none transition-colors disabled:cursor-not-allowed disabled:bg-gray-100 ${
+            className={`min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-base text-[#0F172A] outline-none transition-colors disabled:cursor-not-allowed disabled:bg-gray-100 sm:text-sm ${
               errors.propertyId
                 ? "border-red-400 focus:border-red-500"
                 : "border-gray-200 focus:border-[#2EAD45]"
@@ -235,7 +235,7 @@ export default function CallbackForm({
           }}
           placeholder="Enter your full name"
           autoComplete="name"
-          className={`w-full rounded-xl border px-4 py-3 text-sm text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 ${
+          className={`min-h-12 w-full rounded-xl border px-4 py-3 text-base text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 sm:text-sm ${
             errors.name
               ? "border-red-400 focus:border-red-500"
               : "border-gray-200 focus:border-[#2EAD45]"
@@ -276,7 +276,7 @@ export default function CallbackForm({
             }}
             placeholder="+91 98765 43210"
             autoComplete="tel"
-            className={`w-full rounded-xl border px-4 py-3 text-sm text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 ${
+            className={`min-h-12 w-full rounded-xl border px-4 py-3 text-base text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 sm:text-sm ${
               errors.phone
                 ? "border-red-400 focus:border-red-500"
                 : "border-gray-200 focus:border-[#2EAD45]"
@@ -317,7 +317,7 @@ export default function CallbackForm({
             }}
             placeholder="you@example.com"
             autoComplete="email"
-            className={`w-full rounded-xl border px-4 py-3 text-sm text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 ${
+            className={`min-h-12 w-full rounded-xl border px-4 py-3 text-base text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 sm:text-sm ${
               errors.email
                 ? "border-red-400 focus:border-red-500"
                 : "border-gray-200 focus:border-[#2EAD45]"
@@ -366,7 +366,7 @@ export default function CallbackForm({
           maxLength={500}
           rows={4}
           placeholder="Tell us about your event or any specific requirements..."
-          className={`w-full resize-none rounded-xl border px-4 py-3 text-sm text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 ${
+          className={`w-full resize-none rounded-xl border px-4 py-3 text-base text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 sm:text-sm ${
             errors.message
               ? "border-red-400 focus:border-red-500"
               : "border-gray-200 focus:border-[#2EAD45]"
@@ -382,7 +382,7 @@ export default function CallbackForm({
 
       {/* API-level submission error */}
       {submitError && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="break-words rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           {submitError}
         </div>
       )}
@@ -393,7 +393,7 @@ export default function CallbackForm({
           type="button"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="rounded-xl border border-gray-200 px-6 py-3 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="min-h-12 w-full rounded-xl border border-gray-200 px-6 py-3 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           Cancel
         </button>
@@ -401,7 +401,7 @@ export default function CallbackForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-xl bg-[#2EAD45] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1E8A32] disabled:cursor-not-allowed disabled:opacity-60"
+          className="min-h-12 w-full rounded-xl bg-[#2EAD45] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1E8A32] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           {isSubmitting
             ? "Submitting..."

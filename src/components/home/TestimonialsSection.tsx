@@ -6,13 +6,13 @@ import { mockTestimonials } from "@/data/testimonials";
 export default function TestimonialsSection() {
   return (
     <section
-      className="bg-[#F8FAFC] py-20"
+      className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20"
       aria-labelledby="testimonials-heading"
     >
-      <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
         {/* Section heading */}
-        <div className="mb-14 text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
+        <div className="mb-8 text-center sm:mb-10 lg:mb-14">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#2EAD45] sm:mb-3 sm:text-sm">
             Customer Reviews
           </p>
 
@@ -26,18 +26,18 @@ export default function TestimonialsSection() {
             What Our Guests Say
           </h2>
 
-          <p className="mx-auto mt-4 max-w-xl text-gray-500">
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-gray-500 sm:mt-4 sm:text-base">
             Experiences from guests who found venues with assistance from
             BookFarmVilla.
           </p>
         </div>
 
         {/* Testimonial cards */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 scroll-px-4 sm:-mx-6 sm:gap-5 sm:px-6 sm:scroll-px-6 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3">
           {mockTestimonials.map((testimonial) => (
             <article
               key={testimonial.id}
-              className="group relative flex flex-col rounded-2xl bg-white p-7 shadow-md transition-shadow hover:shadow-lg"
+              className="group relative flex h-auto w-[84vw] min-w-[270px] max-w-[340px] flex-shrink-0 snap-start flex-col rounded-2xl bg-white p-5 shadow-md sm:p-7 md:w-auto md:min-w-0 md:max-w-none transition-shadow hover:shadow-lg"
             >
               {/* Decorative quote icon */}
               <Quote

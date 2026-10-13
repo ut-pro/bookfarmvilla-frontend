@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/lib/api-config";
+import { isVideoUrl } from "@/lib/media";
 
 import type {
   PropertyApiResponse,
@@ -7,9 +8,9 @@ import type {
 
 const PROPERTY_PLACEHOLDER = "/images/property-placeholder.svg";
 
-function isSupportedImageUrl(imageUrl: string): boolean {
+function isSupportedMediaUrl(mediaUrl: string): boolean {
   try {
-    const parsedUrl = new URL(imageUrl);
+    const parsedUrl = new URL(mediaUrl);
 
     return parsedUrl.protocol === "https:" && parsedUrl.hostname.length > 0;
   } catch {
@@ -17,21 +18,19 @@ function isSupportedImageUrl(imageUrl: string): boolean {
   }
 }
 
-function getPropertyImageUrls(
+function getPropertyMediaUrls(
   property: PropertyApiResponse,
 ): string[] {
-  const sortedImages = [...(property.images ?? [])].sort(
-    (firstImage, secondImage) =>
-      Number(secondImage.isPrimary) - Number(firstImage.isPrimary),
-  );
-
-  const supportedUrls = sortedImages
-    .map((image) => image.url)
-    .filter(isSupportedImageUrl);
-
-  return supportedUrls.length > 0
-    ? supportedUrls
-    : [PROPERTY_PLACEHOLDER];
+  return [...(property.images ?? [])]
+    .sort(
+      (firstMedia, secondMedia) =>
+        Number(secondMedia.isPrimary) - Number(firstMedia.isPrimary),
+    )
+    .map((media) => media.url?.trim())
+    .filter(
+      (mediaUrl): mediaUrl is string =>
+        Boolean(mediaUrl) && isSupportedMediaUrl(mediaUrl),
+    );
 }
 
 function mapPropertyToCard(
@@ -42,7 +41,10 @@ function mapPropertyToCard(
     amenity.toLowerCase().includes("pool"),
   );
 
-  const imageUrls = getPropertyImageUrls(property);
+  const mediaUrls = getPropertyMediaUrls(property);
+  const imageUrls = mediaUrls.filter((mediaUrl) => !isVideoUrl(mediaUrl));
+  const videoUrls = mediaUrls.filter(isVideoUrl);
+  const primaryImageUrl = imageUrls[0] ?? PROPERTY_PLACEHOLDER;
 
   return {
     id: property.id,
@@ -71,8 +73,11 @@ function mapPropertyToCard(
     amenities,
     startingPrice: property.startingPrice ?? undefined,
     endingPrice: property.endingPrice ?? undefined,
-    imageUrl: imageUrls[0],
-    imageUrls,
+    imageUrl: primaryImageUrl,
+    imageUrls:
+      imageUrls.length > 0 ? imageUrls : [PROPERTY_PLACEHOLDER],
+    videoUrls,
+    mediaUrls,
     status: property.status,
   };
 }
@@ -267,3 +272,4 @@ export async function getPropertyById(
 
   return mapPropertyToCard(property);
 }
+

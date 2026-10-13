@@ -12,17 +12,35 @@ import { getActivePropertyCities } from "@/lib/property-api";
 
 const heroStatistics = [
   {
-    value: "500+",
+    value: "50+",
     label: "Farmhouses",
   },
   {
-    value: "200+",
+    value: "20+",
     label: "Villas",
   },
   {
-    value: "100+",
+    value: "10+",
     label: "Wedding Lawns",
   },
+];
+
+const propertyTypeOptions = [
+  { value: "", label: "All Properties" },
+  { value: "FARMHOUSE", label: "Farmhouse" },
+  { value: "VILLA", label: "Villa" },
+  { value: "WEDDING_LAWN", label: "Wedding Lawn" },
+];
+
+const capacityOptions = [
+  { value: "", label: "Any Capacity" },
+  { value: "50", label: "50+ Guests" },
+  { value: "100", label: "100+ Guests" },
+  { value: "200", label: "200+ Guests" },
+  { value: "300", label: "300+ Guests" },
+  { value: "500", label: "500+ Guests" },
+  { value: "750", label: "750+ Guests" },
+  { value: "1000", label: "1000+ Guests" },
 ];
 
 export default function HeroSection() {
@@ -31,9 +49,37 @@ export default function HeroSection() {
   const [location, setLocation] = useState("");
   const [propertyType, setPropertyType] = useState("");
   const [minimumCapacity, setMinimumCapacity] = useState("");
+  const [isPropertyTypeOpen, setIsPropertyTypeOpen] = useState(false);
+  const [isCapacityOpen, setIsCapacityOpen] = useState(false);
+
+  const selectedPropertyTypeLabel =
+    propertyTypeOptions.find(
+      (option) => option.value === propertyType,
+    )?.label ?? "All Properties";
+
+  const selectedCapacityLabel =
+    capacityOptions.find(
+      (option) => option.value === minimumCapacity,
+    )?.label ?? "Any Capacity";
+
+  const visiblePropertyTypeOptions =
+    propertyTypeOptions.filter(
+      (option) => option.value !== propertyType,
+    );
+
+  const visibleCapacityOptions =
+    capacityOptions.filter(
+      (option) => option.value !== minimumCapacity,
+    );
 
   const [availableCities, setAvailableCities] =
     useState<string[]>([]);
+
+  const [highlightedPropertyTypeIndex, setHighlightedPropertyTypeIndex] =
+    useState(0);
+
+  const [highlightedCapacityIndex, setHighlightedCapacityIndex] =
+    useState(0);
 
   const [isLocationFocused, setIsLocationFocused] =
     useState(false);
@@ -97,6 +143,8 @@ export default function HeroSection() {
     setLocation(city);
     setHighlightedCityIndex(0);
     setIsLocationFocused(false);
+    setIsPropertyTypeOpen(false);
+    setIsCapacityOpen(false);
   };
 
   const handleLocationKeyDown = (
@@ -141,6 +189,128 @@ export default function HeroSection() {
     }
   };
 
+  const handlePropertyTypeKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+  ) => {
+  if (
+    !isPropertyTypeOpen &&
+    (event.key === "ArrowDown" ||
+      event.key === "ArrowUp")
+  ) {
+    event.preventDefault();
+    setIsPropertyTypeOpen(true);
+    setIsCapacityOpen(false);
+    setIsLocationFocused(false);
+    setHighlightedPropertyTypeIndex(0);
+    return;
+  }
+
+  if (!isPropertyTypeOpen) {
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+
+    setHighlightedPropertyTypeIndex((current) =>
+      Math.min(
+        current + 1,
+        visiblePropertyTypeOptions.length - 1,
+      ),
+    );
+  }
+
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+
+    setHighlightedPropertyTypeIndex((current) =>
+      Math.max(current - 1, 0),
+    );
+  }
+
+  if (event.key === "Enter") {
+    event.preventDefault();
+
+    const selectedOption =
+      visiblePropertyTypeOptions[
+        highlightedPropertyTypeIndex
+      ];
+
+    if (selectedOption) {
+      setPropertyType(selectedOption.value);
+      setIsPropertyTypeOpen(false);
+      setHighlightedPropertyTypeIndex(0);
+    }
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    setIsPropertyTypeOpen(false);
+    setHighlightedPropertyTypeIndex(0);
+  }
+};
+
+const handleCapacityKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+  ) => {
+    if (
+      !isCapacityOpen &&
+      (event.key === "ArrowDown" ||
+        event.key === "ArrowUp")
+    ) {
+      event.preventDefault();
+      setIsCapacityOpen(true);
+      setIsPropertyTypeOpen(false);
+      setIsLocationFocused(false);
+      setHighlightedCapacityIndex(0);
+      return;
+    }
+
+    if (!isCapacityOpen) {
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+
+      setHighlightedCapacityIndex((current) =>
+        Math.min(
+          current + 1,
+          visibleCapacityOptions.length - 1,
+        ),
+      );
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+
+      setHighlightedCapacityIndex((current) =>
+        Math.max(current - 1, 0),
+      );
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+
+      const selectedOption =
+        visibleCapacityOptions[
+          highlightedCapacityIndex
+        ];
+
+      if (selectedOption) {
+        setMinimumCapacity(selectedOption.value);
+        setIsCapacityOpen(false);
+        setHighlightedCapacityIndex(0);
+      }
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setIsCapacityOpen(false);
+      setHighlightedCapacityIndex(0);
+    }
+  };
+
   const handleSearch = (
     event: FormEvent<HTMLFormElement>,
   ) => {
@@ -179,7 +349,7 @@ export default function HeroSection() {
   return (
     <section
       id="home"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden"
+      className="relative flex min-h-[100svh] items-center justify-center"
     >
       {/* Background image */}
       <div
@@ -194,7 +364,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
 
       {/* Hero content */}
-      <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col items-center px-6 pb-20 pt-32 text-center lg:px-12">
+      <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col items-center px-4 pb-12 pt-24 text-center sm:px-6 sm:pb-16 sm:pt-28 lg:px-12 lg:pb-20 lg:pt-32">
         {/* Small badge */}
         <div className="mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-medium text-white backdrop-blur-sm sm:mb-8 sm:text-sm">
           <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-[#2EAD45]" />
@@ -214,26 +384,26 @@ export default function HeroSection() {
         <h1
           className="mb-6 max-w-4xl font-bold leading-tight text-white"
           style={{
-            fontSize: "clamp(36px, 5vw, 64px)",
+            fontSize: "clamp(30px, 8vw, 64px)",
           }}
         >
           Find The Perfect Farmhouse, Villa & Wedding Lawn
         </h1>
 
         {/* Description */}
-        <p className="mb-12 max-w-2xl text-base leading-relaxed text-white/80 md:text-xl">
+        <p className="mb-8 max-w-2xl text-sm leading-relaxed text-white/80 sm:mb-10 sm:text-base md:text-lg lg:mb-12 lg:text-xl">
           Discover farmhouses, villas and wedding venues for your next event. Explore properties on BookFarmVilla and connect with our experts for assistance.
         </p>
 
         {/* Platform statistics */}
-        <div className="mb-12 flex gap-8 md:gap-16">
+        <div className="mb-8 grid w-full max-w-xl grid-cols-3 gap-2 sm:mb-10 sm:gap-6 lg:mb-12 lg:gap-12">
           {heroStatistics.map((statistic) => (
             <div key={statistic.label} className="text-center">
-              <p className="text-3xl font-bold text-white md:text-4xl">
+              <p className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">
                 {statistic.value}
               </p>
 
-              <p className="mt-1 text-xs text-white/70 md:text-base">
+              <p className="mt-1 text-[10px] leading-4 text-white/70 sm:text-xs md:text-base">
                 {statistic.label}
               </p>
             </div>
@@ -243,9 +413,9 @@ export default function HeroSection() {
         {/* Search form outer container */}
         <form
           onSubmit={handleSearch}
-          className="w-full max-w-5xl rounded-2xl border border-white/20 bg-white/10 p-2 shadow-2xl backdrop-blur-xl"
+          className="relative z-40 w-full max-w-5xl rounded-2xl border border-white/20 bg-white/10 p-2 shadow-2xl backdrop-blur-xl"
         >
-          <div className="flex flex-col items-stretch gap-2 md:flex-row md:gap-1">
+          <div className="flex flex-col items-stretch gap-2 lg:flex-row lg:gap-1">
             {/* Location field */}
             <div
               className="relative z-20 flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white px-4 py-3 text-left"
@@ -300,7 +470,7 @@ export default function HeroSection() {
                   id="hero-city-suggestions"
                   role="listbox"
                   aria-label="Available cities"
-                  className="absolute left-0 right-0 top-[calc(100%+0.5rem)] overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
+                  className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 max-h-60 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
                 >
                   {citySuggestions.map((city, index) => {
                     const isActive = index === activeCityIndex;
@@ -335,71 +505,231 @@ export default function HeroSection() {
             </div>
 
             {/* Desktop divider */}
-            <div className="my-2 hidden w-px bg-white/30 md:block" />
+            <div className="my-2 hidden w-px bg-white/30 lg:block" />
 
             {/* Property type field */}
-            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white px-4 py-3 text-left">
+            <div
+              className={`relative flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white px-4 py-3 text-left ${
+                isPropertyTypeOpen ? "z-30" : "z-10"
+              }`}
+              onBlur={(event) => {
+                const nextFocusedElement = event.relatedTarget;
+
+                if (
+                  !(nextFocusedElement instanceof Node) ||
+                  !event.currentTarget.contains(nextFocusedElement)
+                ) {
+                  setIsPropertyTypeOpen(false);
+                }
+              }}
+            >
               <Building2
                 size={20}
                 className="shrink-0 text-[#2EAD45]"
                 aria-hidden="true"
               />
 
-              <label className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1">
                 <span className="mb-0.5 block text-xs font-medium text-gray-400">
                   Property Type
                 </span>
 
-                <select
-                  value={propertyType}
-                  onChange={(event) => setPropertyType(event.target.value)}
-                  className="w-full cursor-pointer bg-transparent text-sm font-medium text-gray-800 outline-none"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPropertyTypeOpen((current) => !current);
+                    setIsCapacityOpen(false);
+                    setIsLocationFocused(false);
+                    setHighlightedPropertyTypeIndex(0);
+                  }}
+                  onKeyDown={handlePropertyTypeKeyDown}
+                  className="flex w-full items-center justify-between gap-2 bg-transparent text-left text-sm font-medium text-gray-800 outline-none"
+                  aria-haspopup="listbox"
+                  aria-expanded={isPropertyTypeOpen}
+                  aria-controls="hero-property-type-options"
+                  aria-activedescendant={
+                    isPropertyTypeOpen
+                      ? `hero-property-type-option-${highlightedPropertyTypeIndex}`
+                      : undefined
+                  }
                 >
-                  <option value="">All Properties</option>
-                  <option value="FARMHOUSE">Farmhouse</option>
-                  <option value="VILLA">Villa</option>
-                  <option value="WEDDING_LAWN">Wedding Lawn</option>
-                </select>
-              </label>
+                  <span className="truncate">
+                    {selectedPropertyTypeLabel}
+                  </span>
+
+                  <ChevronDown
+                    size={16}
+                    className={`shrink-0 transition-transform ${
+                      isPropertyTypeOpen ? "rotate-180" : ""
+                    }`}
+                    aria-hidden="true"
+                  />
+                </button>
+              </div>
+
+              {isPropertyTypeOpen && (
+                <ul
+                  id="hero-property-type-options"
+                  role="listbox"
+                  aria-label="Select property type"
+                  className="absolute left-0 right-0 top-[calc(100%+0.5rem)] overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
+                >
+                  {visiblePropertyTypeOptions.map(
+                    (option, index) => {
+                      const isActive =
+                        index === highlightedPropertyTypeIndex;
+
+                      return (
+                        <li key={option.value || "all-properties"}>
+                          <button
+                            id={`hero-property-type-option-${index}`}
+                            type="button"
+                            role="option"
+                            aria-selected={false}
+                            onMouseEnter={() =>
+                              setHighlightedPropertyTypeIndex(index)
+                            }
+                            onClick={() => {
+                              setPropertyType(option.value);
+                              setIsPropertyTypeOpen(false);
+                              setHighlightedPropertyTypeIndex(0);
+                            }}
+                            className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition-colors ${
+                              isActive
+                                ? "bg-[#F0FDF4] text-[#1E8A32]"
+                                : "text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            <Building2
+                              size={15}
+                              className="shrink-0 text-[#2EAD45]"
+                              aria-hidden="true"
+                            />
+
+                            <span>{option.label}</span>
+                          </button>
+                        </li>
+                      );
+                    },
+                  )}
+                </ul>
+              )}
             </div>
 
             {/* Desktop divider */}
-            <div className="my-2 hidden w-px bg-white/30 md:block" />
+            <div className="my-2 hidden w-px bg-white/30 lg:block" />
 
             {/* Guest capacity field */}
-            <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white px-4 py-3 text-left">
+            <div
+              className={`relative flex min-w-0 flex-1 items-center gap-3 rounded-xl bg-white px-4 py-3 text-left ${
+                isCapacityOpen ? "z-30" : "z-10"
+              }`}
+              onBlur={(event) => {
+                const nextFocusedElement = event.relatedTarget;
+
+                if (
+                  !(nextFocusedElement instanceof Node) ||
+                  !event.currentTarget.contains(nextFocusedElement)
+                ) {
+                  setIsCapacityOpen(false);
+                }
+              }}
+            >
               <Users
                 size={20}
                 className="shrink-0 text-[#2EAD45]"
                 aria-hidden="true"
               />
 
-              <label className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1">
                 <span className="mb-0.5 block text-xs font-medium text-gray-400">
                   Minimum Capacity
                 </span>
 
-                <select
-                  value={minimumCapacity}
-                  onChange={(event) => setMinimumCapacity(event.target.value)}
-                  className="w-full cursor-pointer bg-transparent text-sm font-medium text-gray-800 outline-none"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCapacityOpen((current) => !current);
+                    setIsPropertyTypeOpen(false);
+                    setIsLocationFocused(false);
+                    setHighlightedCapacityIndex(0);
+                  }}
+                  onKeyDown={handleCapacityKeyDown}
+                  className="flex w-full items-center justify-between gap-2 bg-transparent text-left text-sm font-medium text-gray-800 outline-none"
+                  aria-haspopup="listbox"
+                  aria-expanded={isCapacityOpen}
+                  aria-controls="hero-capacity-options"
+                  aria-activedescendant={
+                    isCapacityOpen
+                      ? `hero-capacity-option-${highlightedCapacityIndex}`
+                      : undefined
+                  }
                 >
-                  <option value="">Any Capacity</option>
-                  <option value="50">50+ Guests</option>
-                  <option value="100">100+ Guests</option>
-                  <option value="200">200+ Guests</option>
-                  <option value="300">300+ Guests</option>
-                  <option value="500">500+ Guests</option>
-                  <option value="750">750+ Guests</option>
-                  <option value="1000">1000+ Guests</option>
-                </select>
-              </label>
+                  <span className="truncate">
+                    {selectedCapacityLabel}
+                  </span>
+
+                  <ChevronDown
+                    size={16}
+                    className={`shrink-0 transition-transform ${
+                      isCapacityOpen ? "rotate-180" : ""
+                    }`}
+                    aria-hidden="true"
+                  />
+                </button>
+              </div>
+
+              {isCapacityOpen && (
+                <ul
+                  id="hero-capacity-options"
+                  role="listbox"
+                  aria-label="Select minimum capacity"
+                  className="absolute left-0 right-0 top-[calc(100%+0.5rem)] max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
+                >
+                  {visibleCapacityOptions.map((option, index) => {
+                    const isActive =
+                      index === highlightedCapacityIndex;
+
+                    return (
+                      <li key={option.value || "any-capacity"}>
+                        <button
+                          id={`hero-capacity-option-${index}`}
+                          type="button"
+                          role="option"
+                          aria-selected={false}
+                          onMouseEnter={() =>
+                            setHighlightedCapacityIndex(index)
+                          }
+                          onClick={() => {
+                            setMinimumCapacity(option.value);
+                            setIsCapacityOpen(false);
+                            setHighlightedCapacityIndex(0);
+                          }}
+                          className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition-colors ${
+                            isActive
+                              ? "bg-[#F0FDF4] text-[#1E8A32]"
+                              : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          <Users
+                            size={15}
+                            className="shrink-0 text-[#2EAD45]"
+                            aria-hidden="true"
+                          />
+
+                          <span>{option.label}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
 
             {/* Search button */}
             <button
               type="submit"
-              className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#2EAD45] px-8 py-4 font-semibold text-white shadow-lg shadow-green-500/30 transition-colors hover:bg-[#1E8A32] md:py-3"
+              className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#2EAD45] px-8 py-4 font-semibold text-white shadow-lg shadow-green-500/30 transition-colors hover:bg-[#1E8A32] lg:py-3"
             >
               <Search size={20} aria-hidden="true" />
               <span>Search</span>

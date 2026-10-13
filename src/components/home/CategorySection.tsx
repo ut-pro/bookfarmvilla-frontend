@@ -6,13 +6,13 @@ export default function CategorySection() {
   return (
     <section
       id="categories"
-      className="bg-[#F8FAFC] py-20"
+      className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20"
       aria-labelledby="category-heading"
     >
-      <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
         {/* Section heading */}
-        <div className="mb-14 text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#2EAD45]">
+        <div className="mb-8 text-center sm:mb-10 lg:mb-14">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#2EAD45] sm:mb-3 sm:text-sm">
             Browse by Category
           </p>
 
@@ -26,19 +26,19 @@ export default function CategorySection() {
             What are you looking for?
           </h2>
 
-          <p className="mx-auto mt-4 max-w-xl text-gray-500">
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-gray-500 sm:mt-4 sm:text-base">
             From lush green farmhouses to luxury villas and grand wedding
             venues — find the perfect space for every occasion.
           </p>
         </div>
 
         {/* Category cards */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {propertyCategories.map((category) => (
             <a
               key={category.type}
               href={category.sectionHref}
-              className="group relative min-h-[420px] overflow-hidden rounded-2xl shadow-lg transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl"
+              className="group relative min-h-[330px] overflow-hidden rounded-2xl shadow-lg transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl sm:min-h-[370px] lg:min-h-[420px]"
               aria-label={category.cta}
             >
               {/* Category image */}
@@ -56,13 +56,13 @@ export default function CategorySection() {
               />
 
               {/* Card content */}
-              <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
+              <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-6 lg:p-8">
                 <h3 className="mb-4 text-3xl font-bold text-white">
                   {category.title}
                 </h3>
 
                 {/* Category tags */}
-                <div className="mb-6 flex flex-wrap gap-2">
+                <div className="mb-4 flex flex-wrap gap-2 sm:mb-6">
                   {category.tags.map((tag) => (
                     <span
                       key={tag}
@@ -74,7 +74,7 @@ export default function CategorySection() {
                 </div>
 
                 {/* CTA */}
-                <span className="flex w-fit items-center gap-2 rounded-xl bg-[#2EAD45] px-6 py-3 text-sm font-semibold text-white shadow-lg transition-colors group-hover:bg-[#1E8A32]">
+                <span className="flex w-fit items-center gap-2 rounded-xl bg-[#2EAD45] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-colors group-hover:bg-[#1E8A32] sm:px-6 sm:py-3">
                   {category.cta}
 
                   <ArrowRight

@@ -55,7 +55,7 @@ const features: Feature[] = [
 export default function WhyChooseUs() {
   return (
     <section
-      className="relative overflow-hidden bg-[#0F172A] py-20"
+      className="relative overflow-hidden bg-[#0F172A] py-12 sm:py-16 lg:py-20"
       aria-labelledby="why-choose-us-heading"
     >
       {/* Background dotted pattern */}
@@ -77,10 +77,10 @@ export default function WhyChooseUs() {
       <div className="absolute bottom-0 right-0 h-96 w-96 translate-x-1/2 translate-y-1/2 rounded-full bg-[#4CAF50]/10 blur-3xl" />
 
       {/* Section content */}
-      <div className="relative mx-auto max-w-[1440px] px-6 lg:px-12">
+      <div className="relative mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
         {/* Heading */}
-        <div className="mb-16 text-center">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#4CAF50]">
+        <div className="mb-8 text-center sm:mb-12 lg:mb-16">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#4CAF50] sm:mb-3 sm:text-sm">
             Our Promise
           </p>
 
@@ -94,21 +94,21 @@ export default function WhyChooseUs() {
             Why Choose BookFarmVilla?
           </h2>
 
-          <p className="mx-auto mt-4 max-w-2xl leading-relaxed text-gray-400">
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gray-400 sm:mt-4 sm:text-base">
             We make venue discovery easier by combining curated listings,
             useful property details and personalised expert assistance.
           </p>
         </div>
 
         {/* Feature cards */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-5">
           {features.map((feature) => {
             const Icon = feature.icon;
 
             return (
               <article
                 key={feature.title}
-                className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:-translate-y-1 hover:bg-white/10"
+                className="group rounded-2xl border border-white/10 bg-white/5 p-5 sm:p-6 backdrop-blur-sm transition-all hover:-translate-y-1 hover:bg-white/10"
               >
                 <div
                   className={`mb-5 flex h-12 w-12 items-center justify-center rounded-xl ${feature.iconClassName}`}

@@ -159,7 +159,7 @@ export default function Header() {
         <button
           type="button"
           onClick={closeMobileMenu}
-          className="fixed inset-0 z-40 cursor-default bg-black/45 backdrop-blur-md lg:hidden"
+          className="fixed inset-0 z-40 cursor-default bg-black/45 backdrop-blur-md xl:hidden"
           aria-label="Close navigation menu"
         />
       )}
@@ -172,21 +172,21 @@ export default function Header() {
         }`}
       >
         {/* Main Header bar */}
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
-          <div className="flex h-20 items-center justify-between">
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
+          <div className="flex h-16 items-center justify-between sm:h-20">
             {/* Logo */}
             <Link
               href="/"
               scroll
               onClick={handleBrandClick}
-              className="group flex items-center gap-3"
+              className="group flex min-w-0 items-center gap-2 sm:gap-3"
               aria-label="BookFarmVilla homepage"
             >
               <Logo priority />
 
-              <div className="flex flex-col leading-tight">
+              <div className="flex min-w-0 flex-col leading-tight">
                 <span
-                  className={`text-xl font-bold tracking-tight transition-colors ${
+                  className={`block truncate text-lg font-bold tracking-tight transition-colors sm:text-xl ${
                     useSolidHeader
                       ? "text-[#0F172A]"
                       : "text-white"
@@ -196,7 +196,7 @@ export default function Header() {
                 </span>
 
                 <span
-                  className={`text-[10px] font-medium uppercase tracking-widest transition-colors ${
+                  className={`block whitespace-nowrap text-[7px] font-semibold uppercase tracking-[0.04em] transition-colors min-[360px]:text-[8px] min-[400px]:tracking-[0.08em] sm:text-[10px] sm:font-medium sm:tracking-widest ${
                     useSolidHeader
                       ? "text-[#2EAD45]"
                       : "text-green-300"
@@ -209,7 +209,7 @@ export default function Header() {
 
             {/* Desktop navigation */}
             <nav
-              className="hidden items-center gap-8 lg:flex"
+              className="hidden items-center gap-6 xl:flex 2xl:gap-8"
               aria-label="Main navigation"
             >
               {navigationItems.map((item) => (
@@ -228,7 +228,7 @@ export default function Header() {
             </nav>
 
             {/* Desktop action buttons */}
-            <div className="hidden items-center gap-3 lg:flex">
+            <div className="hidden items-center gap-3 xl:flex">
               <Link
                 href="/#partner"
                 className={`rounded-full border-2 px-5 py-2.5 text-sm font-semibold transition-all ${
@@ -264,7 +264,7 @@ export default function Header() {
                   (currentValue) => !currentValue,
                 );
               }}
-              className={`rounded-lg p-2 transition-colors lg:hidden ${
+              className={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors xl:hidden ${
                 useSolidHeader
                   ? "text-[#0F172A]"
                   : "text-white"
@@ -287,9 +287,9 @@ export default function Header() {
 
         {/* Mobile navigation panel */}
         {isMobileMenuOpen && (
-          <div className="relative z-50 border-t border-gray-100 bg-white shadow-2xl lg:hidden">
+          <div className="relative z-50 border-t border-gray-100 bg-white shadow-2xl xl:hidden">
             <nav
-              className="flex flex-col gap-4 px-6 py-5"
+              className="flex max-h-[calc(100dvh-4rem)] flex-col gap-4 overflow-y-auto px-4 py-5 sm:px-6"
               aria-label="Mobile navigation"
             >
               {navigationItems.map((item) => (

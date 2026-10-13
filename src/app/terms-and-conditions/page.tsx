@@ -435,7 +435,7 @@ export default function TermsAndConditionsPage() {
 
       <main>
         {/* Hero */}
-        <section className="relative overflow-hidden bg-[#0F172A] pb-20 pt-36 text-white">
+        <section className="relative overflow-hidden bg-[#0F172A] pb-12 pt-28 text-white sm:pb-16 sm:pt-32 lg:pb-20 lg:pt-36">
           <div
             className="absolute inset-0 opacity-5"
             style={{
@@ -447,7 +447,7 @@ export default function TermsAndConditionsPage() {
           <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#2EAD45]/15 blur-3xl" />
           <div className="absolute -bottom-40 right-0 h-96 w-96 rounded-full bg-[#4CAF50]/10 blur-3xl" />
 
-          <div className="relative mx-auto max-w-[1440px] px-6 lg:px-12">
+          <div className="relative mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="max-w-4xl">
               <div className="text-sm">
                 <Link
@@ -468,7 +468,7 @@ export default function TermsAndConditionsPage() {
                 />
               </div>
 
-              <h1 className="mt-6 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+              <h1 className="mt-6 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl">
                 Terms & Conditions
               </h1>
 
@@ -485,7 +485,7 @@ export default function TermsAndConditionsPage() {
         </section>
 
         {/* Terms document */}
-        <section className="bg-[#F8FAFC] py-16 md:py-20">
+        <section className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20">
           <div className="mx-auto grid max-w-[1440px] grid-cols-1 gap-10 px-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:px-12">
             {/* Desktop table of contents */}
             <aside className="hidden lg:block">
@@ -521,7 +521,7 @@ export default function TermsAndConditionsPage() {
               </div>
             </aside>
 
-            <article className="min-w-0 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8 md:p-12">
+            <article className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-8 md:p-12">
               <div className="rounded-2xl border border-green-100 bg-[#DCFCE7]/40 p-5">
                 <div className="flex items-start gap-3">
                   <ShieldCheck
@@ -604,3 +604,4 @@ export default function TermsAndConditionsPage() {
     </>
   );
 }
+

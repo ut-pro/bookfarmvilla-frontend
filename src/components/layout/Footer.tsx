@@ -56,7 +56,7 @@ const footerColumns: FooterColumn[] = [
       },
       {
         label: "Contact",
-        href: "#contact",
+        href: "/#contact",
       },
     ],
   },
@@ -135,14 +135,14 @@ export default function Footer() {
       id="contact"
       className="scroll-mt-20 bg-[#0F172A] text-white"
     >
-      <div className="mx-auto max-w-360 px-6 pb-8 pt-16 lg:px-12">
+      <div className="mx-auto max-w-[1440px] px-4 pb-6 pt-12 sm:px-6 sm:pb-8 sm:pt-16 lg:px-8 xl:px-12">
         {/* Main footer content */}
-        <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
+        <div className="mb-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-8 md:mb-12 md:grid-cols-2 lg:grid-cols-5 lg:gap-10">
           {/* Brand and contact information */}
-          <div className="md:col-span-2 lg:col-span-2">
+          <div className="col-span-2 md:col-span-2 lg:col-span-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-3"
+              className="inline-flex max-w-full items-center gap-3"
               aria-label="Go to BookFarmVilla homepage"
             >
               <Logo />
@@ -152,7 +152,7 @@ export default function Footer() {
                   {siteConfig.name}
                 </p>
 
-                <p className="text-[10px] font-medium uppercase tracking-widest text-green-400">
+                <p className="text-[8px] font-medium uppercase tracking-[0.14em] text-green-400 sm:text-[10px] sm:tracking-widest">
                   Farmhouses · Villas · Wedding Lawns
                 </p>
               </div>
@@ -220,14 +220,14 @@ export default function Footer() {
                 Social links coming soon
               </p>
 
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 {socialItems.map((socialItem) => {
                   const Icon = socialItem.icon;
 
                   return (
                     <span
                       key={socialItem.label}
-                      className="flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-lg bg-white/5 text-gray-500"
+                      className="flex h-11 w-11 cursor-not-allowed items-center justify-center rounded-lg bg-white/5 text-gray-500"
                       title={`${socialItem.label} link coming soon`}
                       aria-label={`${socialItem.label} link coming soon`}
                       aria-disabled="true"
@@ -261,7 +261,7 @@ export default function Footer() {
                           ? "noopener noreferrer"
                           : undefined
                       }
-                      className="text-sm text-gray-400 transition-colors hover:text-[#4CAF50]"
+                      className="inline-flex min-h-9 items-center text-sm text-gray-400 transition-colors hover:text-[#4CAF50]"
                     >
                       {link.label}
                     </Link>
@@ -273,7 +273,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom footer */}
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-center sm:flex-row sm:text-left">
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-center sm:flex-row sm:gap-4 sm:pt-8 sm:text-left">
           <p className="text-xs text-gray-500">
             © {currentYear} {siteConfig.name}. All rights reserved.
           </p>

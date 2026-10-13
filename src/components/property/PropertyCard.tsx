@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BedDouble,
   MapPin,
   Users,
 } from "lucide-react";
@@ -21,11 +20,13 @@ import type { PropertyCardData } from "@/types/property";
 interface PropertyCardProps {
   property: PropertyCardData;
   onRequestCallback?: (property: PropertyCardData) => void;
+  displayMode?: "grid" | "carousel";
 }
 
 export default function PropertyCard({
   property,
   onRequestCallback,
+  displayMode = "grid",
 }: PropertyCardProps) {
   const { openPropertyCallback } = useCallbackModal();
 
@@ -70,7 +71,13 @@ export default function PropertyCard({
   };
 
   return (
-    <article className="group relative flex h-full w-[300px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl md:w-auto">
+    <article
+      className={`group relative flex h-full flex-shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl ${
+        displayMode === "carousel"
+          ? "w-[82vw] min-w-[260px] max-w-[320px] snap-start md:w-auto md:min-w-0 md:max-w-none"
+          : "w-full min-w-0 max-w-[420px] sm:max-w-none"
+      }`}
+    >
       <Link
         href={`/properties/${encodeURIComponent(
           property.id,
@@ -81,13 +88,13 @@ export default function PropertyCard({
         aria-label={`Open details for ${property.name} in a new tab`}
       />
 
-      <div className="relative h-[200px] shrink-0 overflow-hidden">
+      <div className="relative h-44 shrink-0 overflow-hidden sm:h-[200px]">
         <Image
           src={property.imageUrl}
           alt={`${property.name} in ${property.location}`}
           fill
           unoptimized
-          sizes="(max-width: 767px) 300px, (max-width: 1023px) 50vw, 25vw"
+          sizes="(max-width: 639px) 82vw, (max-width: 1023px) 50vw, 25vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
@@ -98,7 +105,7 @@ export default function PropertyCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-3.5 sm:p-4">
         <div className="mb-1 flex items-start justify-between gap-2">
           <h3
             className="line-clamp-1 text-base font-semibold leading-tight text-[#0F172A]"
@@ -135,7 +142,7 @@ export default function PropertyCard({
           )}
         </div>
 
-        <div className="mb-4 flex min-h-14 flex-wrap content-start items-start gap-2 text-xs text-gray-600">
+        <div className="mb-4 flex min-h-16 flex-wrap content-start items-start gap-1.5 text-xs text-gray-600 sm:gap-2">
           {property.guestCapacity > 0 && (
             <span className="flex items-center gap-1">
               <Users
@@ -185,7 +192,10 @@ export default function PropertyCard({
               {priceDisplay.label || "Pricing"}
             </p>
 
-            <p className="text-sm font-bold leading-tight text-[#0F172A]">
+            <p
+              className="break-words text-sm font-bold leading-tight text-[#0F172A]"
+              title={priceDisplay.value}
+            >
               {priceDisplay.value}
             </p>
           </div>
@@ -218,3 +228,4 @@ export default function PropertyCard({
     </article>
   );
 }
+

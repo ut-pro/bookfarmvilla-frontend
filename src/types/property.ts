@@ -25,6 +25,8 @@ export interface PropertyCardData {
   priceSuffix?: string;
   imageUrl: string;
   imageUrls?: string[];
+  videoUrls?: string[];
+  mediaUrls?: string[];
   badge?: string;
   status: PropertyStatus;
 }
@@ -64,3 +66,4 @@ export interface PropertyPageResponse {
   totalPages: number;
   last: boolean;
 }
+

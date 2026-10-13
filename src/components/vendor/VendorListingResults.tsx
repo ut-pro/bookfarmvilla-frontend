@@ -117,7 +117,7 @@ export default function VendorListingResults({
   if (loading) {
     return (
       <div
-        className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center text-sm text-gray-500"
+        className="rounded-2xl border border-gray-200 bg-white px-4 py-12 text-center text-sm text-gray-500 sm:px-6 sm:py-16"
         role="status"
       >
         Loading service providers...
@@ -128,7 +128,7 @@ export default function VendorListingResults({
   if (hasError) {
     return (
       <div
-        className="rounded-2xl border border-amber-200 bg-amber-50 px-6 py-12 text-center"
+        className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-10 text-center sm:px-6 sm:py-12"
         role="alert"
       >
         <p className="font-semibold text-amber-900">
@@ -144,7 +144,7 @@ export default function VendorListingResults({
 
   if (vendors.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
+      <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-12 text-center sm:px-6 sm:py-16">
         <p className="text-base font-semibold text-[#0F172A]">
           No service providers available
         </p>
@@ -158,11 +158,11 @@ export default function VendorListingResults({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
       {vendors.map((vendor) => (
         <div
           key={vendor.id}
-          className="flex justify-center md:block"
+          className="flex h-full justify-center sm:block"
         >
           <VendorCard vendor={vendor} />
         </div>
