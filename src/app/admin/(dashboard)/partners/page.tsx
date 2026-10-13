@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatusBadge from "@/components/admin/StatusBadge";
@@ -9,7 +11,8 @@ import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import { fetchPartners, deletePartner, AdminApiError } from "@/lib/admin-api";
 import type { AdminPartner } from "@/types/admin";
 
-export default function PartnersPage() {
+function PartnersPageContent() {
+  const searchParams = useSearchParams();
   const [partners, setPartners] = useState<AdminPartner[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -18,14 +21,19 @@ export default function PartnersPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminPartner | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const globalSearch = searchParams.get("search") ?? "";
 
   const pageSize = 10;
+  const searchPageSize = 100;
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await fetchPartners({ page, size: pageSize });
+      const result = await fetchPartners({
+        page: globalSearch ? 0 : page,
+        size: globalSearch ? searchPageSize : pageSize,
+      });
       setPartners(result.content);
       setTotalPages(result.totalPages);
       setTotalElements(result.totalElements);
@@ -34,11 +42,27 @@ export default function PartnersPage() {
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [globalSearch, page]);
 
   useEffect(() => {
+    // Loading is an intentional effect because server-side filters change with the controls.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
+
+  const visiblePartners = globalSearch
+    ? partners.filter((partner) =>
+        [
+          partner.businessName,
+          partner.fullName,
+          partner.businessType,
+          partner.city,
+          partner.location,
+          partner.phoneNumber,
+          partner.status,
+        ].some((value) => value?.toLowerCase().includes(globalSearch.toLowerCase())),
+      )
+    : partners;
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -53,6 +77,7 @@ export default function PartnersPage() {
     } finally {
       setDeleting(false);
     }
+
   };
 
   return (
@@ -63,6 +88,12 @@ export default function PartnersPage() {
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900">Partner Requests</h2>
           <p className="text-sm text-gray-500">Business enquiries from people wanting to list with us</p>
+          {globalSearch && (
+            <p className="mt-2 text-sm text-violet-700">
+              Global search: <strong>{globalSearch}</strong> · latest 100 partner requests
+              <Link href="/admin/partners" className="ml-2 underline">Clear</Link>
+            </p>
+          )}
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
@@ -90,10 +121,10 @@ export default function PartnersPage() {
               <tbody>
                 {loading ? (
                   <tr><td colSpan={9} className="px-6 py-8 text-center text-gray-400">Loading…</td></tr>
-                ) : partners.length === 0 ? (
+                ) : visiblePartners.length === 0 ? (
                   <tr><td colSpan={9} className="px-6 py-8 text-center text-gray-400">No partner requests yet.</td></tr>
                 ) : (
-                  partners.map((partner) => (
+                  visiblePartners.map((partner) => (
                     <tr key={partner.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                       <td className="px-6 py-3 font-medium text-gray-900">{partner.businessName}</td>
                       <td className="px-6 py-3 text-gray-600">{partner.fullName}</td>
@@ -120,13 +151,15 @@ export default function PartnersPage() {
             </table>
           </div>
 
-          <Pagination
-            pageNumber={page}
-            totalPages={totalPages}
-            totalElements={totalElements}
-            pageSize={pageSize}
-            onPageChange={setPage}
-          />
+          {!globalSearch && (
+            <Pagination
+              pageNumber={page}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              pageSize={pageSize}
+              onPageChange={setPage}
+            />
+          )}
         </div>
       </main>
 
@@ -139,5 +172,13 @@ export default function PartnersPage() {
         loading={deleting}
       />
     </>
+  );
+}
+
+export default function PartnersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-gray-400">Loading…</div>}>
+      <PartnersPageContent />
+    </Suspense>
   );
 }

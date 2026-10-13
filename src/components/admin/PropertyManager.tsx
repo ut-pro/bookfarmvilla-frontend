@@ -48,7 +48,9 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(
+    () => searchParams.get("search") ?? "",
+  );
   const [sort, setSort] = useState<{
     sortBy: PropertySortBy | "";
     sortDirection: SortDirection;
@@ -88,11 +90,22 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
   }, [propertyType, keyword, page, sort]);
 
   useEffect(() => {
+    // Loading is an intentional effect because server-side filters change with the controls.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 
   useEffect(() => {
+    // Sync the routed global-search query when navigation changes on this page.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setKeyword(searchParams.get("search") ?? "");
+    setPage(0);
+  }, [searchParams]);
+
+  useEffect(() => {
     if (searchParams.get("new") === "1") {
+      // Open the create form when the dashboard quick action navigates here.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEditing(null);
       setFormOpen(true);
       router.replace(window.location.pathname);
