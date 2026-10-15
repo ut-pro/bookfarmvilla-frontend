@@ -18,6 +18,63 @@ interface CallbackFormProps {
   onCancel: () => void;
 }
 
+function normalizeSpaces(value: string): string {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function getFullNameError(value: string): string | undefined {
+  const normalizedName = normalizeSpaces(value);
+  const letters = normalizedName.match(/\p{L}/gu) ?? [];
+
+  if (letters.length < 3) {
+    return "Name must contain at least 3 letters.";
+  }
+
+  if (normalizedName.length > 20) {
+    return "Name cannot exceed 20 characters.";
+  }
+
+  if (!/^[\p{L}\p{M} ]+$/u.test(normalizedName)) {
+    return "Name can contain letters and spaces only.";
+  }
+
+  return undefined;
+}
+
+function normalizePhoneNumber(value: string): string | null {
+  const normalizedValue = value.trim();
+
+  if (!/^[+\d\s().-]+$/.test(normalizedValue)) {
+    return null;
+  }
+
+  let digits = normalizedValue.replace(/\D/g, "");
+
+  if (digits.length === 12 && digits.startsWith("91")) {
+    digits = digits.slice(2);
+  }
+
+  return /^[6-9]\d{9}$/.test(digits) ? digits : null;
+}
+
+function getEmailError(value: string): string | undefined {
+  const normalizedEmail = value.trim();
+
+  if (!normalizedEmail) {
+    return undefined;
+  }
+
+  if (normalizedEmail.length > 254) {
+    return "Email address is too long.";
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(normalizedEmail)) {
+    return "Please enter a valid email address.";
+  }
+
+  return undefined;
+}
+
 export default function CallbackForm({
   initialProperty,
   initialVendor,
@@ -49,24 +106,20 @@ export default function CallbackForm({
 
   const validateForm = (): CallbackFormErrors => {
     const nextErrors: CallbackFormErrors = {};
-    const phoneDigits = phone.replace(/\D/g, "");
+    const nameError = getFullNameError(name);
+    const emailError = getEmailError(email);
 
-    if (name.trim().length < 2) {
-      nextErrors.name =
-        "Please enter a valid name.";
+    if (nameError) {
+      nextErrors.name = nameError;
     }
 
-    if (phoneDigits.length < 10 || phoneDigits.length > 13) {
+    if (!normalizePhoneNumber(phone)) {
       nextErrors.phone =
-        "Please enter a valid phone number.";
+        "Enter a valid 10-digit phone number starting with 6, 7, 8, or 9.";
     }
 
-    if (
-      email.trim() &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-    ) {
-      nextErrors.email =
-        "Please enter a valid email address.";
+    if (emailError) {
+      nextErrors.email = emailError;
     }
 
     if (!isVendorEnquiry && !propertyId) {
@@ -74,10 +127,6 @@ export default function CallbackForm({
         "Please select a property.";
     }
 
-    if (message.length > 500) {
-      nextErrors.message =
-        "Message cannot exceed 500 characters.";
-    }
 
     return nextErrors;
   };
@@ -99,10 +148,10 @@ export default function CallbackForm({
     setIsSubmitting(true);
 
     const leadDraft: CallbackLeadDraft = {
-      name: name.trim(),
-      phone: phone.trim(),
-      email: email.trim() || undefined,
-      message: message.trim() || undefined,
+      name: normalizeSpaces(name),
+      phone: normalizePhoneNumber(phone) ?? phone.trim(),
+      email: email.trim().toLowerCase() || undefined,
+      message: normalizeSpaces(message) || undefined,
       propertyId: isVendorEnquiry ? undefined : propertyId,
       vendorId: initialVendor?.id,
     };
@@ -235,6 +284,8 @@ export default function CallbackForm({
           }}
           placeholder="Enter your full name"
           autoComplete="name"
+          maxLength={20}
+          aria-invalid={Boolean(errors.name)}
           className={`min-h-12 w-full rounded-xl border px-4 py-3 text-base text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 sm:text-sm ${
             errors.name
               ? "border-red-400 focus:border-red-500"
@@ -276,6 +327,9 @@ export default function CallbackForm({
             }}
             placeholder="+91 98765 43210"
             autoComplete="tel"
+            inputMode="tel"
+            maxLength={18}
+            aria-invalid={Boolean(errors.phone)}
             className={`min-h-12 w-full rounded-xl border px-4 py-3 text-base text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 sm:text-sm ${
               errors.phone
                 ? "border-red-400 focus:border-red-500"
@@ -317,6 +371,8 @@ export default function CallbackForm({
             }}
             placeholder="you@example.com"
             autoComplete="email"
+            maxLength={254}
+            aria-invalid={Boolean(errors.email)}
             className={`min-h-12 w-full rounded-xl border px-4 py-3 text-base text-[#0F172A] outline-none transition-colors placeholder:text-gray-400 sm:text-sm ${
               errors.email
                 ? "border-red-400 focus:border-red-500"
@@ -411,3 +467,4 @@ export default function CallbackForm({
     </form>
   );
 }
+

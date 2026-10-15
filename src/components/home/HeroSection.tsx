@@ -462,7 +462,7 @@ const handleCapacityKeyDown = (
                       ? `hero-city-option-${activeCityIndex}`
                       : undefined
                   }
-                  className="w-full bg-transparent text-sm font-medium text-gray-800 outline-none placeholder:text-gray-400"
+                  className="w-full bg-transparent text-sm font-medium text-gray-800 outline-none placeholder:text-gray-800 placeholder:opacity-100"
                 />
               </label>
               {showCitySuggestions && (

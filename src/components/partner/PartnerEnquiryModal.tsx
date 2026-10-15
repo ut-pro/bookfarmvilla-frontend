@@ -5,12 +5,15 @@ import {
   useEffect,
   useState,
   type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 
 import {
   Building2,
   CheckCircle2,
+  ChevronDown,
   Handshake,
+  MapPin,
   X,
 } from "lucide-react";
 
@@ -54,6 +57,91 @@ const businessTypes = [
   "Other Event Service",
 ];
 
+const partnerCities = [
+  "Delhi",
+  "New Delhi",
+  "Noida",
+  "Greater Noida",
+  "Gurugram",
+  "Faridabad",
+  "Ghaziabad",
+];
+
+function normalizeSpaces(value: string): string {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function getFullNameError(value: string): string | undefined {
+  const normalizedName = normalizeSpaces(value);
+  const letters = normalizedName.match(/\p{L}/gu) ?? [];
+
+  if (letters.length < 3) {
+    return "Name must contain at least 3 letters.";
+  }
+
+  if (normalizedName.length > 20) {
+    return "Name cannot exceed 20 characters.";
+  }
+
+  if (!/^[\p{L}\p{M} ]+$/u.test(normalizedName)) {
+    return "Name can contain letters and spaces only.";
+  }
+
+  return undefined;
+}
+
+function getBusinessNameError(value: string): string | undefined {
+  const normalizedBusinessName = normalizeSpaces(value);
+  const lettersAndNumbers =
+    normalizedBusinessName.match(/[\p{L}\p{N}]/gu) ?? [];
+
+  if (lettersAndNumbers.length < 3) {
+    return "Business name must contain at least 3 letters or numbers.";
+  }
+
+  if (normalizedBusinessName.length > 80) {
+    return "Business name cannot exceed 80 characters.";
+  }
+
+  if (!/^[\p{L}\p{M}\p{N} &'().,\/-]+$/u.test(normalizedBusinessName)) {
+    return "Business name contains an unsupported character.";
+  }
+
+  return undefined;
+}
+
+function getAddressError(value: string): string | undefined {
+  const normalizedAddress = normalizeSpaces(value);
+  const lettersAndNumbers =
+    normalizedAddress.match(/[\p{L}\p{N}]/gu) ?? [];
+
+  if (normalizedAddress.length < 5 || lettersAndNumbers.length < 3) {
+    return "Please enter the complete business address.";
+  }
+
+  if (normalizedAddress.length > 200) {
+    return "Address cannot exceed 200 characters.";
+  }
+
+  return undefined;
+}
+
+function normalizePhoneNumber(value: string): string | null {
+  const normalizedValue = value.trim();
+
+  if (!/^[+\d\s().-]+$/.test(normalizedValue)) {
+    return null;
+  }
+
+  let digits = normalizedValue.replace(/\D/g, "");
+
+  if (digits.length === 12 && digits.startsWith("91")) {
+    digits = digits.slice(2);
+  }
+
+  return /^[6-9]\d{9}$/.test(digits) ? digits : null;
+}
+
 export default function PartnerEnquiryModal({
   isOpen,
   onClose,
@@ -64,6 +152,11 @@ export default function PartnerEnquiryModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccessful, setIsSuccessful] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isCityOpen, setIsCityOpen] = useState(false);
+  const [highlightedCityIndex, setHighlightedCityIndex] = useState(0);
+  const [isBusinessTypeOpen, setIsBusinessTypeOpen] = useState(false);
+  const [highlightedBusinessTypeIndex, setHighlightedBusinessTypeIndex] =
+    useState(0);
 
   const handleClose = useCallback(() => {
     setFormValues(initialFormValues);
@@ -71,6 +164,10 @@ export default function PartnerEnquiryModal({
     setIsSubmitting(false);
     setIsSuccessful(false);
     setSubmitError(null);
+    setIsCityOpen(false);
+    setHighlightedCityIndex(0);
+    setIsBusinessTypeOpen(false);
+    setHighlightedBusinessTypeIndex(0);
     onClose();
   }, [onClose]);
 
@@ -83,9 +180,23 @@ export default function PartnerEnquiryModal({
     document.body.style.overflow = "hidden";
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        handleClose();
+      if (event.key !== "Escape") {
+        return;
       }
+
+      if (isBusinessTypeOpen) {
+        setIsBusinessTypeOpen(false);
+        setHighlightedBusinessTypeIndex(0);
+        return;
+      }
+
+      if (isCityOpen) {
+        setIsCityOpen(false);
+        setHighlightedCityIndex(0);
+        return;
+      }
+
+      handleClose();
     };
 
     window.addEventListener("keydown", handleEscape);
@@ -94,7 +205,7 @@ export default function PartnerEnquiryModal({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleEscape);
     };
-  }, [isOpen, handleClose]);
+  }, [isOpen, isCityOpen, isBusinessTypeOpen, handleClose]);
 
   if (!isOpen) {
     return null;
@@ -114,32 +225,147 @@ export default function PartnerEnquiryModal({
     }
   };
 
+  const visibleBusinessTypes = businessTypes.filter(
+    (businessType) => businessType !== formValues.businessType,
+  );
+
+  const handleBusinessTypeKeyDown = (
+    event: ReactKeyboardEvent<HTMLButtonElement>,
+  ) => {
+    if (
+      !isBusinessTypeOpen &&
+      (event.key === "ArrowDown" || event.key === "ArrowUp")
+    ) {
+      event.preventDefault();
+      setIsBusinessTypeOpen(true);
+      setIsCityOpen(false);
+      setHighlightedBusinessTypeIndex(0);
+      return;
+    }
+
+    if (!isBusinessTypeOpen) {
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setHighlightedBusinessTypeIndex((currentIndex) =>
+        Math.min(currentIndex + 1, visibleBusinessTypes.length - 1),
+      );
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setHighlightedBusinessTypeIndex((currentIndex) =>
+        Math.max(currentIndex - 1, 0),
+      );
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const selectedBusinessType =
+        visibleBusinessTypes[highlightedBusinessTypeIndex];
+
+      if (selectedBusinessType) {
+        updateField("businessType", selectedBusinessType);
+        setIsBusinessTypeOpen(false);
+        setHighlightedBusinessTypeIndex(0);
+      }
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      setIsBusinessTypeOpen(false);
+      setHighlightedBusinessTypeIndex(0);
+    }
+  };
+
+  const visiblePartnerCities = partnerCities.filter(
+    (city) => city !== formValues.city,
+  );
+
+  const handleCityKeyDown = (
+    event: ReactKeyboardEvent<HTMLButtonElement>,
+  ) => {
+    if (
+      !isCityOpen &&
+      (event.key === "ArrowDown" || event.key === "ArrowUp")
+    ) {
+      event.preventDefault();
+      setIsCityOpen(true);
+      setHighlightedCityIndex(0);
+      return;
+    }
+
+    if (!isCityOpen) {
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setHighlightedCityIndex((currentIndex) =>
+        Math.min(currentIndex + 1, visiblePartnerCities.length - 1),
+      );
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setHighlightedCityIndex((currentIndex) =>
+        Math.max(currentIndex - 1, 0),
+      );
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const selectedCity = visiblePartnerCities[highlightedCityIndex];
+
+      if (selectedCity) {
+        updateField("city", selectedCity);
+        setIsCityOpen(false);
+        setHighlightedCityIndex(0);
+      }
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      setIsCityOpen(false);
+      setHighlightedCityIndex(0);
+    }
+  };
+
   const validateForm = (): PartnerFormErrors => {
     const nextErrors: PartnerFormErrors = {};
-    const phoneDigits = formValues.phone.replace(/\D/g, "");
+    const businessNameError = getBusinessNameError(
+      formValues.businessName,
+    );
+    const fullNameError = getFullNameError(formValues.fullName);
+    const addressError = getAddressError(formValues.location);
 
-    if (formValues.businessName.trim().length < 2) {
-      nextErrors.businessName = "Please enter the business name.";
+    if (businessNameError) {
+      nextErrors.businessName = businessNameError;
     }
 
-    if (formValues.city.trim().length < 2) {
-      nextErrors.city = "Please enter the city.";
+    if (!partnerCities.includes(formValues.city)) {
+      nextErrors.city = "Please select a city.";
     }
 
-    if (formValues.fullName.trim().length < 2) {
-      nextErrors.fullName = "Please enter your full name.";
+    if (fullNameError) {
+      nextErrors.fullName = fullNameError;
     }
 
-    if (!formValues.businessType) {
-      nextErrors.businessType = "Please select a business type.";
+    if (!businessTypes.includes(formValues.businessType)) {
+      nextErrors.businessType = "Please select a valid business type.";
     }
 
-    if (formValues.location.trim().length < 5) {
-      nextErrors.location = "Please enter the complete location.";
+    if (addressError) {
+      nextErrors.location = addressError;
     }
 
-    if (phoneDigits.length < 10 || phoneDigits.length > 13) {
-      nextErrors.phone = "Please enter a valid phone number.";
+    if (!normalizePhoneNumber(formValues.phone)) {
+      nextErrors.phone =
+        "Enter a valid 10-digit phone number starting with 6, 7, 8, or 9.";
     }
 
     return nextErrors;
@@ -161,12 +387,13 @@ export default function PartnerEnquiryModal({
 
     try {
       await submitPartnerRequest({
-        businessName: formValues.businessName.trim(),
-        city: formValues.city.trim(),
-        fullName: formValues.fullName.trim(),
+        businessName: normalizeSpaces(formValues.businessName),
+        city: normalizeSpaces(formValues.city),
+        fullName: normalizeSpaces(formValues.fullName),
         businessType: formValues.businessType,
-        location: formValues.location.trim(),
-        phoneNumber: formValues.phone.trim(),
+        location: normalizeSpaces(formValues.location),
+        phoneNumber:
+          normalizePhoneNumber(formValues.phone) ?? formValues.phone.trim(),
       });
       setIsSuccessful(true);
     } catch (error) {
@@ -281,6 +508,8 @@ export default function PartnerEnquiryModal({
                     }
                     placeholder="Enter your business name"
                     autoComplete="organization"
+                    maxLength={80}
+                    aria-invalid={Boolean(errors.businessName)}
                     className={inputClassName("businessName")}
                   />
                   {errors.businessName && (
@@ -306,6 +535,8 @@ export default function PartnerEnquiryModal({
                     }
                     placeholder="Enter your full name"
                     autoComplete="name"
+                    maxLength={20}
+                    aria-invalid={Boolean(errors.fullName)}
                     className={inputClassName("fullName")}
                   />
                   {errors.fullName && (
@@ -317,33 +548,119 @@ export default function PartnerEnquiryModal({
 
                 <div>
                   <label
-                    htmlFor="partner-business-type"
+                    id="partner-business-type-label"
                     className="mb-1.5 block text-sm font-semibold text-[#0F172A]"
                   >
                     Business Type <span className="text-red-500">*</span>
                   </label>
-                  <div className="relative">
-                    <Building2
-                      size={17}
-                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#2EAD45]"
-                      aria-hidden="true"
-                    />
-                    <select
-                      id="partner-business-type"
-                      value={formValues.businessType}
-                      onChange={(event) =>
-                        updateField("businessType", event.target.value)
+
+                  <div
+                    className="relative"
+                    onBlur={(event) => {
+                      const nextFocusedElement = event.relatedTarget;
+
+                      if (
+                        !(nextFocusedElement instanceof Node) ||
+                        !event.currentTarget.contains(nextFocusedElement)
+                      ) {
+                        setIsBusinessTypeOpen(false);
+                        setHighlightedBusinessTypeIndex(0);
                       }
-                      className={`${inputClassName("businessType")} pl-11`}
+                    }}
+                  >
+                    <button
+                      id="partner-business-type"
+                      type="button"
+                      onClick={() => {
+                        setIsBusinessTypeOpen((current) => !current);
+                        setIsCityOpen(false);
+                        setHighlightedBusinessTypeIndex(0);
+                      }}
+                      onKeyDown={handleBusinessTypeKeyDown}
+                      aria-labelledby="partner-business-type-label partner-business-type"
+                      aria-haspopup="listbox"
+                      aria-expanded={isBusinessTypeOpen}
+                      aria-controls="partner-business-type-options"
+                      aria-activedescendant={
+                        isBusinessTypeOpen
+                          ? `partner-business-type-option-${highlightedBusinessTypeIndex}`
+                          : undefined
+                      }
+                      aria-invalid={Boolean(errors.businessType)}
+                      className={`${inputClassName("businessType")} flex items-center justify-between gap-3 text-left`}
                     >
-                      <option value="">Select business type</option>
-                      {businessTypes.map((businessType) => (
-                        <option key={businessType} value={businessType}>
-                          {businessType}
-                        </option>
-                      ))}
-                    </select>
+                      <span className="flex min-w-0 items-center gap-3">
+                        <Building2
+                          size={17}
+                          className="shrink-0 text-[#2EAD45]"
+                          aria-hidden="true"
+                        />
+                        <span
+                          className={`truncate ${
+                            formValues.businessType
+                              ? "text-[#0F172A]"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {formValues.businessType || "Select business type"}
+                        </span>
+                      </span>
+
+                      <ChevronDown
+                        size={17}
+                        className={`shrink-0 text-gray-500 transition-transform ${
+                          isBusinessTypeOpen ? "rotate-180" : ""
+                        }`}
+                        aria-hidden="true"
+                      />
+                    </button>
+
+                    {isBusinessTypeOpen && (
+                      <ul
+                        id="partner-business-type-options"
+                        role="listbox"
+                        aria-label="Select business type"
+                        className="absolute left-0 right-0 top-[calc(100%+0.4rem)] z-40 max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
+                      >
+                        {visibleBusinessTypes.map((businessType, index) => {
+                          const isActive =
+                            index === highlightedBusinessTypeIndex;
+
+                          return (
+                            <li key={businessType}>
+                              <button
+                                id={`partner-business-type-option-${index}`}
+                                type="button"
+                                role="option"
+                                aria-selected={false}
+                                onMouseEnter={() =>
+                                  setHighlightedBusinessTypeIndex(index)
+                                }
+                                onClick={() => {
+                                  updateField("businessType", businessType);
+                                  setIsBusinessTypeOpen(false);
+                                  setHighlightedBusinessTypeIndex(0);
+                                }}
+                                className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition-colors ${
+                                  isActive
+                                    ? "bg-[#F0FDF4] text-[#1E8A32]"
+                                    : "text-gray-700 hover:bg-gray-50"
+                                }`}
+                              >
+                                <Building2
+                                  size={15}
+                                  className="shrink-0 text-[#2EAD45]"
+                                  aria-hidden="true"
+                                />
+                                {businessType}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
                   </div>
+
                   {errors.businessType && (
                     <p className="mt-1.5 text-xs text-red-500">
                       {errors.businessType}
@@ -353,20 +670,111 @@ export default function PartnerEnquiryModal({
 
                 <div>
                   <label
-                    htmlFor="partner-city"
+                    id="partner-city-label"
                     className="mb-1.5 block text-sm font-semibold text-[#0F172A]"
                   >
                     City <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    id="partner-city"
-                    type="text"
-                    value={formValues.city}
-                    onChange={(event) => updateField("city", event.target.value)}
-                    placeholder="Enter city"
-                    autoComplete="address-level2"
-                    className={inputClassName("city")}
-                  />
+
+                  <div
+                    className="relative"
+                    onBlur={(event) => {
+                      const nextFocusedElement = event.relatedTarget;
+
+                      if (
+                        !(nextFocusedElement instanceof Node) ||
+                        !event.currentTarget.contains(nextFocusedElement)
+                      ) {
+                        setIsCityOpen(false);
+                        setHighlightedCityIndex(0);
+                      }
+                    }}
+                  >
+                    <button
+                      id="partner-city"
+                      type="button"
+                      onClick={() => {
+                        setIsCityOpen((current) => !current);
+                        setIsBusinessTypeOpen(false);
+                        setHighlightedCityIndex(0);
+                      }}
+                      onKeyDown={handleCityKeyDown}
+                      aria-labelledby="partner-city-label partner-city"
+                      aria-haspopup="listbox"
+                      aria-expanded={isCityOpen}
+                      aria-controls="partner-city-options"
+                      aria-activedescendant={
+                        isCityOpen
+                          ? `partner-city-option-${highlightedCityIndex}`
+                          : undefined
+                      }
+                      aria-invalid={Boolean(errors.city)}
+                      className={`${inputClassName("city")} flex items-center justify-between gap-3 text-left`}
+                    >
+                      <span
+                        className={
+                          formValues.city
+                            ? "text-[#0F172A]"
+                            : "text-gray-400"
+                        }
+                      >
+                        {formValues.city || "Select city"}
+                      </span>
+
+                      <ChevronDown
+                        size={17}
+                        className={`shrink-0 text-gray-500 transition-transform ${
+                          isCityOpen ? "rotate-180" : ""
+                        }`}
+                        aria-hidden="true"
+                      />
+                    </button>
+
+                    {isCityOpen && (
+                      <ul
+                        id="partner-city-options"
+                        role="listbox"
+                        aria-label="Select city"
+                        className="absolute left-0 right-0 top-[calc(100%+0.4rem)] z-30 max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-xl"
+                      >
+                        {visiblePartnerCities.map((city, index) => {
+                          const isActive = index === highlightedCityIndex;
+
+                          return (
+                            <li key={city}>
+                              <button
+                                id={`partner-city-option-${index}`}
+                                type="button"
+                                role="option"
+                                aria-selected={false}
+                                onMouseEnter={() =>
+                                  setHighlightedCityIndex(index)
+                                }
+                                onClick={() => {
+                                  updateField("city", city);
+                                  setIsCityOpen(false);
+                                  setHighlightedCityIndex(0);
+                                }}
+                                className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition-colors ${
+                                  isActive
+                                    ? "bg-[#F0FDF4] text-[#1E8A32]"
+                                    : "text-gray-700 hover:bg-gray-50"
+                                }`}
+                              >
+                                <MapPin
+                                  size={15}
+                                  className="shrink-0 text-[#2EAD45]"
+                                  aria-hidden="true"
+                                />
+                                {city}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+
                   {errors.city && (
                     <p className="mt-1.5 text-xs text-red-500">
                       {errors.city}
@@ -376,20 +784,22 @@ export default function PartnerEnquiryModal({
 
                 <div className="sm:col-span-2">
                   <label
-                    htmlFor="partner-location"
+                    htmlFor="partner-address"
                     className="mb-1.5 block text-sm font-semibold text-[#0F172A]"
                   >
-                    Location <span className="text-red-500">*</span>
+                    Address <span className="text-red-500">*</span>
                   </label>
                   <input
-                    id="partner-location"
+                    id="partner-address"
                     type="text"
                     value={formValues.location}
                     onChange={(event) =>
                       updateField("location", event.target.value)
                     }
-                    placeholder="Enter complete business location or address"
+                    placeholder="Enter complete business address"
                     autoComplete="street-address"
+                    maxLength={200}
+                    aria-invalid={Boolean(errors.location)}
                     className={inputClassName("location")}
                   />
                   {errors.location && (
@@ -415,6 +825,9 @@ export default function PartnerEnquiryModal({
                     }
                     placeholder="+91 98765 43210"
                     autoComplete="tel"
+                    inputMode="tel"
+                    maxLength={18}
+                    aria-invalid={Boolean(errors.phone)}
                     className={inputClassName("phone")}
                   />
                   {errors.phone && (
@@ -455,4 +868,5 @@ export default function PartnerEnquiryModal({
     </div>
   );
 }
+
 
