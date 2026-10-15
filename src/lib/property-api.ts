@@ -48,6 +48,7 @@ function mapPropertyToCard(
 
   return {
     id: property.id,
+    slug: property.slug.trim(),
     name: property.title,
     type: property.type,
     description: property.description?.trim() || undefined,
@@ -216,18 +217,18 @@ export async function getActivePropertyCities(
   );
 }
 
-export async function getPropertyById(
-  propertyId: string,
+export async function getPropertyBySlug(
+  propertySlug: string,
   signal?: AbortSignal,
 ): Promise<PropertyCardData | null> {
-  const normalizedId = propertyId.trim();
+  const normalizedSlug = propertySlug.trim();
 
-  if (!normalizedId) {
+  if (!normalizedSlug) {
     return null;
   }
 
   const url = new URL(
-    `/api/properties/${encodeURIComponent(normalizedId)}`,
+    `/api/properties/${encodeURIComponent(normalizedSlug)}`,
     API_BASE_URL,
   );
 
@@ -255,6 +256,7 @@ export async function getPropertyById(
     typeof data !== "object" ||
     data === null ||
     !("id" in data) ||
+    !("slug" in data) ||
     !("title" in data) ||
     !("city" in data) ||
     !("type" in data)

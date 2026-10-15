@@ -1,15 +1,18 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import {
+  notFound,
+  permanentRedirect,
+} from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import PropertyDetailsPageContent from "@/components/property/PropertyDetailsPageContent";
-import { getPropertyById } from "@/lib/property-api";
+import { getPropertyBySlug } from "@/lib/property-api";
 
 interface PropertyDetailsPageProps {
   params: Promise<{
-    id: string;
+    slug: string;
   }>;
 }
 
@@ -18,11 +21,17 @@ export const dynamic = "force-dynamic";
 export default async function PropertyDetailsPage({
   params,
 }: PropertyDetailsPageProps) {
-  const { id } = await params;
-  const property = await getPropertyById(id);
+  const { slug } = await params;
+  const property = await getPropertyBySlug(slug);
 
   if (!property) {
     notFound();
+  }
+
+  if (slug !== property.slug) {
+    permanentRedirect(
+      `/properties/${encodeURIComponent(property.slug)}`,
+    );
   }
 
   return (

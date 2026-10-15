@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Mail,
   MapPin,
@@ -5,9 +7,7 @@ import {
 } from "lucide-react";
 
 import {
-  FaFacebookF,
   FaInstagram,
-  FaLinkedinIn,
   FaYoutube,
 } from "react-icons/fa6";
 
@@ -17,6 +17,7 @@ import type { IconType } from "react-icons";
 
 import Logo from "@/components/layout/Logo";
 import { siteConfig } from "@/data/site";
+import { useCallbackModal } from "@/components/callback/CallbackContext";
 
 interface FooterLink {
   label: string;
@@ -31,6 +32,7 @@ interface FooterColumn {
 
 interface SocialItem {
   label: string;
+  href: string;
   icon: IconType;
 }
 
@@ -104,23 +106,18 @@ const footerColumns: FooterColumn[] = [
 const socialItems: SocialItem[] = [
   {
     label: "Instagram",
+    href: "https://www.instagram.com/bookfarmvilla?obrf=Znl5cjF4MHNsdXhx",
     icon: FaInstagram,
   },
   {
-    label: "Facebook",
-    icon: FaFacebookF,
-  },
-  {
-    label: "LinkedIn",
-    icon: FaLinkedinIn,
-  },
-  {
     label: "YouTube",
+    href: "https://youtube.com/@bookfarmvilla?si=uSO_wv2eLRfCyWvI",
     icon: FaYoutube,
   },
 ];
 
 export default function Footer() {
+  const { openGeneralCallback } = useCallbackModal();
   const currentYear = new Date().getFullYear();
 
   const phoneHref = `tel:${siteConfig.contact.phone.replace(
@@ -214,10 +211,10 @@ export default function Footer() {
               </div>
             </address>
 
-            {/* Social media placeholders */}
+            {/* Social media links */}
             <div>
               <p className="mb-3 text-xs text-gray-500">
-                Social links coming soon
+                Follow us
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -225,15 +222,17 @@ export default function Footer() {
                   const Icon = socialItem.icon;
 
                   return (
-                    <span
+                    <a
                       key={socialItem.label}
-                      className="flex h-11 w-11 cursor-not-allowed items-center justify-center rounded-lg bg-white/5 text-gray-500"
-                      title={`${socialItem.label} link coming soon`}
-                      aria-label={`${socialItem.label} link coming soon`}
-                      aria-disabled="true"
+                      href={socialItem.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/5 text-gray-400 transition-colors hover:bg-[#2EAD45] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4CAF50] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0F172A]"
+                      title={`Follow BookFarmVilla on ${socialItem.label}`}
+                      aria-label={`Follow BookFarmVilla on ${socialItem.label} — opens in a new tab`}
                     >
                       <Icon size={16} aria-hidden="true" />
-                    </span>
+                    </a>
                   );
                 })}
               </div>
@@ -261,7 +260,15 @@ export default function Footer() {
                           ? "noopener noreferrer"
                           : undefined
                       }
-                      className="inline-flex min-h-9 items-center text-sm text-gray-400 transition-colors hover:text-[#4CAF50]"
+                      onClick={
+                        link.label === "Contact"
+                          ? (event) => {
+                              event.preventDefault();
+                              openGeneralCallback();
+                            }
+                          : undefined
+                      }
+                      className="inline-flex min-h-9 items-center text-sm text-gray-400 transition-colors hover:text-[#4CAF50] focus:outline-none focus-visible:text-[#4CAF50]"
                     >
                       {link.label}
                     </Link>

@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from "react";
 
-import { mockProperties } from "@/data/properties";
 import { submitLead, PublicApiError } from "@/lib/public-api";
 import type {
   CallbackFormErrors,
@@ -86,10 +85,6 @@ export default function CallbackForm({
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  const [propertyId, setPropertyId] = useState(
-    initialProperty?.id ?? "",
-  );
-
   const [errors, setErrors] =
     useState<CallbackFormErrors>({});
 
@@ -97,10 +92,6 @@ export default function CallbackForm({
     useState(false);
 
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const propertyOptions = initialProperty
-  ? [initialProperty]
-  : mockProperties;
 
   const isVendorEnquiry = Boolean(initialVendor);
 
@@ -120,11 +111,6 @@ export default function CallbackForm({
 
     if (emailError) {
       nextErrors.email = emailError;
-    }
-
-    if (!isVendorEnquiry && !propertyId) {
-      nextErrors.propertyId =
-        "Please select a property.";
     }
 
 
@@ -152,7 +138,7 @@ export default function CallbackForm({
       phone: normalizePhoneNumber(phone) ?? phone.trim(),
       email: email.trim().toLowerCase() || undefined,
       message: normalizeSpaces(message) || undefined,
-      propertyId: isVendorEnquiry ? undefined : propertyId,
+      propertyId: initialProperty?.id,
       vendorId: initialVendor?.id,
     };
 
@@ -183,7 +169,7 @@ export default function CallbackForm({
       className="space-y-4 sm:space-y-5"
       noValidate
     >
-      {/* Property or vendor selection */}
+      {/* Selected property or vendor context */}
       {initialVendor ? (
         <div>
           <label
@@ -205,58 +191,28 @@ export default function CallbackForm({
             This enquiry is for {initialVendor.name}.
           </p>
         </div>
-      ) : (
+      ) : initialProperty ? (
         <div>
           <label
             htmlFor="callback-property"
             className="mb-1.5 block text-sm font-semibold text-[#0F172A]"
           >
             Property
-            <span className="ml-1 text-red-500">*</span>
           </label>
 
-          <select
+          <input
             id="callback-property"
-            value={propertyId}
-            onChange={(event) => {
-              setPropertyId(event.target.value);
+            type="text"
+            value={`${initialProperty.name} — ${initialProperty.location}`}
+            readOnly
+            className="min-h-12 w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-base text-[#0F172A] outline-none sm:text-sm"
+          />
 
-              if (errors.propertyId) {
-                setErrors((currentErrors) => ({
-                  ...currentErrors,
-                  propertyId: undefined,
-                }));
-              }
-            }}
-            disabled={Boolean(initialProperty)}
-            className={`min-h-12 w-full rounded-xl border bg-white px-4 py-3 text-base text-[#0F172A] outline-none transition-colors disabled:cursor-not-allowed disabled:bg-gray-100 sm:text-sm ${
-              errors.propertyId
-                ? "border-red-400 focus:border-red-500"
-                : "border-gray-200 focus:border-[#2EAD45]"
-            }`}
-          >
-            <option value="">Select a property</option>
-
-            {propertyOptions.map((property) => (
-              <option key={property.id} value={property.id}>
-                {property.name} — {property.location}
-              </option>
-            ))}
-          </select>
-
-          {initialProperty && (
-            <p className="mt-1.5 text-xs text-gray-500">
-              This enquiry is for {initialProperty.name}.
-            </p>
-          )}
-
-          {errors.propertyId && (
-            <p className="mt-1.5 text-xs text-red-500">
-              {errors.propertyId}
-            </p>
-          )}
+          <p className="mt-1.5 text-xs text-gray-500">
+            This enquiry is for {initialProperty.name}.
+          </p>
         </div>
-      )}
+      ) : null}
 
       {/* Name */}
       <div>

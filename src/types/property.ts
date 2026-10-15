@@ -7,6 +7,7 @@ export type PropertyStatus = "ACTIVE" | "INACTIVE";
 
 export interface PropertyCardData {
   id: string;
+  slug: string;
   name: string;
   type: PropertyType;
   description?: string;
@@ -39,6 +40,7 @@ export interface PropertyImageResponse {
 
 export interface PropertyApiResponse {
   id: string;
+  slug: string;
   title: string;
   description?: string | null;
   type: PropertyType;

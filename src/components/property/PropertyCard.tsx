@@ -80,7 +80,7 @@ export default function PropertyCard({
     >
       <Link
         href={`/properties/${encodeURIComponent(
-          property.id,
+          property.slug,
         )}`}
         target="_blank"
         rel="noopener noreferrer"
