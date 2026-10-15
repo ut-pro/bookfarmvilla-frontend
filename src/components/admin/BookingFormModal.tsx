@@ -196,6 +196,7 @@ export default function BookingFormModal({ open, initial, onClose, onSubmit }: B
                   <option value="FARMHOUSE">Farmhouse</option>
                   <option value="VILLA">Villa</option>
                   <option value="WEDDING_LAWN">Wedding Lawn</option>
+                  <option value="AIRBNB">Airbnb</option>
                 </select>
               </div>
             </div>

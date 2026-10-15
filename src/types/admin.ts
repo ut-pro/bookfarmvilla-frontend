@@ -3,7 +3,7 @@
 // shapes (which map 1:1 to the backend DTOs) don't get tangled up with the
 // public site's display-oriented types.
 
-export type PropertyType = "FARMHOUSE" | "VILLA" | "WEDDING_LAWN";
+export type PropertyType = "FARMHOUSE" | "VILLA" | "WEDDING_LAWN" | "AIRBNB";
 export type ListingStatus = "ACTIVE" | "INACTIVE";
 export type LeadStatus = "NEW" | "CONTACTED" | "CONVERTED" | "CLOSED";
 export type VendorCategory =

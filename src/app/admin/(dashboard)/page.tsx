@@ -6,6 +6,7 @@ import {
   Home,
   Castle,
   Flower2,
+  Building2,
   UserCircle2,
   CalendarDays,
   MessageSquare,
@@ -28,6 +29,7 @@ interface Counts {
   farmhouses: number;
   villas: number;
   weddingLawns: number;
+  airbnbs: number;
   vendors: number;
   bookings: number;
   enquiries: number;
@@ -44,12 +46,13 @@ export default function AdminDashboardPage() {
     // enough since we only need each response's totalElements, not its content.
     async function loadCounts() {
       try {
-        const [all, farmhouses, villas, weddingLawns, vendors, bookings, enquiries, partners] =
+        const [all, farmhouses, villas, weddingLawns, airbnbs, vendors, bookings, enquiries, partners] =
           await Promise.all([
             fetchProperties({ page: 0, size: 1 }),
             fetchProperties({ type: "FARMHOUSE", page: 0, size: 1 }),
             fetchProperties({ type: "VILLA", page: 0, size: 1 }),
             fetchProperties({ type: "WEDDING_LAWN", page: 0, size: 1 }),
+            fetchProperties({ type: "AIRBNB", page: 0, size: 1 }),
             fetchVendors({ page: 0, size: 1 }),
             fetchBookings({ page: 0, size: 1 }),
             fetchLeads({ page: 0, size: 1 }),
@@ -61,6 +64,7 @@ export default function AdminDashboardPage() {
           farmhouses: farmhouses.totalElements,
           villas: villas.totalElements,
           weddingLawns: weddingLawns.totalElements,
+          airbnbs: airbnbs.totalElements,
           vendors: vendors.totalElements,
           bookings: bookings.totalElements,
           enquiries: enquiries.totalElements,
@@ -119,6 +123,13 @@ export default function AdminDashboardPage() {
             accent="bg-green-100 text-green-600"
           />
           <StatCard
+            label="Total Airbnb"
+            value={counts?.airbnbs ?? 0}
+            loading={!counts}
+            icon={Building2}
+            accent="bg-sky-100 text-sky-600"
+          />
+          <StatCard
             label="Total Vendors"
             value={counts?.vendors ?? 0}
             loading={!counts}
@@ -168,6 +179,12 @@ export default function AdminDashboardPage() {
               className="flex items-center gap-2 rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-sm font-semibold text-green-700 hover:bg-green-100"
             >
               <Plus size={16} /> Add Wedding Lawn
+            </Link>
+            <Link
+              href="/admin/airbnb?new=1"
+              className="flex items-center gap-2 rounded-xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-700 hover:bg-sky-100"
+            >
+              <Plus size={16} /> Add Airbnb
             </Link>
             <Link
               href="/admin/vendors?new=1"

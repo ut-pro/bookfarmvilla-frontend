@@ -20,6 +20,7 @@ const typeLabels: Record<PropertyType, string> = {
   FARMHOUSE: "Farmhouse",
   VILLA: "Villa",
   WEDDING_LAWN: "Wedding Lawn",
+  AIRBNB: "Airbnb",
 };
 
 function exportToCsv(bookings: AdminBooking[]) {
@@ -168,6 +169,7 @@ function BookingsPageContent() {
               <option value="FARMHOUSE">Farmhouse</option>
               <option value="VILLA">Villa</option>
               <option value="WEDDING_LAWN">Wedding Lawn</option>
+              <option value="AIRBNB">Airbnb</option>
             </select>
 
             <select
