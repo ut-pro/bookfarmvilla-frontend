@@ -16,6 +16,7 @@ export type VendorCategory =
 export type PartnerStatus = "PENDING" | "OPEN" | "ACCEPTED" | "DECLINED";
 export type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
 export type PaymentStatus = "UNPAID" | "PAID" | "REFUNDED";
+export type BlogPostStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 export type SortDirection = "asc" | "desc";
 export type PropertySortBy =
   | "title"
@@ -184,6 +185,60 @@ export interface AdminBookingPayload {
   commissionAmount: number;
   status?: BookingStatus;
   paymentStatus?: PaymentStatus;
+}
+
+export interface AdminReview {
+  id: string;
+  propertyId: string | null;
+  propertyTitle: string | null;
+  vendorId: string | null;
+  vendorName: string | null;
+  reviewerName: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface AdminReviewPayload {
+  propertyId?: string;
+  vendorId?: string;
+  reviewerName: string;
+  rating: number;
+  comment?: string;
+}
+
+export interface AdminBlogPostSummary {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  coverImageUrl: string | null;
+  category: string | null;
+  authorName: string;
+  status: BlogPostStatus;
+  publishedAt: string | null;
+  createdAt: string;
+  modifiedAt: string;
+}
+
+export interface AdminBlogPost extends AdminBlogPostSummary {
+  content: string;
+  coverImageAlt: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+}
+
+export interface AdminBlogPostPayload {
+  title: string;
+  slug?: string;
+  excerpt?: string;
+  content: string;
+  coverImageUrl?: string;
+  coverImageAlt?: string;
+  category?: string;
+  authorName: string;
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
 export interface AdminUser {

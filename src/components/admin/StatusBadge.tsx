@@ -20,6 +20,9 @@ const colorMap: Record<string, string> = {
   PAID: "bg-green-100 text-green-700",
   UNPAID: "bg-orange-100 text-orange-700",
   REFUNDED: "bg-violet-100 text-violet-700",
+  DRAFT: "bg-gray-100 text-gray-600",
+  PUBLISHED: "bg-green-100 text-green-700",
+  ARCHIVED: "bg-orange-100 text-orange-700",
 };
 
 const labelMap: Record<string, string> = {

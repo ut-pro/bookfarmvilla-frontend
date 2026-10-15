@@ -7,6 +7,7 @@ export const mockProperties: PropertyCardData[] = [
   // Farmhouses
   {
     id: "farmhouse-1",
+    slug: "partypatch-guitar-waves",
     name: "PartyPatch Guitar Waves",
     type: "FARMHOUSE",
     location: "Karjat, Maharashtra",
@@ -24,6 +25,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "farmhouse-2",
+    slug: "green-view-farm",
     name: "Green View Farm",
     type: "FARMHOUSE",
     location: "Lonavala, Maharashtra",
@@ -40,6 +42,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "farmhouse-3",
+    slug: "whispering-palms",
     name: "Whispering Palms",
     type: "FARMHOUSE",
     location: "Alibag, Maharashtra",
@@ -57,6 +60,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "farmhouse-4",
+    slug: "hilltop-farmhouse",
     name: "Hilltop Farmhouse",
     type: "FARMHOUSE",
     location: "Igatpuri, Maharashtra",
@@ -75,6 +79,7 @@ export const mockProperties: PropertyCardData[] = [
   // Villas
   {
     id: "villa-1",
+    slug: "veluk-elite-villa",
     name: "Veluk Elite Villa",
     type: "VILLA",
     location: "Goa, India",
@@ -92,6 +97,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "villa-2",
+    slug: "dream-paradise-villa",
     name: "Dream Paradise Villa",
     type: "VILLA",
     location: "Udaipur, Rajasthan",
@@ -108,6 +114,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "villa-3",
+    slug: "skyline-villa",
     name: "Skyline Villa",
     type: "VILLA",
     location: "Munnar, Kerala",
@@ -125,6 +132,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "villa-4",
+    slug: "palm-paradise-villa",
     name: "Palm Paradise Villa",
     type: "VILLA",
     location: "Alleppey, Kerala",
@@ -141,6 +149,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "villa-5",
+    slug: "riverfront-villa",
     name: "Riverfront Villa",
     type: "VILLA",
     location: "Rishikesh, Uttarakhand",
@@ -159,6 +168,7 @@ export const mockProperties: PropertyCardData[] = [
   // Wedding lawns
   {
     id: "wedding-lawn-1",
+    slug: "royal-green-lawn",
     name: "Royal Green Lawn",
     type: "WEDDING_LAWN",
     location: "Jaipur, Rajasthan",
@@ -176,6 +186,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "wedding-lawn-2",
+    slug: "the-grand-palace",
     name: "The Grand Palace",
     type: "WEDDING_LAWN",
     location: "Udaipur, Rajasthan",
@@ -192,6 +203,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "wedding-lawn-3",
+    slug: "maple-wedding-lawn",
     name: "Maple Wedding Lawn",
     type: "WEDDING_LAWN",
     location: "Pune, Maharashtra",
@@ -208,6 +220,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "wedding-lawn-4",
+    slug: "dreams-celebration",
     name: "Dreams Celebration",
     type: "WEDDING_LAWN",
     location: "Delhi NCR",
@@ -225,6 +238,7 @@ export const mockProperties: PropertyCardData[] = [
   },
   {
     id: "wedding-lawn-5",
+    slug: "rohit-tamata-house",
     name: "Rohit Tamata House",
     type: "WEDDING_LAWN",
     location: "Agra, Uttar Pradesh",

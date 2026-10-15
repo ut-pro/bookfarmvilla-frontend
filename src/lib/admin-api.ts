@@ -13,14 +13,20 @@ import { API_BASE_URL } from "@/lib/api-config";
 
 import type {
   AdminAmenity,
+  AdminBlogPost,
+  AdminBlogPostPayload,
+  AdminBlogPostSummary,
   AdminBooking,
   AdminBookingPayload,
   AdminLead,
   AdminPartner,
   AdminProperty,
   AdminPropertyPayload,
+  AdminReview,
+  AdminReviewPayload,
   AdminVendor,
   AdminVendorPayload,
+  BlogPostStatus,
   BookingStatus,
   LeadStatus,
   ListingStatus,
@@ -391,4 +397,132 @@ export async function updateBooking(
 
 export async function deleteBooking(id: string): Promise<void> {
   return adminApiFetch<void>(`/api/bookings/${id}`, { method: "DELETE" });
+}
+
+// ---------------------------------------------------------------------------
+// Reviews
+// ---------------------------------------------------------------------------
+
+export async function fetchReviewsByVendor(vendorId: string): Promise<AdminReview[]> {
+  return adminApiFetch<AdminReview[]>(`/api/reviews/vendor/${encodeURIComponent(vendorId)}`);
+}
+
+export async function fetchReviews(params: {
+  keyword?: string;
+  propertyId?: string;
+  vendorId?: string;
+  page?: number;
+  size?: number;
+}): Promise<PageResponse<AdminReview>> {
+  const query = buildQuery({
+    keyword: params.keyword,
+    propertyId: params.propertyId,
+    vendorId: params.vendorId,
+    page: params.page ?? 0,
+    size: params.size ?? 10,
+    sort: "createdAt,desc",
+  });
+  return adminApiFetch<PageResponse<AdminReview>>(`/api/reviews${query}`);
+}
+
+export async function fetchReviewsByProperty(propertyId: string): Promise<AdminReview[]> {
+  return adminApiFetch<AdminReview[]>(`/api/reviews/property/${encodeURIComponent(propertyId)}`);
+}
+
+export async function createReview(payload: AdminReviewPayload): Promise<AdminReview> {
+  return adminApiFetch<AdminReview>("/api/reviews", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateReview(
+  id: string,
+  payload: AdminReviewPayload,
+): Promise<AdminReview> {
+  return adminApiFetch<AdminReview>(`/api/reviews/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteReview(id: string): Promise<void> {
+  return adminApiFetch<void>(`/api/reviews/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+// ---------------------------------------------------------------------------
+// Blog posts
+// ---------------------------------------------------------------------------
+
+export async function fetchAdminBlogPosts(params: {
+  status?: BlogPostStatus;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDirection?: SortDirection;
+}): Promise<PageResponse<AdminBlogPostSummary>> {
+  const query = buildQuery({
+    status: params.status,
+    page: params.page ?? 0,
+    size: params.size ?? 10,
+    sortBy: params.sortBy,
+    sortDirection: params.sortDirection,
+  });
+  return adminApiFetch<PageResponse<AdminBlogPostSummary>>(`/api/v1/admin/blogs${query}`);
+}
+
+export async function fetchAdminBlogPost(id: string): Promise<AdminBlogPost> {
+  return adminApiFetch<AdminBlogPost>(`/api/v1/admin/blogs/${encodeURIComponent(id)}`);
+}
+
+export async function createAdminBlogPost(
+  payload: AdminBlogPostPayload,
+): Promise<AdminBlogPost> {
+  return adminApiFetch<AdminBlogPost>("/api/v1/admin/blogs", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateAdminBlogPost(
+  id: string,
+  payload: AdminBlogPostPayload,
+): Promise<AdminBlogPost> {
+  return adminApiFetch<AdminBlogPost>(`/api/v1/admin/blogs/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function publishAdminBlogPost(id: string): Promise<AdminBlogPost> {
+  return adminApiFetch<AdminBlogPost>(
+    `/api/v1/admin/blogs/${encodeURIComponent(id)}/publish`,
+    { method: "POST" },
+  );
+}
+
+export async function archiveAdminBlogPost(id: string): Promise<AdminBlogPost> {
+  return adminApiFetch<AdminBlogPost>(
+    `/api/v1/admin/blogs/${encodeURIComponent(id)}/archive`,
+    { method: "POST" },
+  );
+}
+
+export async function updateAdminBlogPostStatus(
+  id: string,
+  status: BlogPostStatus,
+): Promise<AdminBlogPost> {
+  return adminApiFetch<AdminBlogPost>(
+    `/api/v1/admin/blogs/${encodeURIComponent(id)}/status`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    },
+  );
+}
+
+export async function deleteAdminBlogPost(id: string): Promise<void> {
+  return adminApiFetch<void>(`/api/v1/admin/blogs/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
 }

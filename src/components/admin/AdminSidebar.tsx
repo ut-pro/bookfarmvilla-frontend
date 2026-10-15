@@ -12,6 +12,8 @@ import {
   CalendarDays,
   MessageSquare,
   Handshake,
+  Star,
+  FileText,
 } from "lucide-react";
 
 const navItems = [
@@ -23,6 +25,8 @@ const navItems = [
   { href: "/admin/bookings", label: "Bookings", icon: CalendarDays },
   { href: "/admin/enquiries", label: "Enquiries", icon: MessageSquare },
   { href: "/admin/partners", label: "Partner Requests", icon: Handshake },
+  { href: "/admin/reviews", label: "Reviews", icon: Star },
+  { href: "/admin/blog", label: "Blog", icon: FileText },
 ];
 
 export default function AdminSidebar() {

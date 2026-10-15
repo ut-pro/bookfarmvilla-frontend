@@ -19,6 +19,7 @@ import type { PropertyCardData, PropertyType } from "@/types/property";
 
 export interface AIProperty {
   id: string;
+  slug?: string | null;
   title: string;
   description?: string | null;
   type?: PropertyType | null;
@@ -74,6 +75,7 @@ function toPropertyCardData(property: AIProperty): PropertyCardData | null {
 
   return {
     id: property.id,
+    slug: property.slug?.trim() || property.id,
     name: property.title,
     type: property.type,
     description: property.description ?? undefined,
