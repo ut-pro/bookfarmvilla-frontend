@@ -141,6 +141,29 @@ function isNamedPropertyReference(
   );
 }
 
+function isNamedVendorReference(
+  message: string,
+  vendors: VendorResponse[],
+): boolean {
+  const normalizedMessage =
+    normalizeAILocationText(message)
+      .trim()
+      .toLowerCase();
+
+  return vendors.some((vendor) => {
+    const normalizedVendorName =
+      normalizeAILocationText(vendor.name)
+        .trim()
+        .toLowerCase();
+
+    return (
+      normalizedVendorName.length > 0 &&
+      (normalizedMessage === normalizedVendorName ||
+        normalizedMessage.includes(normalizedVendorName))
+    );
+  });
+}
+
 function prefersHindi(message: string): boolean {
   return /\b(?:mujhe|chahiye|dikhao|dikha|kuch|aur|nahi|nahin|pasand|kaunsa|kaisi|hai|hain|mera|meri|aapke|liye|karo|krna|karna|bhejo|bataye|batao|kr|kya|acha|accha|sahi|kitna|kitne)\b/i.test(
     message,
@@ -755,7 +778,24 @@ export default function AIAssistant() {
       return;
     }
 
-    if (isBookingIntent(message) || isPositivePropertyInterest(message)) {
+    const isNamedListingSelection =
+      !isPropertyDetailQuestion(message) &&
+      (
+        isNamedPropertyReference(
+          message,
+          properties,
+        ) ||
+        isNamedVendorReference(
+          message,
+          vendors,
+        )
+      );
+
+    if (
+      isBookingIntent(message) ||
+      isPositivePropertyInterest(message) ||
+      isNamedListingSelection
+    ) {
       pendingPropertyEnquiryRef.current = null;
       const bookingContext = [
         ...messages

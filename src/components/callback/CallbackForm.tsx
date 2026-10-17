@@ -85,6 +85,12 @@ export default function CallbackForm({
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
+  const isGeneralEnquiry =
+    !initialProperty && !initialVendor;
+
+  const generalContactPropertyId =
+    process.env.NEXT_PUBLIC_GENERAL_CONTACT_PROPERTY_ID;
+
   const [errors, setErrors] =
     useState<CallbackFormErrors>({});
 
@@ -128,7 +134,19 @@ export default function CallbackForm({
     }
 
     setErrors({});
+
     setSubmitError(null);
+
+    if (
+      isGeneralEnquiry &&
+      !generalContactPropertyId
+    ) {
+      setSubmitError(
+        "General enquiry is temporarily unavailable. Please contact our team by phone or WhatsApp.",
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     const leadDraft: CallbackLeadDraft = {
@@ -136,7 +154,11 @@ export default function CallbackForm({
       phone: normalizePhoneNumber(phone) ?? phone.trim(),
       email: email.trim().toLowerCase() || undefined,
       message: normalizeSpaces(message) || undefined,
-      propertyId: initialProperty?.id,
+      propertyId:
+        initialProperty?.id ??
+        (isGeneralEnquiry
+          ? generalContactPropertyId
+          : undefined),
       vendorId: initialVendor?.id,
     };
 
