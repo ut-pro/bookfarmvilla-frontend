@@ -1,7 +1,8 @@
 export type PropertyType =
   | "FARMHOUSE"
   | "VILLA"
-  | "WEDDING_LAWN";
+  | "WEDDING_LAWN"
+  | "AIRBNB";
 
 export type PropertyStatus = "ACTIVE" | "INACTIVE";
 
@@ -68,4 +69,3 @@ export interface PropertyPageResponse {
   totalPages: number;
   last: boolean;
 }
-

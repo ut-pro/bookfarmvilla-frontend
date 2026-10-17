@@ -42,6 +42,11 @@ const propertyTypeDetails: Record<
     description:
       "Explore wedding lawns and venues for ceremonies, receptions and celebrations, with capacity, amenities, location and pricing details to help plan your event.",
   },
+  AIRBNB: {
+    title: "Airbnb Properties for Rent",
+    description:
+      "Explore Airbnb properties for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next stay.",
+  },
 };
 
 const propertyTypeLinks: Array<{

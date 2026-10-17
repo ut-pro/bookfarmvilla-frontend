@@ -8,10 +8,13 @@ import {
   Home,
   Castle,
   Flower2,
+  Building2,
   UserCircle2,
   CalendarDays,
   MessageSquare,
   Handshake,
+  Star,
+  FileText,
 } from "lucide-react";
 
 const navItems = [
@@ -19,10 +22,13 @@ const navItems = [
   { href: "/admin/farmhouses", label: "Farmhouses", icon: Home },
   { href: "/admin/villas", label: "Villas", icon: Castle },
   { href: "/admin/wedding-lawns", label: "Wedding Lawns", icon: Flower2 },
+  { href: "/admin/airbnb", label: "Airbnb", icon: Building2 },
   { href: "/admin/vendors", label: "Vendors", icon: UserCircle2 },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarDays },
   { href: "/admin/enquiries", label: "Enquiries", icon: MessageSquare },
   { href: "/admin/partners", label: "Partner Requests", icon: Handshake },
+  { href: "/admin/reviews", label: "Reviews", icon: Star },
+  { href: "/admin/blog", label: "Blog", icon: FileText },
 ];
 
 export default function AdminSidebar() {

@@ -281,7 +281,7 @@ export default function AdminHeader({ title }: AdminHeaderProps) {
             title: property.title,
             detail: [property.city, property.status].filter(Boolean).join(" · "),
             category: "Property",
-            href: `/admin/${property.type === "FARMHOUSE" ? "farmhouses" : property.type === "VILLA" ? "villas" : "wedding-lawns"}?search=${encodeURIComponent(trimmedQuery)}`,
+            href: `/admin/${property.type === "FARMHOUSE" ? "farmhouses" : property.type === "VILLA" ? "villas" : property.type === "WEDDING_LAWN" ? "wedding-lawns" : "airbnb"}?search=${encodeURIComponent(trimmedQuery)}`,
           })).slice(0, 3),
           ...vendors.content.map((vendor) => ({
             id: `vendor:${vendor.id}`,
@@ -622,6 +622,8 @@ function typeLabelsForSearch(type: string): string {
       return "Villa";
     case "WEDDING_LAWN":
       return "Wedding Lawn";
+    case "AIRBNB":
+      return "Airbnb";
     default:
       return "Booking";
   }

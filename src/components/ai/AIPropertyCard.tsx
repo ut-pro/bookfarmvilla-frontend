@@ -75,7 +75,11 @@ function toPropertyCardData(property: AIProperty): PropertyCardData | null {
 
   return {
     id: property.id,
+<<<<<<< HEAD
     slug: property.slug?.trim() || undefined,
+=======
+    slug: property.slug?.trim() || property.id,
+>>>>>>> 533bd550594ecbd4785074392e7bd7b9edfa7ecf
     name: property.title,
     type: property.type,
     description: property.description ?? undefined,

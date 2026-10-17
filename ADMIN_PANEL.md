@@ -17,6 +17,9 @@ without modifying its routes, components, or styling.
 - `/admin/enquiries` — leads, with status tabs (All/New/Replied/Converted/Closed)
 - `/admin/partners` — partner ("list with us") requests — view + delete only,
   per spec (no admin-side create/edit for partner requests)
+- `/admin/reviews` — paginated/searchable review management; create, edit and delete
+- `/admin/blog` — paginated Blog management; create, edit, delete and change status
+  posts, with sanitized HTML content in the rich text editor
 
 ## Auth
 
@@ -47,13 +50,14 @@ Uses the existing `NEXT_PUBLIC_API_BASE_URL` env var (already present in
 
 ## Explicitly excluded (per spec)
 
-Users, Categories, Reviews, and Banners & Offers sections were not built, as
-requested.
+Users, Categories, and Banners & Offers sections are not built.
 
-## Known limitation
+## Reviews and Blog API
 
-I was unable to run `npm install` / `npm run build` in the environment that
-produced this code (registry access was blocked), so this hasn't been
-compiled or type-checked end-to-end. I reviewed every file manually for type
-consistency with the backend DTOs, but please run `npm run build` as your
-first step and let me know if anything surfaces.
+- Reviews use authenticated admin endpoints for paginated/searchable listing,
+  create, update, and delete. The create/edit form searches existing properties
+  and vendors by name using their keyword-filtered list APIs.
+- Blog status can be changed among `DRAFT`, `PUBLISHED`, and `ARCHIVED`; moving
+  a published post back to `DRAFT` unpublishes it. Deletion is separate.
+- Blog HTML is sanitized in both the frontend and backend before it is saved
+  or returned by Blog detail endpoints.

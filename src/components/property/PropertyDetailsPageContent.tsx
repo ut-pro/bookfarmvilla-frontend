@@ -30,6 +30,7 @@ const propertyTypeLabels: Record<PropertyType, string> = {
   FARMHOUSE: "Farmhouse",
   VILLA: "Villa",
   WEDDING_LAWN: "Wedding Lawn",
+  AIRBNB: "Airbnb",
 };
 
 export default function PropertyDetailsPageContent({
