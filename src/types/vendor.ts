@@ -23,6 +23,7 @@ export interface VendorImage {
 
 export interface VendorResponse {
   id: string;
+  slug?: string | null;
   name: string;
   category: VendorCategory;
   description?: string | null;

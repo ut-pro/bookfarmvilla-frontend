@@ -372,6 +372,7 @@ function toVendorResponse(value: unknown): VendorResponse | null {
         ? value.title
         : null;
   const id = typeof value.id === "string" ? value.id : null;
+  const slug = typeof value.slug === "string" ? value.slug.trim() || null : null;
   const city = typeof value.city === "string" ? value.city : "";
   const rawCategory =
     typeof value.category === "string"
@@ -412,6 +413,7 @@ function toVendorResponse(value: unknown): VendorResponse | null {
 
   return {
     id,
+    slug,
     name,
     category,
     description:
@@ -917,7 +919,17 @@ export default function AIAssistant() {
         !isCasualChatMessage(message) &&
         !isPropertyDetailFollowUp &&
         isPropertySearch;
-      if (showRecommendations) {
+
+      const showVendorRecommendations =
+        !isCasualChatMessage(message) &&
+        !isPropertyDetailFollowUp &&
+        normalizedVendors.length > 0;
+
+      const shouldShowRecommendations =
+        showRecommendations ||
+        showVendorRecommendations;
+
+      if (shouldShowRecommendations) {
         setVendors(normalizedVendors);
         setBudget(requestedBudget);
       }
@@ -1148,7 +1160,7 @@ export default function AIAssistant() {
         {
           role: "assistant",
           content: assistantMessage,
-          recommendations: showRecommendations
+          recommendations: shouldShowRecommendations
             ? {
                 properties: propertyCards,
                 vendors: vendorCards,

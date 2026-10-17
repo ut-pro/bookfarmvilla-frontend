@@ -87,11 +87,14 @@ export default function VendorCard({
     typeof vendor.averageRating === "number" &&
     Number.isFinite(vendor.averageRating);
 
+  const vendorDetailIdentifier =
+    vendor.slug?.trim() || vendor.id;
+
   return (
     <article className="group relative flex h-full w-full min-w-0 max-w-[420px] flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:max-w-none">
       <Link
         href={`/vendors/${encodeURIComponent(
-          vendor.id,
+          vendorDetailIdentifier,
         )}`}
         target="_blank"
         rel="noopener noreferrer"

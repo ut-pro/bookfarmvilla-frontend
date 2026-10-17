@@ -1,15 +1,18 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import {
+  notFound,
+  permanentRedirect,
+} from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import VendorDetailsPageContent from "@/components/vendor/VendorDetailsPageContent";
-import { getVendorById } from "@/lib/public-api";
+import { getVendorBySlug } from "@/lib/public-api";
 
 interface VendorDetailsPageProps {
   params: Promise<{
-    id: string;
+    slug: string;
   }>;
 }
 
@@ -18,11 +21,19 @@ export const dynamic = "force-dynamic";
 export default async function VendorDetailsPage({
   params,
 }: VendorDetailsPageProps) {
-  const { id } = await params;
-  const vendor = await getVendorById(id);
+  const { slug } = await params;
+  const vendor = await getVendorBySlug(slug);
 
   if (!vendor) {
     notFound();
+  }
+
+  const canonicalSlug = vendor.slug?.trim();
+
+  if (canonicalSlug && slug !== canonicalSlug) {
+    permanentRedirect(
+      `/vendors/${encodeURIComponent(canonicalSlug)}`,
+    );
   }
 
   return (

@@ -135,19 +135,19 @@ export async function getActiveVendors(
   );
 }
 
-export async function getVendorById(
-  vendorId: string,
+export async function getVendorBySlug(
+  vendorSlug: string,
   signal?: AbortSignal,
 ): Promise<VendorResponse | null> {
-  const normalizedId = vendorId.trim();
+  const normalizedSlug = vendorSlug.trim();
 
-  if (!normalizedId) {
+  if (!normalizedSlug) {
     return null;
   }
 
   try {
     const vendor = await publicGet<VendorResponse>(
-      `/api/vendors/${encodeURIComponent(normalizedId)}`,
+      `/api/vendors/${encodeURIComponent(normalizedSlug)}`,
       signal,
     );
 

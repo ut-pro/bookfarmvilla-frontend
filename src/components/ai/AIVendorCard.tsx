@@ -7,6 +7,7 @@ import {
   BriefcaseBusiness,
   Eye,
   MapPin,
+  PhoneCall,
   Star,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
@@ -14,6 +15,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import { getVendorPriceDisplay } from "@/lib/formatters";
 import { isVideoUrl } from "@/lib/media";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { siteConfig } from "@/data/site";
 import type {
   VendorCategory,
   VendorResponse,
@@ -83,6 +85,9 @@ export default function AIVendorCard({
     Number.isFinite(vendor.averageRating) &&
     vendor.averageRating > 0;
 
+  const vendorDetailIdentifier =
+    vendor.slug?.trim() || vendor.id;
+
   return (
     <article className="flex h-[420px] min-w-0 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
       <div className="relative h-36 shrink-0 overflow-hidden bg-gray-100">
@@ -138,6 +143,25 @@ export default function AIVendorCard({
             <span className="line-clamp-1 min-w-0">{vendor.city}</span>
           </p>
 
+          <a
+            href={`tel:${siteConfig.contact.phone.replace(
+              /[^\d+]/g,
+              "",
+            )}`}
+            className="mt-1 inline-flex max-w-full items-center gap-1 font-medium text-[#1E8A32] hover:underline"
+            aria-label={`Call BookFarmVilla team at ${siteConfig.contact.phone}`}
+          >
+            <PhoneCall
+              size={12}
+              className="shrink-0"
+              aria-hidden="true"
+            />
+
+            <span className="truncate">
+              {siteConfig.contact.phone}
+            </span>
+          </a>
+
           {distanceKm !== undefined && Number.isFinite(distanceKm) && (
             <p className="mt-1 font-medium text-[#1E8A32]">
               {distanceKm.toFixed(1)} km away
@@ -181,7 +205,9 @@ export default function AIVendorCard({
             </a>
 
             <Link
-              href={`/vendors/${encodeURIComponent(vendor.id)}`}
+              href={`/vendors/${encodeURIComponent(
+                vendorDetailIdentifier,
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex h-9 items-center gap-1 rounded-lg bg-[#2EAD45] px-3 text-[11px] font-semibold text-white transition-colors hover:bg-[#1E8A32]"
