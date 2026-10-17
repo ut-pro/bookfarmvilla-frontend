@@ -571,6 +571,7 @@ export default function PartnerEnquiryModal({
                     <button
                       id="partner-business-type"
                       type="button"
+                      role="combobox"
                       onClick={() => {
                         setIsBusinessTypeOpen((current) => !current);
                         setIsCityOpen(false);
@@ -693,6 +694,7 @@ export default function PartnerEnquiryModal({
                     <button
                       id="partner-city"
                       type="button"
+                      role="combobox"
                       onClick={() => {
                         setIsCityOpen((current) => !current);
                         setIsBusinessTypeOpen(false);

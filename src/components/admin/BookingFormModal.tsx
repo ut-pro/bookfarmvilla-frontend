@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { X } from "lucide-react";
 import { AdminApiError } from "@/lib/admin-api";
 import type {
@@ -18,59 +18,63 @@ interface BookingFormModalProps {
   onSubmit: (payload: AdminBookingPayload) => Promise<void>;
 }
 
-export default function BookingFormModal({ open, initial, onClose, onSubmit }: BookingFormModalProps) {
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [propertyId, setPropertyId] = useState("");
-  const [listingType, setListingType] = useState<PropertyType>("FARMHOUSE");
-  const [bookingDate, setBookingDate] = useState("");
-  const [amount, setAmount] = useState("");
-  const [advanceAmount, setAdvanceAmount] = useState("");
-  const [commissionPercentage, setCommissionPercentage] = useState("");
-  const [commissionAmount, setCommissionAmount] = useState("");
-  const [status, setStatus] = useState<BookingStatus>("PENDING");
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("UNPAID");
+export default function BookingFormModal(props: BookingFormModalProps) {
+  if (!props.open) return null;
+
+  return (
+    <BookingFormModalContent
+      key={props.initial?.id ?? "new-booking"}
+      {...props}
+    />
+  );
+}
+
+function BookingFormModalContent({
+  initial,
+  onClose,
+  onSubmit,
+}: BookingFormModalProps) {
+  const [customerName, setCustomerName] = useState(
+    () => initial?.customerName ?? "",
+  );
+  const [customerPhone, setCustomerPhone] = useState(
+    () => initial?.customerPhone ?? "",
+  );
+  const [propertyId, setPropertyId] = useState(
+    () => initial?.propertyId ?? "",
+  );
+  const [listingType, setListingType] = useState<PropertyType>(
+    () => initial?.listingType ?? "FARMHOUSE",
+  );
+  const [bookingDate, setBookingDate] = useState(
+    () => initial?.bookingDate ?? "",
+  );
+  const [amount, setAmount] = useState(
+    () => initial?.amount.toString() ?? "",
+  );
+  const [advanceAmount, setAdvanceAmount] = useState(() =>
+    initial ? (initial.advanceAmount ?? 0).toString() : "",
+  );
+  const [commissionPercentage, setCommissionPercentage] = useState(
+    () => (initial?.commissionPercentage ?? 100).toString(),
+  );
+  const [commissionAmount, setCommissionAmount] = useState(() =>
+    initial
+      ? (
+          initial.commissionAmount ??
+          (initial.amount * (initial.commissionPercentage ?? 100)) / 100
+        ).toString()
+      : "",
+  );
+  const [status, setStatus] = useState<BookingStatus>(
+    () => initial?.status ?? "PENDING",
+  );
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
+    () => initial?.paymentStatus ?? "UNPAID",
+  );
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    if (initial) {
-      setCustomerName(initial.customerName);
-      setCustomerPhone(initial.customerPhone ?? "");
-      setPropertyId(initial.propertyId ?? "");
-      setListingType(initial.listingType);
-      setBookingDate(initial.bookingDate);
-      setAmount(initial.amount.toString());
-      setAdvanceAmount((initial.advanceAmount ?? 0).toString());
-      setCommissionPercentage(
-        (initial.commissionPercentage ?? 100).toString(),
-      );
-      setCommissionAmount(
-        (initial.commissionAmount ??
-          initial.amount * (initial.commissionPercentage ?? 100) / 100
-        ).toString(),
-      );
-      setStatus(initial.status);
-      setPaymentStatus(initial.paymentStatus);
-    } else {
-      setCustomerName("");
-      setCustomerPhone("");
-      setPropertyId("");
-      setListingType("FARMHOUSE");
-      setBookingDate("");
-      setAmount("");
-      setAdvanceAmount("");
-      setCommissionPercentage("100");
-      setCommissionAmount("");
-      setStatus("PENDING");
-      setPaymentStatus("UNPAID");
-    }
-    setError(null);
-  }, [open, initial]);
-
-  if (!open) return null;
 
   const calculateCommissionAmount = (total: string, percentage: string) => {
     const totalAmount = Number(total);
@@ -332,3 +336,4 @@ export default function BookingFormModal({ open, initial, onClose, onSubmit }: B
     </div>
   );
 }
+

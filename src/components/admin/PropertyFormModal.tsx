@@ -64,30 +64,62 @@ interface PropertyFormModalProps {
   onSubmit: (payload: AdminPropertyPayload) => Promise<void>;
 }
 
-export default function PropertyFormModal({
-  open,
+export default function PropertyFormModal(props: PropertyFormModalProps) {
+  if (!props.open) return null;
+
+  return (
+    <PropertyFormModalContent
+      key={`${props.propertyType}-${props.initial?.id ?? "new-property"}`}
+      {...props}
+    />
+  );
+}
+
+function PropertyFormModalContent({
   propertyType,
   typeLabel,
   initial,
   onClose,
   onSubmit,
 }: PropertyFormModalProps) {
-  const [title, setTitle] = useState("");
-  const [originalPropertyName, setOriginalPropertyName] = useState("");
-  const [description, setDescription] = useState("");
-  const [address, setAddress] = useState("");
-  const [city, setCity] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
-  const [startingPrice, setStartingPrice] = useState("");
-  const [endingPrice, setEndingPrice] = useState("");
-  const [capacity, setCapacity] = useState("");
-  const [contactPhone, setContactPhone] = useState("");
-  const [status, setStatus] = useState<ListingStatus>("ACTIVE");
-  const [selectedAmenityNames, setSelectedAmenityNames] = useState<string[]>([]);
+  const [title, setTitle] = useState(() => initial?.title ?? "");
+  const [originalPropertyName, setOriginalPropertyName] = useState(
+    () => initial?.originalPropertyName ?? "",
+  );
+  const [description, setDescription] = useState(
+    () => initial?.description ?? "",
+  );
+  const [address, setAddress] = useState(() => initial?.address ?? "");
+  const [city, setCity] = useState(() => initial?.city ?? "");
+  const [latitude, setLatitude] = useState(
+    () => initial?.latitude?.toString() ?? "",
+  );
+  const [longitude, setLongitude] = useState(
+    () => initial?.longitude?.toString() ?? "",
+  );
+  const [startingPrice, setStartingPrice] = useState(
+    () => initial?.startingPrice?.toString() ?? "",
+  );
+  const [endingPrice, setEndingPrice] = useState(
+    () => initial?.endingPrice?.toString() ?? "",
+  );
+  const [capacity, setCapacity] = useState(
+    () => initial?.capacity?.toString() ?? "",
+  );
+  const [contactPhone, setContactPhone] = useState(
+    () => initial?.contactPhone ?? "",
+  );
+  const [status, setStatus] = useState<ListingStatus>(
+    () => initial?.status ?? "ACTIVE",
+  );
+  const [selectedAmenityNames, setSelectedAmenityNames] = useState<string[]>(
+    () => [...(initial?.amenities ?? [])],
+  );
   const [customAmenity, setCustomAmenity] = useState("");
   const [isAmenityDropdownOpen, setIsAmenityDropdownOpen] = useState(false);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [imageUrls, setImageUrls] = useState<string[]>(
+    () => initial?.images.map((image) => image.url) ?? [],
+  );
   const [uploadingImages, setUploadingImages] = useState(false);
 
   const [amenities, setAmenities] = useState<AdminAmenity[]>([]);
@@ -96,7 +128,6 @@ export default function PropertyFormModal({
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!open) return;
     fetchAmenities()
       .then((loadedAmenities) => {
         setAmenities(loadedAmenities);
@@ -109,46 +140,7 @@ export default function PropertyFormModal({
             : "Could not load saved amenity options.",
         );
       });
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    if (initial) {
-      setTitle(initial.title);
-      setOriginalPropertyName(initial.originalPropertyName ?? "");
-      setDescription(initial.description ?? "");
-      setAddress(initial.address ?? "");
-      setCity(initial.city);
-      setLatitude(initial.latitude?.toString() ?? "");
-      setLongitude(initial.longitude?.toString() ?? "");
-      setStartingPrice(initial.startingPrice?.toString() ?? "");
-      setEndingPrice(initial.endingPrice?.toString() ?? "");
-      setCapacity(initial.capacity?.toString() ?? "");
-      setContactPhone(initial.contactPhone);
-      setStatus(initial.status);
-      setImageUrls(initial.images.map((img) => img.url));
-      setSelectedAmenityNames(initial.amenities);
-    } else {
-      setTitle("");
-      setOriginalPropertyName("");
-      setDescription("");
-      setAddress("");
-      setCity("");
-      setLatitude("");
-      setLongitude("");
-      setStartingPrice("");
-      setEndingPrice("");
-      setCapacity("");
-      setContactPhone("");
-      setStatus("ACTIVE");
-      setSelectedAmenityNames([]);
-      setCustomAmenity("");
-      setImageUrls([]);
-    }
-    setError(null);
-  }, [open, initial]);
-
-  if (!open) return null;
+  }, []);
 
   const availableAmenityNames = Array.from(
     new Set([
@@ -516,3 +508,4 @@ export default function PropertyFormModal({
     </div>
   );
 }
+

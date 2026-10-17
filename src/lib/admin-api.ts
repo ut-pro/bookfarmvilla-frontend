@@ -49,18 +49,70 @@ const USER_KEY = "bfv_admin_user";
 // Token storage
 // ---------------------------------------------------------------------------
 
+const ADMIN_AUTH_CHANGE_EVENT =
+  "bookfarmvilla:admin-auth-change";
+
+function notifyAdminAuthChange(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new Event(ADMIN_AUTH_CHANGE_EVENT),
+    );
+  }
+}
+
+export function subscribeToAdminAuthChanges(
+  onStoreChange: () => void,
+): () => void {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const handleAuthChange = () => {
+    onStoreChange();
+  };
+
+  window.addEventListener(
+    ADMIN_AUTH_CHANGE_EVENT,
+    handleAuthChange,
+  );
+
+  window.addEventListener(
+    "storage",
+    handleAuthChange,
+  );
+
+  return () => {
+    window.removeEventListener(
+      ADMIN_AUTH_CHANGE_EVENT,
+      handleAuthChange,
+    );
+
+    window.removeEventListener(
+      "storage",
+      handleAuthChange,
+    );
+  };
+}
+
 export function getToken(): string | null {
   if (typeof window === "undefined") return null;
+
   return window.localStorage.getItem(TOKEN_KEY);
 }
 
 export function setToken(token: string): void {
   window.localStorage.setItem(TOKEN_KEY, token);
+  notifyAdminAuthChange();
 }
 
 export function clearToken(): void {
   window.localStorage.removeItem(TOKEN_KEY);
   window.localStorage.removeItem(USER_KEY);
+  notifyAdminAuthChange();
+}
+
+export function isAuthenticated(): boolean {
+  return isTokenValid(getToken());
 }
 
 export function setStoredUser(user: {
@@ -107,10 +159,6 @@ export function isTokenValid(token: string | null): boolean {
   return payload.exp * 1000 > Date.now();
 }
 
-export function isAuthenticated(): boolean {
-  return isTokenValid(getToken());
-}
-
 // ---------------------------------------------------------------------------
 // Core fetch wrapper
 // ---------------------------------------------------------------------------
@@ -145,12 +193,14 @@ async function adminApiFetch<T>(
   });
 
   if (response.status === 401) {
-    // Session expired or invalid token - clear it and send the admin back to login.
+    // Clearing the token notifies AdminAuthGuard,
+    // which redirects to the login page with Next.js routing.
     clearToken();
-    if (typeof window !== "undefined" && !window.location.pathname.endsWith("/admin/login")) {
-      window.location.href = "/admin/login";
-    }
-    throw new AdminApiError("Your session has expired. Please log in again.", 401);
+
+    throw new AdminApiError(
+      "Your session has expired. Please log in again.",
+      401,
+    );
   }
 
   if (response.status === 204) {
@@ -192,9 +242,6 @@ export async function login(email: string, password: string): Promise<LoginRespo
 
 export function logout(): void {
   clearToken();
-  if (typeof window !== "undefined") {
-    window.location.href = "/admin/login";
-  }
 }
 
 // ---------------------------------------------------------------------------

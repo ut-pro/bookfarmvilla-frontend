@@ -27,47 +27,56 @@ function mapVendor(vendor: AdminVendor): ReviewTarget {
   return { id: vendor.id, label: `${vendor.name} · ${vendor.city}` };
 }
 
-export default function ReviewFormModal({
-  open,
+export default function ReviewFormModal(props: ReviewFormModalProps) {
+  if (!props.open) return null;
+
+  return (
+    <ReviewFormModalContent
+      key={props.initial?.id ?? "new-review"}
+      {...props}
+    />
+  );
+}
+
+function ReviewFormModalContent({
   initial,
   onClose,
   onSubmit,
 }: ReviewFormModalProps) {
-  const [reviewerName, setReviewerName] = useState("");
-  const [rating, setRating] = useState("5");
-  const [targetKind, setTargetKind] = useState<ReviewTargetKind>("property");
-  const [targetQuery, setTargetQuery] = useState("");
-  const [selectedTarget, setSelectedTarget] = useState<ReviewTarget | null>(null);
+  const initialTargetKind: ReviewTargetKind = initial?.vendorId
+    ? "vendor"
+    : "property";
+  const initialTargetId = initial?.vendorId ?? initial?.propertyId ?? "";
+  const initialTargetLabel = initial?.vendorId
+    ? initial.vendorName ?? initial.vendorId
+    : initial?.propertyTitle ?? initialTargetId;
+
+  const [reviewerName, setReviewerName] = useState(
+    () => initial?.reviewerName ?? "",
+  );
+  const [rating, setRating] = useState(
+    () => String(initial?.rating ?? 5),
+  );
+  const [targetKind, setTargetKind] = useState<ReviewTargetKind>(
+    initialTargetKind,
+  );
+  const [targetQuery, setTargetQuery] = useState(initialTargetLabel);
+  const [selectedTarget, setSelectedTarget] = useState<ReviewTarget | null>(
+    () =>
+      initialTargetId
+        ? { id: initialTargetId, label: initialTargetLabel }
+        : null,
+  );
   const [targetOptions, setTargetOptions] = useState<ReviewTarget[]>([]);
   const [targetMenuOpen, setTargetMenuOpen] = useState(false);
   const [targetLoading, setTargetLoading] = useState(false);
   const [targetError, setTargetError] = useState<string | null>(null);
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState(() => initial?.comment ?? "");
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!open) return;
-    setReviewerName(initial?.reviewerName ?? "");
-    setRating(String(initial?.rating ?? 5));
-    const kind: ReviewTargetKind = initial?.vendorId ? "vendor" : "property";
-    const targetId = initial?.vendorId ?? initial?.propertyId ?? "";
-    const targetLabel = initial?.vendorId
-      ? initial.vendorName ?? initial.vendorId
-      : initial?.propertyTitle ?? targetId;
-    setTargetKind(kind);
-    setTargetQuery(targetLabel);
-    setSelectedTarget(targetId ? { id: targetId, label: targetLabel } : null);
-    setComment(initial?.comment ?? "");
-    setError(null);
-    setFieldErrors({});
-    setTargetError(null);
-    setTargetMenuOpen(false);
-  }, [open, initial]);
-
-  useEffect(() => {
-    if (!open) return;
     let cancelled = false;
     const timer = window.setTimeout(async () => {
       setTargetLoading(true);
@@ -102,9 +111,8 @@ export default function ReviewFormModal({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [open, targetKind, targetQuery]);
+  }, [targetKind, targetQuery]);
 
-  if (!open) return null;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -239,3 +247,4 @@ export default function ReviewFormModal({
     </div>
   );
 }
+

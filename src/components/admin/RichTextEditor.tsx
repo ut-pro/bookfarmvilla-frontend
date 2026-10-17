@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { Extension } from "@tiptap/core";
 import { Color } from "@tiptap/extension-color";
@@ -67,13 +67,12 @@ function isWebUrl(value: string): boolean {
 }
 
 export default function RichTextEditor({ value, onChange }: RichTextEditorProps) {
-  const [safeValue, setSafeValue] = useState("");
+  const safeValue = useMemo(
+    () => sanitizeBlogHtml(value),
+    [value],
+  );
   const [linkUrl, setLinkUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-
-  useEffect(() => {
-    setSafeValue(sanitizeBlogHtml(value));
-  }, [value]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -205,3 +204,4 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     </div>
   );
 }
+

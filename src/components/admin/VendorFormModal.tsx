@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { X } from "lucide-react";
 import { AdminApiError } from "@/lib/admin-api";
 import ImageUrlField from "@/components/admin/ImageUrlField";
@@ -22,45 +22,46 @@ const categories: { value: VendorCategory; label: string }[] = [
   { value: "OTHER", label: "Other" },
 ];
 
-export default function VendorFormModal({ open, initial, onClose, onSubmit }: VendorFormModalProps) {
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState<VendorCategory>("CATERER");
-  const [description, setDescription] = useState("");
-  const [city, setCity] = useState("");
-  const [priceRange, setPriceRange] = useState("");
-  const [contactPhone, setContactPhone] = useState("");
-  const [status, setStatus] = useState<ListingStatus>("ACTIVE");
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+export default function VendorFormModal(props: VendorFormModalProps) {
+  if (!props.open) return null;
+
+  return (
+    <VendorFormModalContent
+      key={props.initial?.id ?? "new-vendor"}
+      {...props}
+    />
+  );
+}
+
+function VendorFormModalContent({
+  initial,
+  onClose,
+  onSubmit,
+}: VendorFormModalProps) {
+  const [name, setName] = useState(() => initial?.name ?? "");
+  const [category, setCategory] = useState<VendorCategory>(
+    () => initial?.category ?? "CATERER",
+  );
+  const [description, setDescription] = useState(
+    () => initial?.description ?? "",
+  );
+  const [city, setCity] = useState(() => initial?.city ?? "");
+  const [priceRange, setPriceRange] = useState(
+    () => initial?.priceRange ?? "",
+  );
+  const [contactPhone, setContactPhone] = useState(
+    () => initial?.contactPhone ?? "",
+  );
+  const [status, setStatus] = useState<ListingStatus>(
+    () => initial?.status ?? "ACTIVE",
+  );
+  const [imageUrls, setImageUrls] = useState<string[]>(
+    () => initial?.images.map((image) => image.url) ?? [],
+  );
   const [uploadingImages, setUploadingImages] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    if (initial) {
-      setName(initial.name);
-      setCategory(initial.category);
-      setDescription(initial.description ?? "");
-      setCity(initial.city);
-      setPriceRange(initial.priceRange ?? "");
-      setContactPhone(initial.contactPhone);
-      setStatus(initial.status);
-      setImageUrls(initial.images.map((img) => img.url));
-    } else {
-      setName("");
-      setCategory("CATERER");
-      setDescription("");
-      setCity("");
-      setPriceRange("");
-      setContactPhone("");
-      setStatus("ACTIVE");
-      setImageUrls([]);
-    }
-    setError(null);
-  }, [open, initial]);
-
-  if (!open) return null;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -207,3 +208,4 @@ export default function VendorFormModal({ open, initial, onClose, onSubmit }: Ve
     </div>
   );
 }
+

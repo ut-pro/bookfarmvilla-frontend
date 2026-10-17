@@ -93,8 +93,6 @@ export default function CallbackForm({
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const isVendorEnquiry = Boolean(initialVendor);
-
   const validateForm = (): CallbackFormErrors => {
     const nextErrors: CallbackFormErrors = {};
     const nameError = getFullNameError(name);

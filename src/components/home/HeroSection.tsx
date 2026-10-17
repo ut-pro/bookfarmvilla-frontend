@@ -536,6 +536,7 @@ const handleCapacityKeyDown = (
 
                 <button
                   type="button"
+                  role="combobox"
                   onClick={() => {
                     setIsPropertyTypeOpen((current) => !current);
                     setIsCapacityOpen(false);
@@ -648,6 +649,7 @@ const handleCapacityKeyDown = (
 
                 <button
                   type="button"
+                  role="combobox"
                   onClick={() => {
                     setIsCapacityOpen((current) => !current);
                     setIsPropertyTypeOpen(false);
