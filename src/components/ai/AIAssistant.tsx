@@ -336,6 +336,7 @@ function toAIProperty(
 ): AIProperty {
   return {
     id: property.id,
+    slug: property.slug,
     title: property.name,
     description: property.description,
     type: property.type,
@@ -1032,9 +1033,16 @@ export default function AIAssistant() {
               properties[0]?.type === "WEDDING_LAWN"
             ? properties[0].type
             : undefined;
+      if (showRecommendations && !morePropertiesRequested) {
+        shownPropertyIdsRef.current.clear();
+      }
+
       const alreadyShownIds = shownPropertyIdsRef.current;
+
       const recommendations: AIProperty[] = showRecommendations
-        ? directMatches.filter((property) => !alreadyShownIds.has(property.id))
+        ? directMatches.filter(
+            (property) => !alreadyShownIds.has(property.id),
+          )
         : [];
 
       if (

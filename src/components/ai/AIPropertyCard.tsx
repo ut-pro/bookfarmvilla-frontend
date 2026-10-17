@@ -19,6 +19,7 @@ import type { PropertyCardData, PropertyType } from "@/types/property";
 
 export interface AIProperty {
   id: string;
+  slug?: string | null;
   title: string;
   description?: string | null;
   type?: PropertyType | null;
@@ -74,6 +75,7 @@ function toPropertyCardData(property: AIProperty): PropertyCardData | null {
 
   return {
     id: property.id,
+    slug: property.slug?.trim() || undefined,
     name: property.title,
     type: property.type,
     description: property.description ?? undefined,
@@ -123,6 +125,7 @@ export default function AIPropertyCard({ property, distanceKm }: Props) {
   );
 
   const propertyCardData = toPropertyCardData(property);
+  const propertyDetailIdentifier = propertyCardData?.slug?.trim() || property.id;
   const priceDisplay = getPropertyPriceDisplay(
     property.startingPrice,
     property.endingPrice,
@@ -255,7 +258,9 @@ export default function AIPropertyCard({ property, distanceKm }: Props) {
 
             {propertyCardData ? (
               <Link
-                href={`/properties/${encodeURIComponent(propertyCardData.id)}`}
+                href={`/properties/${encodeURIComponent(
+                  propertyDetailIdentifier,
+                )}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-9 items-center gap-1 rounded-lg bg-[#2EAD45] px-3 text-[11px] font-semibold text-white transition-colors hover:bg-[#1E8A32]"

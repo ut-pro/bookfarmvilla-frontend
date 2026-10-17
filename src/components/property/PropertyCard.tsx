@@ -70,6 +70,10 @@ export default function PropertyCard({
     openPropertyCallback(property);
   };
 
+  
+  const propertyDetailIdentifier = property.slug?.trim() || property.id;
+
+
   return (
     <article
       className={`group relative flex h-full flex-shrink-0 flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl ${
@@ -80,7 +84,7 @@ export default function PropertyCard({
     >
       <Link
         href={`/properties/${encodeURIComponent(
-          property.slug,
+          propertyDetailIdentifier,
         )}`}
         target="_blank"
         rel="noopener noreferrer"

@@ -28,9 +28,11 @@ export default async function PropertyDetailsPage({
     notFound();
   }
 
-  if (slug !== property.slug) {
+  const canonicalSlug = property.slug?.trim();
+
+  if (canonicalSlug && slug !== canonicalSlug) {
     permanentRedirect(
-      `/properties/${encodeURIComponent(property.slug)}`,
+      `/properties/${encodeURIComponent(canonicalSlug)}`,
     );
   }
 
