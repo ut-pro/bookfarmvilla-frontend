@@ -20,7 +20,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { fetchAmenities, AdminApiError } from "@/lib/admin-api";
+import { sanitizeBlogHtml } from "@/lib/blog-html";
 import ImageUrlField from "@/components/admin/ImageUrlField";
+import RichTextEditor from "@/components/admin/RichTextEditor";
 import type {
   AdminAmenity,
   AdminProperty,
@@ -180,10 +182,13 @@ function PropertyFormModalContent({
     setError(null);
     setSaving(true);
 
+    const sanitizedDescription =
+      sanitizeBlogHtml(description).trim();
+
     const payload: AdminPropertyPayload = {
       title: title.trim(),
       originalPropertyName: originalPropertyName.trim() || null,
-      description: description.trim() || undefined,
+      description: sanitizedDescription || undefined,
       type: propertyType,
       address: address.trim() || undefined,
       city: city.trim(),
@@ -212,8 +217,8 @@ function PropertyFormModalContent({
 
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl">
-        <div className="sticky top-0 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4">
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
+        <div className="z-30 flex shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6 py-4">
           <h3 className="text-lg font-bold text-gray-900">
             {initial ? `Edit ${typeLabel}` : `Add ${typeLabel}`}
           </h3>
@@ -222,7 +227,10 @@ function PropertyFormModalContent({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
+        <form
+          onSubmit={handleSubmit}
+          className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-5"
+        >
           <div>
             <label className="mb-1 block text-sm font-semibold text-gray-700">Title *</label>
             <input
@@ -244,13 +252,20 @@ function PropertyFormModalContent({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Description</label>
-            <textarea
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
+              Description
+            </label>
+
+            <RichTextEditor
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-violet-500"
+              onChange={setDescription}
+              variant="description"
             />
+
+            <p className="mt-2 text-xs text-gray-500">
+              Format headings, bold text, links, lists and other property
+              details as they should appear on the public page.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

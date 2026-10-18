@@ -16,6 +16,7 @@ import AmenityIcon from "@/components/ui/AmenityIcon";
 import DetailsImageGallery from "@/components/ui/DetailsImageGallery";
 import { calculateDistanceInKm } from "@/lib/distance";
 import { getPropertyPriceDisplay } from "@/lib/formatters";
+import { sanitizeBlogHtml } from "@/lib/blog-html";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type {
   PropertyCardData,
@@ -62,6 +63,18 @@ export default function PropertyDetailsPageContent({
   const distanceKm = userLocation
     ? calculateDistanceInKm(userLocation, property)
     : undefined;
+
+  const description =
+    property.description?.trim() ?? "";
+
+  const hasRichDescription =
+    /<(?:p|h[1-4]|ul|ol|li|strong|em|u|blockquote|span|br)\b/i.test(
+      description,
+    );
+
+  const sanitizedDescription = hasRichDescription
+    ? sanitizeBlogHtml(description)
+    : "";
 
   const whatsappUrl = buildWhatsAppUrl(
     `Hi BookFarmVilla team, I am interested in ${property.name}. Please share its availability and enquiry details.`,
@@ -181,9 +194,31 @@ export default function PropertyDetailsPageContent({
                   About this property
                 </h2>
 
-                <p className="mt-4 whitespace-pre-line break-words text-sm leading-7 text-gray-600 sm:text-base sm:leading-8">
-                  {property.description}
-                </p>
+                {hasRichDescription ? (
+                  <div
+                    className={
+                      "mt-4 break-words text-sm leading-7 text-gray-600 sm:text-base sm:leading-8 " +
+                      "[&_p]:my-3 " +
+                      "[&_h1]:mb-4 [&_h1]:mt-7 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:leading-tight [&_h1]:text-[#0F172A] " +
+                      "[&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:leading-tight [&_h2]:text-[#0F172A] " +
+                      "[&_h3]:mb-3 [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-[#0F172A] " +
+                      "[&_h4]:mb-2 [&_h4]:mt-4 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:text-[#0F172A] " +
+                      "[&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6 " +
+                      "[&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 " +
+                      "[&_li]:my-1.5 [&_li]:pl-1 " +
+                      "[&_strong]:font-semibold [&_strong]:text-[#0F172A] " +
+                      "[&_blockquote]:my-4 [&_blockquote]:border-l-4 [&_blockquote]:border-green-300 " +
+                      "[&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-600"
+                    }
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizedDescription,
+                    }}
+                  />
+                ) : (
+                  <p className="mt-4 whitespace-pre-line break-words text-sm leading-7 text-gray-600 sm:text-base sm:leading-8">
+                    {description}
+                  </p>
+                )}
               </section>
             )}
 

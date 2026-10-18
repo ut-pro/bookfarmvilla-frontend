@@ -1,4 +1,4 @@
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 
 const allowedTags = [
   "a",
@@ -44,7 +44,6 @@ function sanitizeStyleAttribute(value: string): string {
 }
 
 export function sanitizeBlogHtml(html: string): string {
-  if (typeof window === "undefined") return "";
 
   if (!styleHookInstalled) {
     DOMPurify.addHook("uponSanitizeAttribute", (_node, data) => {

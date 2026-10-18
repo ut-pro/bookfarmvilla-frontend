@@ -50,6 +50,7 @@ const FontSize = Extension.create({
 interface RichTextEditorProps {
   value: string;
   onChange: (html: string) => void;
+  variant?: "full" | "description";
 }
 
 const buttonClass =
@@ -66,7 +67,14 @@ function isWebUrl(value: string): boolean {
   }
 }
 
-export default function RichTextEditor({ value, onChange }: RichTextEditorProps) {
+export default function RichTextEditor({
+  value,
+  onChange,
+  variant = "full",
+}: RichTextEditorProps) {
+  const showLinkAndImageControls = 
+    variant === "full";
+
   const safeValue = useMemo(
     () => sanitizeBlogHtml(value),
     [value],
@@ -89,18 +97,37 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
       FontSize,
     ],
     content: safeValue,
-    onUpdate: ({ editor: updatedEditor }) => onChange(updatedEditor.getHTML()),
+    onUpdate: ({ editor: updatedEditor }) => {
+      onChange(updatedEditor.getHTML());
+    },
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm min-h-72 max-w-none px-4 py-3 text-gray-800 focus:outline-none",
+          "min-h-72 max-w-none px-4 py-3 text-gray-800 focus:outline-none " +
+          "[&_p]:my-2 " +
+          "[&_h1]:mb-3 [&_h1]:mt-5 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:leading-tight " +
+          "[&_h2]:mb-3 [&_h2]:mt-5 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:leading-tight " +
+          "[&_h3]:mb-2 [&_h3]:mt-4 [&_h3]:text-xl [&_h3]:font-semibold " +
+          "[&_h4]:mb-2 [&_h4]:mt-4 [&_h4]:text-lg [&_h4]:font-semibold " +
+          "[&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6 " +
+          "[&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-6 " +
+          "[&_li]:my-1 " +
+          "[&_blockquote]:my-3 [&_blockquote]:border-l-4 [&_blockquote]:border-violet-300 " +
+          "[&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-600",
       },
     },
   });
 
   useEffect(() => {
-    if (editor && editor.getHTML() !== safeValue) {
-      editor.commands.setContent(safeValue, { emitUpdate: false });
+    if (
+      editor &&
+      !editor.isFocused &&
+      editor.getHTML() !== safeValue
+    ) {
+      editor.commands.setContent(
+        safeValue,
+        { emitUpdate: false },
+      );
     }
   }, [editor, safeValue]);
 
@@ -127,8 +154,8 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200">
-      <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 bg-gray-50 p-3">
+    <div className="rounded-xl border border-gray-200">
+      <div className="sticky -top-5 z-20 flex flex-wrap items-center gap-2 rounded-t-xl border-b border-gray-200 bg-gray-50 p-3 shadow-sm">
         <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={() => editor.chain().focus().toggleBold().run()} aria-label="Bold"><Bold size={16} /></button>
         <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={() => editor.chain().focus().toggleItalic().run()} aria-label="Italic"><Italic size={16} /></button>
         <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={() => editor.chain().focus().toggleUnderline().run()} aria-label="Underline"><Underline size={16} /></button>
@@ -176,27 +203,81 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={() => editor.chain().focus().toggleBulletList().run()} aria-label="Bulleted list"><List size={16} /></button>
         <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={() => editor.chain().focus().toggleOrderedList().run()} aria-label="Numbered list"><ListOrdered size={16} /></button>
         <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={() => editor.chain().focus().toggleBlockquote().run()} aria-label="Blockquote"><Quote size={16} /></button>
-        <div className="flex items-center gap-1">
-          <input
-            value={linkUrl}
-            onChange={(event) => setLinkUrl(event.target.value)}
-            placeholder="https:// link"
-            aria-label="Link URL"
-            className={`${inputClass} w-40`}
-          />
-          <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={applyLink} aria-label={linkUrl ? "Add or update link" : "Remove link"}><Link2 size={16} /></button>
-          <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={() => { setLinkUrl(""); editor.chain().focus().extendMarkRange("link").unsetLink().run(); }} aria-label="Remove link"><Unlink size={16} /></button>
-        </div>
-        <div className="flex items-center gap-1">
-          <input
-            value={imageUrl}
-            onChange={(event) => setImageUrl(event.target.value)}
-            placeholder="https:// image URL"
-            aria-label="Image URL"
-            className={`${inputClass} w-44`}
-          />
-          <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={addImage} aria-label="Insert image"><ImagePlus size={16} /></button>
-        </div>
+        {showLinkAndImageControls && (
+          <>
+            <div className="flex items-center gap-1">
+              <input
+                value={linkUrl}
+                onChange={(event) =>
+                  setLinkUrl(event.target.value)
+                }
+                placeholder="https:// link"
+                aria-label="Link URL"
+                className={`${inputClass} w-40`}
+              />
+
+              <button
+                type="button"
+                className={buttonClass}
+                onMouseDown={(event) =>
+                  event.preventDefault()
+                }
+                onClick={applyLink}
+                aria-label={
+                  linkUrl
+                    ? "Add or update link"
+                    : "Remove link"
+                }
+              >
+                <Link2 size={16} />
+              </button>
+
+              <button
+                type="button"
+                className={buttonClass}
+                onMouseDown={(event) =>
+                  event.preventDefault()
+                }
+                onClick={() => {
+                  setLinkUrl("");
+                  editor
+                    .chain()
+                    .focus()
+                    .extendMarkRange("link")
+                    .unsetLink()
+                    .run();
+                }}
+                aria-label="Remove link"
+              >
+                <Unlink size={16} />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <input
+                value={imageUrl}
+                onChange={(event) =>
+                  setImageUrl(event.target.value)
+                }
+                placeholder="https:// image URL"
+                aria-label="Image URL"
+                className={`${inputClass} w-44`}
+              />
+
+              <button
+                type="button"
+                className={buttonClass}
+                onMouseDown={(event) =>
+                  event.preventDefault()
+                }
+                onClick={addImage}
+                aria-label="Insert image"
+              >
+                <ImagePlus size={16} />
+              </button>
+            </div>
+          </>
+        )}
         <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} aria-label="Undo"><Undo2 size={16} /></button>
         <button type="button" className={buttonClass} onMouseDown={(event) => event.preventDefault()} onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} aria-label="Redo"><Redo2 size={16} /></button>
       </div>
