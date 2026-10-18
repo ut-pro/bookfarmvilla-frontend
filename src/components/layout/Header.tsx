@@ -31,12 +31,12 @@ const navigationItems = [
     href: "/#wedding-lawns",
   },
   {
-    label: "About Us",
-    href: "/about",
+    label: "Vendors",
+    href: "/#vendors-services",
   },
   {
-    label: "Contact",
-    href: "/#contact",
+    label: "Blogs",
+    href: "/blogs",
   },
 ];
 
@@ -60,6 +60,18 @@ export default function Header() {
     useState(false);
 
   const useSolidHeader = isScrolled || pathname !== "/";
+
+  useEffect(() => {
+    if (window.location.hash) {
+      return;
+    }
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, [pathname]);
 
   const closeMobileMenu = useCallback(() => {
     setIsMobileMenuOpen(false);

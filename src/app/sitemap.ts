@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
+import { getPublishedBlogs } from "@/lib/blog-api";
 
 const SITE_URL = "https://www.bookfarmvilla.com";
 const lastModified = new Date();
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: SITE_URL,
@@ -21,6 +22,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${SITE_URL}/vendors`,
       lastModified,
       changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/blogs`,
+      lastModified,
+      changeFrequency: "weekly",
       priority: 0.8,
     },
     ...[
@@ -85,5 +92,65 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...propertyTypePages];
+  const blogPages: MetadataRoute.Sitemap = [];
+  const seenBlogSlugs = new Set<string>();
+
+  try {
+    const pageSize = 100;
+    const maximumPages = 100;
+
+    for (
+      let pageNumber = 0;
+      pageNumber < maximumPages;
+      pageNumber += 1
+    ) {
+      const blogPage = await getPublishedBlogs({
+        page: pageNumber,
+        size: pageSize,
+      });
+
+      blogPage.content.forEach((post) => {
+        const slug = post.slug.trim();
+
+        if (!slug || seenBlogSlugs.has(slug)) {
+          return;
+        }
+
+        seenBlogSlugs.add(slug);
+
+        const publishedDate = post.publishedAt
+          ? new Date(post.publishedAt)
+          : lastModified;
+
+        blogPages.push({
+          url: `${SITE_URL}/blogs/${encodeURIComponent(
+            slug,
+          )}`,
+          lastModified: Number.isNaN(
+            publishedDate.getTime(),
+          )
+            ? lastModified
+            : publishedDate,
+          changeFrequency: "monthly",
+          priority: 0.7,
+        });
+      });
+
+      if (
+        blogPage.last ||
+        pageNumber + 1 >= blogPage.totalPages
+      ) {
+        break;
+      }
+    }
+  } catch {
+    // Keep the static sitemap available if the Blog API
+    // is temporarily unavailable.
+  }
+
+  return [
+    ...staticPages,
+    ...propertyTypePages,
+    ...blogPages,
+  ];
 }

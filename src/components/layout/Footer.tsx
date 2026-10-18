@@ -53,6 +53,14 @@ const footerColumns: FooterColumn[] = [
         href: "/properties?type=WEDDING_LAWN",
       },
       {
+        label: "Vendors",
+        href: "/vendors",
+      },
+      {
+        label: "Blogs",
+        href: "/blogs",
+      },
+      {
         label: "Become a Partner",
         href: "/#partner",
       },
@@ -151,6 +159,34 @@ const popularSearches: FooterLink[] = [
   {
     label: "Wedding Lawns in Greater Noida",
     href: "/properties?type=WEDDING_LAWN&city=Greater%20Noida",
+  },
+  {
+    label: "Event Vendors in Delhi NCR",
+    href: "/vendors",
+  },
+  {
+    label: "Caterers in Delhi NCR",
+    href: "/vendors?category=CATERER",
+  },
+  {
+    label: "Wedding Photographers in Delhi NCR",
+    href: "/vendors?category=PHOTOGRAPHER",
+  },
+  {
+    label: "Makeup Artists in Delhi NCR",
+    href: "/vendors?category=MAKEUP_ARTIST",
+  },
+  {
+    label: "DJs in Delhi NCR",
+    href: "/vendors?category=DJ",
+  },
+  {
+    label: "Event Decorators in Delhi NCR",
+    href: "/vendors?category=DECORATOR",
+  },
+  {
+    label: "Venue & Celebration Guides",
+    href: "/blogs",
   },
 ];
 
@@ -345,12 +381,14 @@ export default function Footer() {
           <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-400">
             Discover farmhouses, villas and wedding lawns across Delhi NCR
             for birthday parties, pool parties, private celebrations, family
-            gatherings and weddings.
+            gatherings and weddings. Connect with caterers, photographers,
+            makeup artists, DJs and event decorators, or explore our venue
+            and celebration guides.
           </p>
 
           <nav
             className="mt-5"
-            aria-label="Popular property searches in Delhi NCR"
+            aria-label="Popular venue, vendor and Blog searches in Delhi NCR"
           >
             <ul className="flex flex-wrap gap-x-2 gap-y-2.5">
               {popularSearches.map((link) => (

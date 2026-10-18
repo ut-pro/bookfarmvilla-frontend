@@ -61,3 +61,29 @@ export function sanitizeBlogHtml(html: string): string {
     ALLOW_DATA_ATTR: false,
   });
 }
+
+export function blogHtmlToPlainText(
+  html: string,
+): string {
+  const sanitizedHtml = sanitizeBlogHtml(html);
+
+  const htmlWithSpacing = sanitizedHtml
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(
+      /<\/(?:blockquote|h[1-4]|li|ol|p|ul)>/gi,
+      " ",
+    );
+
+  const textContainer = DOMPurify.sanitize(
+    htmlWithSpacing,
+    {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: [],
+      RETURN_DOM: true,
+    },
+  );
+
+  return (textContainer.textContent ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
