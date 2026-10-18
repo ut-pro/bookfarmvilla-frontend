@@ -79,6 +79,8 @@ export async function generateMetadata({
 }: PropertiesPageProps): Promise<Metadata> {
   const { type, city, minCapacity } = await searchParams;
   const selectedType = getValidPropertyType(type);
+  const selectedCity = getSingleSearchParam(city).trim();
+
   const pageContent = selectedType
     ? propertyTypeDetails[selectedType]
     : {
@@ -86,39 +88,60 @@ export async function generateMetadata({
         description:
           "Browse farmhouses, villas and wedding lawns for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next event.",
       };
-  const canonical = selectedType
-    ? `/properties?type=${selectedType}`
+  
+      const canonicalParams = new URLSearchParams();
+
+  if (selectedType) {
+    canonicalParams.set("type", selectedType);
+  }
+
+  if (selectedCity) {
+    canonicalParams.set("city", selectedCity);
+  }
+
+  const canonicalQuery = canonicalParams.toString();
+
+  const canonical = canonicalQuery
+    ? `/properties?${canonicalQuery}`
     : "/properties";
+
   const properties = await getSeoProperties(
     selectedType,
-    getSingleSearchParam(city).trim() || undefined,
+    selectedCity || undefined,
     getValidMinimumCapacity(minCapacity),
   );
+
   const socialImage = getPropertySocialImage(properties);
 
-  return {
-    title: selectedType
+  const metadataTitle = selectedCity
+    ? `${pageContent.title} in ${selectedCity} | BookFarmVilla`
+    : selectedType
       ? `${pageContent.title} | BookFarmVilla`
-      : `Properties for Rent | BookFarmVilla`,
-    description: pageContent.description,
+      : "Properties for Rent | BookFarmVilla";
+
+  const metadataDescription = selectedCity
+    ? selectedType
+      ? `Explore ${pageContent.title.toLowerCase()} in ${selectedCity} with guest capacity, amenities, location and pricing details. Find your Delhi NCR venue with BookFarmVilla.`
+      : `Browse farmhouses, villas and wedding lawns in ${selectedCity} for parties, weddings and private events. Compare venue capacity, amenities and pricing with BookFarmVilla.`
+    : pageContent.description;
+
+  return {
+    title: metadataTitle,
+    description: metadataDescription,
     alternates: {
       canonical,
     },
     openGraph: {
       type: "website",
-      title: selectedType
-        ? `${pageContent.title} | BookFarmVilla`
-        : `Properties for Rent | BookFarmVilla`,
-      description: pageContent.description,
+      title: metadataTitle,
+      description: metadataDescription,
       url: `${SITE_URL}${canonical}`,
       images: [{ url: socialImage, alt: pageContent.title }],
     },
     twitter: {
       card: "summary_large_image",
-      title: selectedType
-        ? `${pageContent.title} | BookFarmVilla`
-        : `Properties for Rent | BookFarmVilla`,
-      description: pageContent.description,
+      title: metadataTitle,
+      description: metadataDescription,
       images: [socialImage],
     },
   };

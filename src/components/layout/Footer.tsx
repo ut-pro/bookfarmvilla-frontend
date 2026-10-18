@@ -103,6 +103,57 @@ const footerColumns: FooterColumn[] = [
   },
 ];
 
+const popularSearches: FooterLink[] = [
+  {
+    label: "Farmhouses in Delhi",
+    href: "/properties?type=FARMHOUSE&city=Delhi",
+  },
+  {
+    label: "Farmhouses in Noida",
+    href: "/properties?type=FARMHOUSE&city=Noida",
+  },
+  {
+    label: "Farmhouses in Gurugram",
+    href: "/properties?type=FARMHOUSE&city=Gurugram",
+  },
+  {
+    label: "Farmhouses in Greater Noida",
+    href: "/properties?type=FARMHOUSE&city=Greater%20Noida",
+  },
+  {
+    label: "Villas in Delhi",
+    href: "/properties?type=VILLA&city=Delhi",
+  },
+  {
+    label: "Villas in Noida",
+    href: "/properties?type=VILLA&city=Noida",
+  },
+  {
+    label: "Villas in Gurugram",
+    href: "/properties?type=VILLA&city=Gurugram",
+  },
+  {
+    label: "Villas in Greater Noida",
+    href: "/properties?type=VILLA&city=Greater%20Noida",
+  },
+  {
+    label: "Wedding Lawns in Delhi",
+    href: "/properties?type=WEDDING_LAWN&city=Delhi",
+  },
+  {
+    label: "Wedding Lawns in Noida",
+    href: "/properties?type=WEDDING_LAWN&city=Noida",
+  },
+  {
+    label: "Wedding Lawns in Gurugram",
+    href: "/properties?type=WEDDING_LAWN&city=Gurugram",
+  },
+  {
+    label: "Wedding Lawns in Greater Noida",
+    href: "/properties?type=WEDDING_LAWN&city=Greater%20Noida",
+  },
+];
+
 const socialItems: SocialItem[] = [
   {
     label: "Instagram",
@@ -278,6 +329,43 @@ export default function Footer() {
             </nav>
           ))}
         </div>
+
+        {/* SEO-friendly popular searches */}
+        <section
+          className="mb-8 border-t border-white/10 pt-8"
+          aria-labelledby="footer-popular-searches"
+        >
+          <h2
+            id="footer-popular-searches"
+            className="text-sm font-semibold text-white"
+          >
+            Popular Searches
+          </h2>
+
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-400">
+            Discover farmhouses, villas and wedding lawns across Delhi NCR
+            for birthday parties, pool parties, private celebrations, family
+            gatherings and weddings.
+          </p>
+
+          <nav
+            className="mt-5"
+            aria-label="Popular property searches in Delhi NCR"
+          >
+            <ul className="flex flex-wrap gap-x-2 gap-y-2.5">
+              {popularSearches.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    href={link.href}
+                    className="inline-flex min-h-9 items-center rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-300 transition-colors hover:border-[#2EAD45] hover:bg-[#2EAD45]/10 hover:text-green-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4CAF50]"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </section>
 
         {/* Bottom footer */}
         <div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-center sm:flex-row sm:gap-4 sm:pt-8 sm:text-left">
