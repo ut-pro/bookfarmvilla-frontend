@@ -7,7 +7,11 @@ export function proxy(request: NextRequest) {
   const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(
     url.hostname,
   );
-  if (isLocalHost) {
+
+  const isVercelPreview =
+    process.env.VERCEL_ENV === "preview";
+
+  if (isLocalHost || isVercelPreview) {
     return NextResponse.next();
   }
 
