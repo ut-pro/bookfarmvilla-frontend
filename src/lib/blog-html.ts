@@ -1,4 +1,4 @@
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtml from "sanitize-html";
 
 const allowedTags = [
   "a",
@@ -19,46 +19,52 @@ const allowedTags = [
   "ul",
 ];
 
-const allowedAttributes = ["alt", "href", "rel", "src", "style", "target"];
-let styleHookInstalled = false;
+const allowedAttributes = {
+  "*": ["style"],
+  a: ["href", "rel", "target"],
+  img: ["alt", "src"],
+};
 
-function sanitizeStyleAttribute(value: string): string {
-  return value
-    .split(";")
-    .map((declaration) => declaration.split(/:(.*)/, 2))
-    .filter(([property, rawValue]) => {
-      const normalizedProperty = property?.trim().toLowerCase();
-      const normalizedValue = rawValue?.trim() ?? "";
-      if (normalizedProperty === "font-size") {
-        return /^\d+(?:\.\d+)?(?:px|rem|em|%)$/i.test(normalizedValue);
-      }
-      if (normalizedProperty === "color") {
-        return /^(?:#[\da-f]{3,8}|[a-z]{1,24}|(?:rgb|hsl)a?\([\d.% ,/-]+\))$/i.test(
-          normalizedValue,
-        );
-      }
-      return false;
-    })
-    .map(([property, value]) => `${property.trim().toLowerCase()}: ${value.trim()}`)
-    .join("; ");
-}
+const allowedStyles = {
+  "*": {
+    "font-size": [
+      /^\d+(?:\.\d+)?(?:px|rem|em|%)$/i,
+    ],
+    color: [
+      /^(?:#[\da-f]{3,8}|[a-z]{1,24}|(?:rgb|hsl)a?\([\d.% ,/-]+\))$/i,
+    ],
+  },
+};
 
-export function sanitizeBlogHtml(html: string): string {
-
-  if (!styleHookInstalled) {
-    DOMPurify.addHook("uponSanitizeAttribute", (_node, data) => {
-      if (data.attrName === "style") {
-        data.attrValue = sanitizeStyleAttribute(data.attrValue);
-        data.keepAttr = data.attrValue.length > 0;
-      }
-    });
-    styleHookInstalled = true;
-  }
-
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: allowedTags,
-    ALLOWED_ATTR: allowedAttributes,
-    ALLOW_DATA_ATTR: false,
+export function sanitizeBlogHtml(
+  html: string,
+): string {
+  return sanitizeHtml(html, {
+    allowedTags,
+    allowedAttributes,
+    allowedStyles,
+    allowedSchemes: [
+      "http",
+      "https",
+      "mailto",
+      "tel",
+    ],
+    allowedSchemesByTag: {
+      img: ["http", "https"],
+    },
+    allowProtocolRelative: false,
+    transformTags: {
+      a: (tagName, attributes) => ({
+        tagName,
+        attribs:
+          attributes.target === "_blank"
+            ? {
+                ...attributes,
+                rel: "noopener noreferrer",
+              }
+            : attributes,
+      }),
+    },
   });
 }
 
@@ -74,16 +80,19 @@ export function blogHtmlToPlainText(
       " ",
     );
 
-  const textContainer = DOMPurify.sanitize(
-    htmlWithSpacing,
-    {
-      ALLOWED_TAGS: [],
-      ALLOWED_ATTR: [],
-      RETURN_DOM: true,
-    },
-  );
+  const textParts: string[] = [];
 
-  return (textContainer.textContent ?? "")
+  sanitizeHtml(htmlWithSpacing, {
+    allowedTags: [],
+    allowedAttributes: {},
+    textFilter: (text) => {
+      textParts.push(text);
+      return "";
+    },
+  });
+
+  return textParts
+    .join(" ")
     .replace(/\s+/g, " ")
     .trim();
 }
