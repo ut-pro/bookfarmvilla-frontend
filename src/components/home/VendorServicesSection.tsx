@@ -4,6 +4,7 @@ import {
   BriefcaseBusiness,
   Camera,
   Music2,
+  Palette,
   Sparkles,
   UtensilsCrossed,
   type LucideIcon,
@@ -71,11 +72,6 @@ export default async function VendorServicesSection() {
     getActiveVendorCount("OTHER"),
   ]);
 
-  const otherServicesCount =
-    makeupArtistCount === null || otherCount === null
-      ? null
-      : makeupArtistCount + otherCount;
-
   const serviceCards: ServiceCardData[] = [
     {
       title: "Catering",
@@ -92,6 +88,14 @@ export default async function VendorServicesSection() {
       category: "PHOTOGRAPHER",
       count: photographyCount,
       icon: Camera,
+    },
+    {
+      title: "Makeup & Styling",
+      description:
+        "Find makeup artists and styling professionals for weddings, parties and special celebrations.",
+      category: "MAKEUP_ARTIST",
+      count: makeupArtistCount,
+      icon: Palette,
     },
     {
       title: "DJ & Entertainment",
@@ -112,9 +116,9 @@ export default async function VendorServicesSection() {
     {
       title: "Other Event Services",
       description:
-        "Explore makeup artists and other professionals for your event requirements.",
+        "Explore other professionals and specialized services for your event requirements.",
       category: "OTHER_SERVICES",
-      count: otherServicesCount,
+      count: otherCount,
       icon: BriefcaseBusiness,
     },
   ];
@@ -144,8 +148,8 @@ export default async function VendorServicesSection() {
 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-500 sm:text-base">
               Explore active service providers for catering,
-              photography, entertainment, decoration and other event
-              requirements.
+              photography, makeup and styling, entertainment,
+              decoration and other event requirements.
             </p>
           </div>
 
@@ -158,7 +162,7 @@ export default async function VendorServicesSection() {
           </Link>
         </div>
 
-        <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 scroll-px-4 sm:-mx-6 sm:gap-5 sm:px-6 sm:scroll-px-6 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 scroll-px-4 sm:-mx-6 sm:gap-5 sm:px-6 sm:scroll-px-6 md:mx-0 md:grid md:snap-none md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3">
           {serviceCards.map((service) => {
             const Icon = service.icon;
 

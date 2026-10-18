@@ -61,7 +61,7 @@ export async function generateMetadata({
 const generalVendorDetails = {
   title: "Event Vendors & Services",
   description:
-    "Find trusted vendors for weddings, parties and celebrations. Explore caterers, photographers, DJs, decorators and services in your city on BookFarmVilla.",
+    "Find trusted vendors for weddings, parties and celebrations. Explore caterers, photographers, makeup artists, DJs, decorators and other event services in your city on BookFarmVilla.",
 };
 
 const categoryDetails: Record<
@@ -91,10 +91,15 @@ const categoryDetails: Record<
     description:
       "Discover wedding and event decorators for ceremonies, receptions and parties. Compare provider details, locations and images, then enquire with BookFarmVilla.",
   },
-  OTHER_SERVICES: {
-    title: "Makeup Artists & Event Services",
+  MAKEUP_ARTIST: {
+    title: "Wedding Makeup Artists & Styling",
     description:
-      "Explore makeup artists and other event services for weddings and celebrations. Compare provider details, locations and images, then enquire with BookFarmVilla.",
+      "Find makeup artists and styling professionals for weddings, parties and celebrations. Compare service details, locations, images and ratings, then enquire with BookFarmVilla.",
+  },
+  OTHER_SERVICES: {
+    title: "Other Event Services",
+    description:
+      "Explore other event service providers for weddings, parties and celebrations. Compare provider details, locations and images, then enquire with BookFarmVilla.",
   },
 };
 
@@ -109,6 +114,10 @@ const categoryLinks: Array<{
   {
     category: "PHOTOGRAPHER",
     label: "Photography",
+  },
+  {
+    category: "MAKEUP_ARTIST",
+    label: "Makeup & Styling",
   },
   {
     category: "DJ",
@@ -134,6 +143,7 @@ function getValidCategory(
   if (
     normalizedValue === "CATERER" ||
     normalizedValue === "PHOTOGRAPHER" ||
+    normalizedValue === "MAKEUP_ARTIST" ||
     normalizedValue === "DJ" ||
     normalizedValue === "DECORATOR" ||
     normalizedValue === "OTHER_SERVICES"

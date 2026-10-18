@@ -33,32 +33,23 @@ export const getSeoVendors = cache(
     category?: VendorCategoryFilter,
   ): Promise<VendorResponse[]> => {
     try {
-      if (category === "OTHER_SERVICES") {
-        const [makeupArtists, otherServices] = await Promise.all([
-          getActiveVendors({
-            category: "MAKEUP_ARTIST",
-            size: 100,
-          }),
-          getActiveVendors({
-            category: "OTHER",
-            size: 100,
-          }),
-        ]);
-
-        return [
-          ...makeupArtists.content,
-          ...otherServices.content,
-        ];
-      }
+      const apiCategory =
+        category === "OTHER_SERVICES"
+          ? "OTHER"
+          : category;
 
       const response = await getActiveVendors({
-        category,
+        category: apiCategory,
         size: 100,
       });
 
       return response.content;
     } catch (error) {
-      console.error("Unable to load vendor SEO data:", error);
+      console.error(
+        "Unable to load vendor SEO data:",
+        error,
+      );
+
       return [];
     }
   },

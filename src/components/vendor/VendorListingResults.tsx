@@ -50,36 +50,18 @@ export default function VendorListingResults({
   useEffect(() => {
     const controller = new AbortController();
 
-    const request =
+    const apiCategory: VendorCategory | undefined =
       category === "OTHER_SERVICES"
-        ? Promise.all([
-            getActiveVendors(
-              {
-                category: "MAKEUP_ARTIST",
-                size: 100,
-              },
-              controller.signal,
-            ),
-            getActiveVendors(
-              {
-                category: "OTHER",
-                size: 100,
-              },
-              controller.signal,
-            ),
-          ]).then(([makeupArtists, otherServices]) => [
-            ...makeupArtists.content,
-            ...otherServices.content,
-          ])
-        : getActiveVendors(
-            {
-              category: category as
-                | VendorCategory
-                | undefined,
-              size: 100,
-            },
-            controller.signal,
-          ).then((response) => response.content);
+        ? "OTHER"
+        : category;
+
+    const request = getActiveVendors(
+      {
+        category: apiCategory,
+        size: 100,
+      },
+      controller.signal,
+    ).then((response) => response.content);
 
     request
       .then((nextVendors) => {

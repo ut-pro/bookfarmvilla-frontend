@@ -26,6 +26,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...[
       "CATERER",
       "PHOTOGRAPHER",
+      "MAKEUP_ARTIST",
       "DJ",
       "DECORATOR",
       "OTHER_SERVICES",

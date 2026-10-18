@@ -24,7 +24,7 @@ const categoryLabels: Record<VendorCategory, string> = {
   PHOTOGRAPHER: "Photography",
   DJ: "DJ & Entertainment",
   DECORATOR: "Decoration",
-  MAKEUP_ARTIST: "Other Event Services",
+  MAKEUP_ARTIST: "Makeup & Styling",
   OTHER: "Other Event Services",
 };
 

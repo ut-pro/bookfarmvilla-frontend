@@ -11,6 +11,7 @@ export type VendorCategoryFilter =
   | "PHOTOGRAPHER"
   | "DJ"
   | "DECORATOR"
+  | "MAKEUP_ARTIST"
   | "OTHER_SERVICES";
 
 export type VendorStatus = "ACTIVE" | "INACTIVE";
