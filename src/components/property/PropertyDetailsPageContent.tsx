@@ -10,6 +10,10 @@ import {
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
+import PropertyReviews from "@/components/property/PropertyReviews";
+import SuggestedProperties from "@/components/property/SuggestedProperties";
+import RecommendedVendors from "@/components/vendor/RecommendedVendors";
+
 import { useCallbackModal } from "@/components/callback/CallbackContext";
 import { useUserLocation } from "@/components/location/UserLocationContext";
 import AmenityIcon from "@/components/ui/AmenityIcon";
@@ -22,9 +26,11 @@ import type {
   PropertyCardData,
   PropertyType,
 } from "@/types/property";
+import type { VendorResponse } from "@/types/vendor";
 
 interface PropertyDetailsPageContentProps {
   property: PropertyCardData;
+  vendors?: VendorResponse[];
 }
 
 const propertyTypeLabels: Record<PropertyType, string> = {
@@ -36,6 +42,7 @@ const propertyTypeLabels: Record<PropertyType, string> = {
 
 export default function PropertyDetailsPageContent({
   property,
+  vendors,
 }: PropertyDetailsPageContentProps) {
   const { openPropertyCallback } = useCallbackModal();
   const { location: userLocation } = useUserLocation();
@@ -296,6 +303,22 @@ export default function PropertyDetailsPageContent({
             </div>
           </aside>
         </div>
+
+        {/* Reviews Section */}
+        {typeof property.id === "string" && property.id.length > 0 && (
+          <PropertyReviews propertyId={property.id} />
+        )}
+
+        {/* Suggested Properties Section */}
+        <SuggestedProperties
+          currentPropertyId={property.id}
+          currentPropertyType={property.type}
+        />
+
+        {/* Recommended Vendors Section */}
+        {typeof property.vendorId === "string" && property.vendorId.length > 0 && vendors && vendors.length > 0
+          ? <RecommendedVendors vendors={vendors} />
+          : null}
       </div>
     </article>
   );

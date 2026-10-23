@@ -31,6 +31,7 @@ export interface PropertyCardData {
   mediaUrls?: string[];
   badge?: string;
   status: PropertyStatus;
+  vendorId?: string;
 }
 
 export interface PropertyImageResponse {

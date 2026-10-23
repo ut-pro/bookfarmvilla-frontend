@@ -10,12 +10,14 @@ interface HomeProperties {
   farmhouses: PropertyCardData[];
   villas: PropertyCardData[];
   weddingLawns: PropertyCardData[];
+  holidayHomes: PropertyCardData[];
 }
 
 const EMPTY_PROPERTIES: HomeProperties = {
   farmhouses: [],
   villas: [],
   weddingLawns: [],
+  holidayHomes: [],
 };
 
 export default function HomePropertySections() {
@@ -28,7 +30,7 @@ export default function HomePropertySections() {
 
     async function loadProperties() {
       try {
-        const [farmhouses, villas, weddingLawns] = await Promise.all([
+        const [farmhouses, villas, weddingLawns, holidayHomes] = await Promise.all([
           getActiveProperties(
             { type: "FARMHOUSE", size: 4 },
             controller.signal,
@@ -41,9 +43,13 @@ export default function HomePropertySections() {
             { type: "WEDDING_LAWN", size: 4 },
             controller.signal,
           ),
+          getActiveProperties(
+            { type: "AIRBNB", size: 4 },
+            controller.signal,
+          ),
         ]);
 
-        setProperties({ farmhouses, villas, weddingLawns });
+        setProperties({ farmhouses, villas, weddingLawns, holidayHomes });
       } catch (error) {
         if (controller.signal.aborted) {
           return;
@@ -100,6 +106,17 @@ export default function HomePropertySections() {
       />
 
       <PropertySection
+        id="holiday-homes"
+        subtitle="Curated Stays"
+        title="Holiday Homes"
+        properties={properties.holidayHomes}
+        isLoading={loading}
+        viewAllLabel="View All Holiday Homes"
+        viewAllHref="/properties?type=AIRBNB"
+        backgroundClassName="bg-white"
+      />
+
+      <PropertySection
         id="wedding-lawns"
         subtitle="Your Dream Venue Awaits"
         title="Wedding Lawns"
@@ -107,7 +124,7 @@ export default function HomePropertySections() {
         isLoading={loading}
         viewAllLabel="View All Wedding Lawns"
         viewAllHref="/properties?type=WEDDING_LAWN"
-        backgroundClassName="bg-white"
+        backgroundClassName="bg-[#F8FAFC]"
       />
     </>
   );

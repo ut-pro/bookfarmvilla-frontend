@@ -10,6 +10,14 @@ import type {
   VendorSearchParams,
 } from "@/types/vendor";
 
+import type {
+  ReferralBannerData,
+  ReferralStrategySectionData,
+  ReferralSubmissionData,
+  ReferralSubmissionResponse,
+  ReferralPolicyData,
+} from "@/types/referral";
+
 export class PublicApiError extends Error {
   fieldErrors?: Record<string, string>;
   status?: number;
@@ -164,4 +172,129 @@ export async function getVendorBySlug(
 
     throw error;
   }
+}
+
+export interface PropertyReview {
+  id: string;
+  propertyId: string;
+  reviewerName: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  image_url?: string | null;
+}
+
+export interface VendorReview {
+  id: string;
+  vendorId: string;
+  reviewerName: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  image_url?: string | null;
+}
+
+export async function getPropertyReviews(
+  propertyId: string,
+  signal?: AbortSignal,
+): Promise<PropertyReview[]> {
+  if (!propertyId?.trim()) {
+    return [];
+  }
+
+  try {
+    const reviews = await publicGet<PropertyReview[]>(
+      `/api/reviews/property/${encodeURIComponent(propertyId)}`,
+      signal,
+    );
+    return reviews;
+  } catch (error) {
+    if (
+      error instanceof PublicApiError &&
+      error.status === 404
+    ) {
+      return [];
+    }
+    throw error;
+  }
+}
+
+export async function getVendorReviews(
+  vendorId: string,
+  signal?: AbortSignal,
+): Promise<VendorReview[]> {
+  if (!vendorId?.trim()) {
+    return [];
+  }
+
+  try {
+    const reviews = await publicGet<VendorReview[]>(
+      `/api/reviews/vendor/${encodeURIComponent(vendorId)}`,
+      signal,
+    );
+    return reviews;
+  } catch (error) {
+    if (
+      error instanceof PublicApiError &&
+      error.status === 404
+    ) {
+      return [];
+    }
+    throw error;
+  }
+}
+
+// Referral API functions
+export async function getReferralBanner(
+  signal?: AbortSignal,
+): Promise<ReferralBannerData | null> {
+  try {
+    return await publicGet<ReferralBannerData>("/api/referral/banner", signal);
+  } catch (error) {
+    if (
+      error instanceof PublicApiError &&
+      error.status === 404
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export async function getReferralStrategy(
+  signal?: AbortSignal,
+): Promise<ReferralStrategySectionData | null> {
+  try {
+    return await publicGet<ReferralStrategySectionData>("/api/referral/strategy", signal);
+  } catch (error) {
+    if (
+      error instanceof PublicApiError &&
+      error.status === 404
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export async function getReferralPolicy(
+  signal?: AbortSignal,
+): Promise<ReferralPolicyData | null> {
+  try {
+    return await publicGet<ReferralPolicyData>("/api/referral/policy", signal);
+  } catch (error) {
+    if (
+      error instanceof PublicApiError &&
+      error.status === 404
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export async function submitReferral(
+  payload: ReferralSubmissionData,
+): Promise<ReferralSubmissionResponse> {
+  return publicPost("/api/referral/submit", payload);
 }

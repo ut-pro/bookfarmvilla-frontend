@@ -43,9 +43,9 @@ const propertyTypeDetails: Record<
       "Explore wedding lawns and venues for ceremonies, receptions and celebrations, with capacity, amenities, location and pricing details to help plan your event.",
   },
   AIRBNB: {
-    title: "Airbnb Properties for Rent",
+    title: "Holiday Homes",
     description:
-      "Explore Airbnb properties for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next stay.",
+      "Explore holiday homes for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next stay.",
   },
 };
 
@@ -56,6 +56,7 @@ const propertyTypeLinks: Array<{
   { type: "FARMHOUSE", label: "Farmhouses" },
   { type: "VILLA", label: "Villas" },
   { type: "WEDDING_LAWN", label: "Wedding Lawns" },
+  { type: "AIRBNB", label: "Holiday Homes" },
 ];
 
 function getValidPropertyType(
@@ -66,7 +67,8 @@ function getValidPropertyType(
   if (
     normalizedValue === "FARMHOUSE" ||
     normalizedValue === "VILLA" ||
-    normalizedValue === "WEDDING_LAWN"
+    normalizedValue === "WEDDING_LAWN" ||
+    normalizedValue === "AIRBNB"
   ) {
     return normalizedValue;
   }

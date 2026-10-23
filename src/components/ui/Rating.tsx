@@ -5,14 +5,24 @@ interface RatingProps {
   reviewCount?: number;
 }
 
+function formatRating(rating: number): string {
+  // Integer ratings should display with one decimal place (e.g., 4.0)
+  // Fractional ratings should remain as-is (e.g., 4.5)
+  if (Number.isInteger(rating)) {
+    return `${rating}.0`;
+  }
+  return rating.toFixed(1);
+}
+
 export default function Rating({
   rating,
   reviewCount,
 }: RatingProps) {
+  const formattedRating = formatRating(rating);
   const accessibleLabel =
     typeof reviewCount === "number"
-      ? `${rating} out of 5 stars from ${reviewCount} reviews`
-      : `${rating} out of 5 stars`;
+      ? `${formattedRating} out of 5 stars from ${reviewCount} reviews`
+      : `${formattedRating} out of 5 stars`;
 
   return (
     <div
@@ -26,7 +36,7 @@ export default function Rating({
       />
 
       <span className="text-sm font-semibold text-[#0F172A]">
-        {rating}
+        {formattedRating}
       </span>
 
       {typeof reviewCount === "number" && (
