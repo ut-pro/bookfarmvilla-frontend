@@ -9,6 +9,9 @@ import {
   getVendorSocialImage,
 } from "@/lib/seo-listings";
 import VendorListingResults from "@/components/vendor/VendorListingResults";
+import ReferralBannerWrapper from "@/components/referral/ReferralBannerWrapper";
+import FAQAccordion from "@/components/ui/FAQAccordion";
+import { vendorListingFAQs } from "@/data/faq";
 import type {
   VendorCategoryFilter,
 } from "@/types/vendor";
@@ -18,41 +21,57 @@ const SITE_URL = "https://www.bookfarmvilla.com";
 interface VendorsPageProps {
   searchParams: Promise<{
     category?: string | string[];
+    city?: string | string[];
+    sort?: string | string[];
+    keyword?: string | string[];
   }>;
 }
 
 export async function generateMetadata({
   searchParams,
 }: VendorsPageProps): Promise<Metadata> {
-  const { category } = await searchParams;
+  const { category, city } = await searchParams;
   const selectedCategory = getValidCategory(category);
+  const selectedCity = Array.isArray(city) ? city[0]?.trim() : city?.trim();
   const pageContent = selectedCategory
     ? categoryDetails[selectedCategory]
     : generalVendorDetails;
-  const canonical = selectedCategory
-    ? `/vendors?category=${selectedCategory}`
-    : "/vendors";
+  const canonicalParams = new URLSearchParams();
+  if (selectedCategory) {
+    canonicalParams.set("category", selectedCategory);
+  }
+  if (selectedCity) {
+    canonicalParams.set("city", selectedCity);
+  }
+  const canonicalQuery = canonicalParams.toString();
+  const canonical = canonicalQuery ? `/vendors?${canonicalQuery}` : "/vendors";
   const vendors = await getSeoVendors(selectedCategory);
   const socialImage = getVendorSocialImage(vendors);
-  const title = `${pageContent.title} | BookFarmVilla`;
+  const metadataTitle = selectedCity
+    ? `${pageContent.title} in ${selectedCity} | BookFarmVilla`
+    : `${pageContent.title} | BookFarmVilla`;
+
+  const metadataDescription = selectedCity
+    ? `Find trusted ${pageContent.title.toLowerCase()} in ${selectedCity}. Compare service details, locations, images and ratings, then enquire with BookFarmVilla.`
+    : pageContent.description;
 
   return {
-    title,
-    description: pageContent.description,
+    title: metadataTitle,
+    description: metadataDescription,
     alternates: {
       canonical,
     },
     openGraph: {
       type: "website",
-      title,
-      description: pageContent.description,
+      title: metadataTitle,
+      description: metadataDescription,
       url: `${SITE_URL}${canonical}`,
       images: [{ url: socialImage, alt: pageContent.title }],
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description: pageContent.description,
+      title: metadataTitle,
+      description: metadataDescription,
       images: [socialImage],
     },
   };
@@ -162,6 +181,9 @@ export default async function VendorsPage({
   const selectedCategory = getValidCategory(
     resolvedSearchParams.category,
   );
+  const selectedCity = Array.isArray(resolvedSearchParams.city)
+    ? resolvedSearchParams.city[0]?.trim()
+    : resolvedSearchParams.city?.trim();
 
   const pageContent = selectedCategory
     ? categoryDetails[selectedCategory]
@@ -269,6 +291,12 @@ export default async function VendorsPage({
             <VendorListingResults
               category={selectedCategory}
             />
+            <div className="mt-12 sm:mt-16">
+              <ReferralBannerWrapper variant="listing" />
+            </div>
+            <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12 mt-16">
+              <FAQAccordion items={vendorListingFAQs} title="Frequently Asked Questions" />
+            </div>
           </div>
         </section>
       </main>

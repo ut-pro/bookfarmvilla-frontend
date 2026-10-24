@@ -7,9 +7,14 @@ import {
   Star,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 import { useCallbackModal } from "@/components/callback/CallbackContext";
 import DetailsImageGallery from "@/components/ui/DetailsImageGallery";
+import ReferralStrategySection from "@/components/referral/ReferralStrategySection";
+import FAQAccordion from "@/components/ui/FAQAccordion";
+import { vendorDetailFAQs } from "@/data/faq";
 import { getVendorPriceDisplay } from "@/lib/formatters";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import type {
@@ -225,6 +230,50 @@ export default function VendorDetailsPageContent({
               </button>
             </div>
           </aside>
+        </div>
+
+        {/* Referral Strategy Section */}
+        <ReferralStrategySection variant="vendor" />
+
+        {/* Referral Section */}
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12 mt-16">
+          <div className="rounded-2xl border border-[#1E8A32] bg-white p-8 sm:p-10 lg:p-12">
+            <h2 className="text-xl font-bold text-[#0F172A] mb-6">
+              Know someone planning an event?
+            </h2>
+            <p className="text-gray-600 leading-relaxed mb-6">
+              Refer them to BookFarmVilla and earn 2% on an eligible booking.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
+                  <li>
+                    Refer — Share the customer's contact details with their consent.
+                  </li>
+                  <li>
+                    We handle it — Our team follows up and manages the booking process.
+                  </li>
+                  <li>
+                    Earn 2% — Receive the applicable reward under the referral policy.
+                  </li>
+                </ol>
+              </div>
+              <div>
+                <Link
+                  href="/referral"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#2EAD45] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1E8A32]"
+                >
+                  Refer a Customer
+                  <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12 mt-16">
+          <FAQAccordion items={vendorDetailFAQs} title="Frequently Asked Questions" schemaType="Service" />
         </div>
       </div>
     </article>

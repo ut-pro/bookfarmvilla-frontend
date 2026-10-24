@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import VendorCard from "@/components/vendor/VendorCard";
+import VendorListingToolbar from "./VendorListingToolbar";
 import { getActiveVendors } from "@/lib/public-api";
 import type {
   VendorCategory,
@@ -36,7 +37,16 @@ function sortAndRemoveDuplicateVendors(
 export default function VendorListingResults({
   category,
 }: VendorListingResultsProps) {
-  const requestKey = category ?? "ALL_SERVICES";
+  const [sort, setSort] = useState<string>("relevance");
+  const [keyword, setKeyword] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+
+  const requestKey = JSON.stringify([
+    category ?? null,
+    city ?? null,
+    sort,
+    keyword,
+  ]);
 
   const [result, setResult] = useState<VendorListingState>({
     requestKey: null,
@@ -58,6 +68,9 @@ export default function VendorListingResults({
     const request = getActiveVendors(
       {
         category: apiCategory,
+        city: city || undefined,
+        sort: sort !== "relevance" ? sort : undefined,
+        keyword: keyword || undefined,
         size: 100,
       },
       controller.signal,
@@ -94,61 +107,73 @@ export default function VendorListingResults({
       });
 
     return () => controller.abort();
-  }, [category, requestKey]);
+  }, [category, city, sort, keyword, requestKey]);
 
   if (loading) {
     return (
-      <div
-        className="rounded-2xl border border-gray-200 bg-white px-4 py-12 text-center text-sm text-gray-500 sm:px-6 sm:py-16"
-        role="status"
-      >
-        Loading service providers...
-      </div>
+      <>
+        <VendorListingToolbar initialCategory={category} />
+        <div
+          className="mt-6 rounded-2xl border border-gray-200 bg-white px-4 py-12 text-center text-sm text-gray-500 sm:px-6 sm:py-16"
+          role="status"
+        >
+          Loading service providers...
+        </div>
+      </>
     );
   }
 
   if (hasError) {
     return (
-      <div
-        className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-10 text-center sm:px-6 sm:py-12"
-        role="alert"
-      >
-        <p className="font-semibold text-amber-900">
-          Service providers could not be loaded right now.
-        </p>
+      <>
+        <VendorListingToolbar initialCategory={category} />
+        <div
+          className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-10 text-center sm:px-6 sm:py-12"
+          role="alert"
+        >
+          <p className="font-semibold text-amber-900">
+            Service providers could not be loaded right now.
+          </p>
 
-        <p className="mt-2 text-sm text-amber-800">
-          Please refresh the page or try again shortly.
-        </p>
-      </div>
+          <p className="mt-2 text-sm text-amber-800">
+            Please refresh the page or try again shortly.
+          </p>
+        </div>
+      </>
     );
   }
 
   if (vendors.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-12 text-center sm:px-6 sm:py-16">
-        <p className="text-base font-semibold text-[#0F172A]">
-          No service providers available
-        </p>
+      <>
+        <VendorListingToolbar initialCategory={category} />
+        <div className="mt-6 rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-12 text-center sm:px-6 sm:py-16">
+          <p className="text-base font-semibold text-[#0F172A]">
+            No service providers available
+          </p>
 
-        <p className="mt-2 text-sm text-gray-500">
-          No active service providers are currently available in
-          this category.
-        </p>
-      </div>
+          <p className="mt-2 text-sm text-gray-500">
+            No active service providers are currently available in
+            this category.
+          </p>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
-      {vendors.map((vendor) => (
-        <div
-          key={vendor.id}
-          className="flex h-full justify-center sm:block"
-        >
-          <VendorCard vendor={vendor} />
-        </div>
-      ))}
-    </div>
+    <>
+      <VendorListingToolbar initialCategory={category} />
+      <div className="mt-6 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+        {vendors.map((vendor) => (
+          <div
+            key={vendor.id}
+            className="flex h-full justify-center sm:block"
+          >
+            <VendorCard vendor={vendor} />
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

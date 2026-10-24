@@ -245,19 +245,17 @@ export async function getVendorReviews(
 }
 
 // Referral API functions
+// These handle any error gracefully (return null) since the backend endpoints
+// may not be implemented yet. Once the backend implements them, this can be tightened.
 export async function getReferralBanner(
   signal?: AbortSignal,
 ): Promise<ReferralBannerData | null> {
   try {
     return await publicGet<ReferralBannerData>("/api/referral/banner", signal);
-  } catch (error) {
-    if (
-      error instanceof PublicApiError &&
-      error.status === 404
-    ) {
-      return null;
-    }
-    throw error;
+  } catch {
+    // Silently return null for any error (404, 500, network, etc.)
+    // The UI will simply not show the banner
+    return null;
   }
 }
 
@@ -266,14 +264,9 @@ export async function getReferralStrategy(
 ): Promise<ReferralStrategySectionData | null> {
   try {
     return await publicGet<ReferralStrategySectionData>("/api/referral/strategy", signal);
-  } catch (error) {
-    if (
-      error instanceof PublicApiError &&
-      error.status === 404
-    ) {
-      return null;
-    }
-    throw error;
+  } catch {
+    // Silently return null for any error
+    return null;
   }
 }
 
@@ -282,14 +275,9 @@ export async function getReferralPolicy(
 ): Promise<ReferralPolicyData | null> {
   try {
     return await publicGet<ReferralPolicyData>("/api/referral/policy", signal);
-  } catch (error) {
-    if (
-      error instanceof PublicApiError &&
-      error.status === 404
-    ) {
-      return null;
-    }
-    throw error;
+  } catch {
+    // Silently return null for any error
+    return null;
   }
 }
 

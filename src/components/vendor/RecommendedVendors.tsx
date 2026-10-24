@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 
 import Link from "next/link";
+import Image from "next/image";
 import type { VendorCategory, VendorResponse } from "@/types/vendor";
 
 interface RecommendedVendorsProps {
   vendors: VendorResponse[];
 }
 
-const MAX_VENDORS = 6;
+const MAX_VENDORS = 4;
 
 const categoryLabels: Record<VendorCategory, string> = {
   CATERER: "Catering",
@@ -22,56 +22,36 @@ const categoryLabels: Record<VendorCategory, string> = {
 
 export default function RecommendedVendors({ vendors: propVendors }: RecommendedVendorsProps) {
   const vendors = propVendors.slice(0, MAX_VENDORS);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-
-  // Create intersection observer for lazy loading
-  useEffect(() => {
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            observerRef.current?.disconnect();
-          }
-        });
-      },
-      { rootMargin: "100px" }
-    );
-
-    if (sectionRef.current) {
-      observerRef.current.observe(sectionRef.current);
-    }
-
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, []);
 
   if (vendors.length === 0) {
     return null; // Hide section on no vendors
   }
 
+
   return (
-    <section ref={sectionRef} aria-labelledby="recommended-vendors-heading" className="mt-10 sm:mt-12">
+    <section aria-labelledby="recommended-vendors-heading" className="mt-10 sm:mt-12">
       <div className="rounded-2xl border border-gray-100 bg-white p-6 sm:p-8">
         <h2 id="recommended-vendors-heading" className="text-xl font-bold text-[#0F172A] mb-6">
           Recommended Vendors
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="-mx-2 flex snap-x snap-mandatory gap-3 overflow-x-auto px-2 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-4 [scrollbar-width:thin]">
           {vendors.map((vendor) => {
             const categoryLabel = categoryLabels[vendor.category] || "Other Services";
             const vendorCategoryFilter = vendor.category === "OTHER" ? "OTHER_SERVICES" : vendor.category;
 
             return (
-              <div key={vendor.id} className="flex h-full justify-center">
-                <article className="group relative flex h-full w-full min-w-0 max-w-[420px] flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:max-w-none">
+              <div key={vendor.id} className="flex h-full w-[78%] shrink-0 snap-start justify-center sm:w-auto sm:shrink">
+                <article className="group relative flex h-full w-full min-w-0 max-w-none flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl sm:max-w-none">
                   <Link
                     href={`/vendors?category=${vendorCategoryFilter}`}
                     className="absolute inset-0 z-10 cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2EAD45] focus-visible:ring-inset"
                     aria-label={`View all ${categoryLabel} vendors`}
                   />
-                  <div className="relative h-44 shrink-0 overflow-hidden bg-[#F0FDF4] sm:h-[200px]">
+                  <div className="relative aspect-[16/10] shrink-0 overflow-hidden bg-[#F0FDF4] sm:aspect-[4/3]">
+                    {vendor.images?.find((image) => image.isPrimary)?.url || vendor.images?.[0]?.url ? (
+                      <Image src={(vendor.images.find((image) => image.isPrimary)?.url || vendor.images[0].url)} alt={vendor.name} fill sizes="(max-width: 639px) 78vw, (max-width: 1023px) 45vw, 23vw" className="object-cover" />
+                    ) : null}
                     <span className="absolute left-3 top-3 rounded-full bg-[#2EAD45] px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
                       {categoryLabel}
                     </span>
