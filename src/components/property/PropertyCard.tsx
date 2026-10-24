@@ -118,9 +118,10 @@ export default function PropertyCard({
             {property.name}
           </h3>
 
-          {typeof property.rating === "number" && (
+          {(typeof property.rating === "number" ||
+            typeof property.reviewCount === "number") && (
             <Rating
-              rating={property.rating}
+              rating={property.rating ?? 0}
               reviewCount={property.reviewCount}
             />
           )}

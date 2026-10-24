@@ -54,9 +54,12 @@ export interface PropertyApiResponse {
   endingPrice?: number | null;
   capacity?: number | null;
   contactPhone?: string | null;
-  status: PropertyStatus;
+  status?: PropertyStatus;
   amenities?: string[] | null;
   images?: PropertyImageResponse[] | null;
+  // The list endpoint returns PropertyCardResponse with imageUrls, averageRating,
+  // and reviewCount; detail endpoints may instead return images and status.
+  imageUrls?: string[] | null;
   averageRating?: number | null;
   rating?: number | null;
   reviewCount?: number | null;

@@ -30,26 +30,22 @@ export default function HomePropertySections() {
 
     async function loadProperties() {
       try {
-        const [farmhouses, villas, weddingLawns, holidayHomes] = await Promise.all([
-          getActiveProperties(
-            { type: "FARMHOUSE", size: 4 },
-            controller.signal,
-          ),
-          getActiveProperties(
-            { type: "VILLA", size: 4 },
-            controller.signal,
-          ),
-          getActiveProperties(
-            { type: "WEDDING_LAWN", size: 4 },
-            controller.signal,
-          ),
-          getActiveProperties(
-            { type: "AIRBNB", size: 4 },
-            controller.signal,
-          ),
-        ]);
+        // Load active properties once and reuse the API-backed data for every
+        // homepage card section instead of issuing one request per category.
+        const allProperties = await getActiveProperties(
+          { size: 100 },
+          controller.signal,
+        );
 
-        setProperties({ farmhouses, villas, weddingLawns, holidayHomes });
+        const takeCategory = (type: PropertyCardData["type"]) =>
+          allProperties.filter((property) => property.type === type).slice(0, 4);
+
+        setProperties({
+          farmhouses: takeCategory("FARMHOUSE"),
+          villas: takeCategory("VILLA"),
+          weddingLawns: takeCategory("WEDDING_LAWN"),
+          holidayHomes: takeCategory("AIRBNB"),
+        });
       } catch (error) {
         if (controller.signal.aborted) {
           return;
