@@ -21,6 +21,8 @@ import type {
   AdminVendorPayload,
   SortDirection,
   VendorSortBy,
+  VendorCategory,
+  ListingStatus,
 } from "@/types/admin";
 
 function VendorsPageContent() {
@@ -31,6 +33,9 @@ function VendorsPageContent() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const [category, setCategory] = useState<VendorCategory | "">("");
+  const [city, setCity] = useState("");
+  const [status, setStatus] = useState<ListingStatus | "">("");
   const [keyword, setKeyword] = useState(
     () => searchParams.get("search") ?? "",
   );
@@ -54,6 +59,9 @@ function VendorsPageContent() {
     setError(null);
     try {
       const result = await fetchVendors({
+        category: category || undefined,
+        city: city || undefined,
+        status: status || undefined,
         keyword: keyword || undefined,
         page,
         size: pageSize,
@@ -68,7 +76,7 @@ function VendorsPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [keyword, page, sort]);
+  }, [category, city, status, keyword, page, sort]);
 
   useEffect(() => {
     // Loading is an intentional effect because server-side filters change with the controls.
@@ -156,6 +164,37 @@ function VendorsPageContent() {
                 className="w-full rounded-xl border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-violet-400"
               />
             </div>
+            <select
+              aria-label="Filter by category"
+              value={category}
+              onChange={(e) => { setPage(0); setCategory(e.target.value as VendorCategory | ""); }}
+              className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none focus:border-violet-400"
+            >
+              <option value="">All categories</option>
+              <option value="CATERER">Caterer</option>
+              <option value="DECORATOR">Decorator</option>
+              <option value="PHOTOGRAPHER">Photographer</option>
+              <option value="MAKEUP_ARTIST">Makeup artist</option>
+              <option value="DJ">DJ</option>
+              <option value="OTHER">Other</option>
+            </select>
+            <input
+              aria-label="Filter by city"
+              value={city}
+              onChange={(e) => { setPage(0); setCity(e.target.value); }}
+              placeholder="City"
+              className="w-32 rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
+            />
+            <select
+              aria-label="Filter by status"
+              value={status}
+              onChange={(e) => { setPage(0); setStatus(e.target.value as ListingStatus | ""); }}
+              className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none focus:border-violet-400"
+            >
+              <option value="">All statuses</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
             <AdminSortControls<VendorSortBy>
               options={[
                 { label: "Name", value: "name" },

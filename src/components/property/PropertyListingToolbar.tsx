@@ -28,6 +28,9 @@ const CITY_OPTIONS = [
   "Delhi",
   "Gurugram",
   "Noida",
+  "Greater Noida",
+  "Faridabad",
+  "Ghaziabad",
 ];
 
 export default function PropertyListingToolbar({
@@ -61,7 +64,7 @@ export default function PropertyListingToolbar({
     if (urlType && ["FARMHOUSE", "VILLA", "WEDDING_LAWN", "AIRBNB"].includes(urlType)) {
       setType(urlType as PropertyType);
     }
-    if (urlCity && ["Delhi", "Gurugram", "Noida"].includes(urlCity)) setCity(urlCity);
+    if (urlCity && CITY_OPTIONS.slice(1).includes(urlCity)) setCity(urlCity);
     else if (urlCity) setCity("");
     if (urlSort) setSort(urlSort);
     if (urlKeyword) setKeyword(urlKeyword);
@@ -87,7 +90,10 @@ export default function PropertyListingToolbar({
         }
       });
 
-      router.push(`${pathname}?${newParams.toString()}`, { scroll: false });
+      const nextQuery = newParams.toString();
+      if (nextQuery !== searchParams.toString()) {
+        router.push(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false });
+      }
     },
     [pathname, router, searchParams]
   );

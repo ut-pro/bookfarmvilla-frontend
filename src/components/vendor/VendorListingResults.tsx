@@ -13,6 +13,7 @@ import type {
 
 interface VendorListingResultsProps {
   category?: VendorCategoryFilter;
+  city?: string;
 }
 
 interface VendorListingState {
@@ -36,10 +37,15 @@ function sortAndRemoveDuplicateVendors(
 
 export default function VendorListingResults({
   category,
+  city: initialCity,
 }: VendorListingResultsProps) {
   const [sort, setSort] = useState<string>("relevance");
   const [keyword, setKeyword] = useState<string>("");
-  const [city, setCity] = useState<string>("");
+  const [city, setCity] = useState<string>(initialCity ?? "");
+
+  useEffect(() => {
+    setCity(initialCity ?? "");
+  }, [initialCity]);
 
   const requestKey = JSON.stringify([
     category ?? null,
@@ -112,7 +118,7 @@ export default function VendorListingResults({
   if (loading) {
     return (
       <>
-        <VendorListingToolbar initialCategory={category} />
+        <VendorListingToolbar initialCategory={category} initialCity={initialCity} />
         <div
           className="mt-6 rounded-2xl border border-gray-200 bg-white px-4 py-12 text-center text-sm text-gray-500 sm:px-6 sm:py-16"
           role="status"
@@ -126,7 +132,7 @@ export default function VendorListingResults({
   if (hasError) {
     return (
       <>
-        <VendorListingToolbar initialCategory={category} />
+        <VendorListingToolbar initialCategory={category} initialCity={initialCity} />
         <div
           className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-10 text-center sm:px-6 sm:py-12"
           role="alert"
@@ -146,7 +152,7 @@ export default function VendorListingResults({
   if (vendors.length === 0) {
     return (
       <>
-        <VendorListingToolbar initialCategory={category} />
+        <VendorListingToolbar initialCategory={category} initialCity={initialCity} />
         <div className="mt-6 rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-12 text-center sm:px-6 sm:py-16">
           <p className="text-base font-semibold text-[#0F172A]">
             No service providers available
@@ -163,7 +169,7 @@ export default function VendorListingResults({
 
   return (
     <>
-      <VendorListingToolbar initialCategory={category} />
+      <VendorListingToolbar initialCategory={category} initialCity={initialCity} />
       <div className="mt-6 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
         {vendors.map((vendor) => (
           <div

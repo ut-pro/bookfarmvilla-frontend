@@ -33,9 +33,7 @@ export async function generateMetadata({
   const { category, city } = await searchParams;
   const selectedCategory = getValidCategory(category);
   const selectedCity = Array.isArray(city) ? city[0]?.trim() : city?.trim();
-  const pageContent = selectedCategory
-    ? categoryDetails[selectedCategory]
-    : generalVendorDetails;
+  const pageContent = getVendorPageContent(selectedCategory, selectedCity ?? "");
   const canonicalParams = new URLSearchParams();
   if (selectedCategory) {
     canonicalParams.set("category", selectedCategory);
@@ -47,13 +45,8 @@ export async function generateMetadata({
   const canonical = canonicalQuery ? `/vendors?${canonicalQuery}` : "/vendors";
   const vendors = await getSeoVendors(selectedCategory);
   const socialImage = getVendorSocialImage(vendors);
-  const metadataTitle = selectedCity
-    ? `${pageContent.title} in ${selectedCity} | BookFarmVilla`
-    : `${pageContent.title} | BookFarmVilla`;
-
-  const metadataDescription = selectedCity
-    ? `Find trusted ${pageContent.title.toLowerCase()} in ${selectedCity}. Compare service details, locations, images and ratings, then enquire with BookFarmVilla.`
-    : pageContent.description;
+  const metadataTitle = `${pageContent.title} | BookFarmVilla`;
+  const metadataDescription = pageContent.description;
 
   return {
     title: metadataTitle,
@@ -122,6 +115,15 @@ const categoryDetails: Record<
   },
 };
 
+function getVendorPageContent(category: VendorCategoryFilter | undefined, city: string) {
+  const base = category ? categoryDetails[category] : generalVendorDetails;
+  if (!city) return base;
+  const title = `${base.title} in ${city}`;
+  const service = category === "CATERER" ? "catering services" : category === "PHOTOGRAPHER" ? "photographers" : category === "DJ" ? "DJs and entertainment services" : category === "DECORATOR" ? "event decorators" : category === "MAKEUP_ARTIST" ? "makeup artists and styling professionals" : category === "OTHER_SERVICES" ? "event service providers" : "event vendors";
+  const description = `Discover ${service} in ${city} for weddings, parties and special celebrations. Compare service details, locations and ratings, and enquire with BookFarmVilla.`;
+  return { title, description };
+}
+
 const categoryLinks: Array<{
   category: VendorCategoryFilter;
   label: string;
@@ -185,9 +187,7 @@ export default async function VendorsPage({
     ? resolvedSearchParams.city[0]?.trim()
     : resolvedSearchParams.city?.trim();
 
-  const pageContent = selectedCategory
-    ? categoryDetails[selectedCategory]
-    : generalVendorDetails;
+  const pageContent = getVendorPageContent(selectedCategory, selectedCity ?? "");
   const vendors = await getSeoVendors(selectedCategory);
 
   return (
@@ -273,7 +273,7 @@ export default async function VendorsPage({
                 return (
                   <Link
                     key={item.category}
-                    href={`/vendors?category=${item.category}`}
+                    href={`/vendors?category=${item.category}${selectedCity ? `&city=${encodeURIComponent(selectedCity)}` : ""}`}
                     scroll={false}
                     aria-current={isActive ? "page" : undefined}
                     className={`min-h-11 shrink-0 snap-start rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors sm:px-5 ${
@@ -286,10 +286,18 @@ export default async function VendorsPage({
                   </Link>
                 );
               })}
+              <Link
+                href="/properties"
+                scroll={false}
+                className="min-h-11 shrink-0 snap-start rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:border-[#2EAD45] hover:text-[#1E8A32] sm:px-5"
+              >
+                Properties
+              </Link>
             </nav>
 
             <VendorListingResults
               category={selectedCategory}
+              city={selectedCity ?? ""}
             />
             <div className="mt-12 sm:mt-16">
               <ReferralBannerWrapper variant="listing" />

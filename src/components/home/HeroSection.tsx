@@ -11,18 +11,17 @@ import { Building2, MapPin, Search, ChevronDown, Users } from "lucide-react";
 import { getActivePropertyCities } from "@/lib/property-api";
 
 const heroStatistics = [
-  {
-    value: "50+",
-    label: "Farmhouses",
-  },
-  {
-    value: "20+",
-    label: "Villas",
-  },
-  {
-    value: "10+",
-    label: "Wedding Lawns",
-  },
+  { value: 50, label: "Farmhouses" },
+  { value: 30, label: "Villas & Stays" },
+  { value: 10, label: "Wedding Lawns" },
+];
+
+const rotatingHeroPhrases = [
+  "Farmhouses for Rent",
+  "Private Pool Villas",
+  "Birthday Party Venues",
+  "Wedding Lawns",
+  "Luxury Weekend Stays",
 ];
 
 const propertyTypeOptions = [
@@ -51,6 +50,31 @@ export default function HeroSection() {
   const [minimumCapacity, setMinimumCapacity] = useState("");
   const [isPropertyTypeOpen, setIsPropertyTypeOpen] = useState(false);
   const [isCapacityOpen, setIsCapacityOpen] = useState(false);
+  const [rotatingPhraseIndex, setRotatingPhraseIndex] = useState(0);
+  const [animatedCounts, setAnimatedCounts] = useState([0, 0, 0]);
+
+  useEffect(() => {
+    const phraseTimer = window.setInterval(() => {
+      setRotatingPhraseIndex((current) => (current + 1) % rotatingHeroPhrases.length);
+    }, 2600);
+    return () => window.clearInterval(phraseTimer);
+  }, []);
+
+  useEffect(() => {
+    const targets = heroStatistics.map((item) => item.value);
+    const duration = 1500;
+    const startedAt = performance.now();
+    let frame = 0;
+
+    const animate = (now: number) => {
+      const progress = Math.min((now - startedAt) / duration, 1);
+      setAnimatedCounts(targets.map((target) => Math.floor(target * progress)));
+      if (progress < 1) frame = window.requestAnimationFrame(animate);
+    };
+
+    frame = window.requestAnimationFrame(animate);
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   const selectedPropertyTypeLabel =
     propertyTypeOptions.find(
@@ -390,6 +414,16 @@ const handleCapacityKeyDown = (
           Find The Perfect Farmhouse, Villa & Wedding Lawn
         </h1>
 
+        {/* Rotating supporting phrase */}
+        <p
+          aria-live="polite"
+          className="-mt-2 mb-5 min-h-8 text-lg font-semibold text-white sm:text-xl md:text-2xl"
+        >
+          <span key={rotatingPhraseIndex} className="inline-block animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {rotatingHeroPhrases[rotatingPhraseIndex]}
+          </span>
+        </p>
+
         {/* Description */}
         <p className="mb-8 max-w-2xl text-sm leading-relaxed text-white/80 sm:mb-10 sm:text-base md:text-lg lg:mb-12 lg:text-xl">
           Discover farmhouses, villas and wedding venues for your next event. Explore properties on BookFarmVilla and connect with our experts for assistance.
@@ -400,7 +434,7 @@ const handleCapacityKeyDown = (
           {heroStatistics.map((statistic) => (
             <div key={statistic.label} className="text-center">
               <p className="text-2xl font-bold text-white sm:text-3xl md:text-4xl">
-                {statistic.value}
+                {animatedCounts[heroStatistics.indexOf(statistic)]}+
               </p>
 
               <p className="mt-1 text-[10px] leading-4 text-white/70 sm:text-xs md:text-base">

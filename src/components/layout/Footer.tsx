@@ -53,6 +53,10 @@ const footerColumns: FooterColumn[] = [
         href: "/properties?type=WEDDING_LAWN",
       },
       {
+        label: "Holiday Homes",
+        href: "/properties?type=AIRBNB",
+      },
+      {
         label: "Vendors",
         href: "/vendors",
       },
