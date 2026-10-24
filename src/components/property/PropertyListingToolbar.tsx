@@ -24,6 +24,7 @@ const SORT_OPTIONS = [
 ];
 
 const CITY_OPTIONS = [
+  "All Cities",
   "Delhi",
   "Gurugram",
   "Noida",
@@ -100,8 +101,9 @@ export default function PropertyListingToolbar({
   };
 
   const handleCityChange = (newCity: string) => {
-    setCity(newCity);
-    updateUrl({ city: newCity || undefined });
+    const cityVal = newCity === "All Cities" ? "" : newCity;
+    setCity(cityVal);
+    updateUrl({ city: cityVal || undefined });
   };
 
   const handleSortChange = (newSort: string) => {
@@ -109,14 +111,19 @@ export default function PropertyListingToolbar({
     updateUrl({ sort: newSort !== "relevance" ? newSort : undefined });
   };
 
-  const handleKeywordChange = (newKeyword: string) => {
+  const handleKeywordChange = useCallback((newKeyword: string) => {
     setKeyword(newKeyword);
-    // Debounce keyword search
-    const timeoutId = setTimeout(() => {
-      updateUrl({ keyword: newKeyword || undefined });
-    }, 300);
-    return () => clearTimeout(timeoutId);
-  };
+  }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      updateUrl({ keyword: keyword || undefined });
+    }, 2000);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [keyword, updateUrl]);
 
   const handleClearFilters = () => {
     setType(undefined);
@@ -186,26 +193,7 @@ export default function PropertyListingToolbar({
 
       {/* Desktop Filters */}
       <div className="hidden sm:flex sm:items-center sm:gap-3">
-        {/* Type Filter */}
-        <div className="relative">
-          <label htmlFor="property-type" className="sr-only">
-            Property type
-          </label>
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" aria-hidden="true" />
-          <select
-            id="property-type"
-            value={type || ""}
-            onChange={(e) => handleTypeChange(e.target.value || undefined)}
-            className="h-11 pl-10 pr-10 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[#2EAD45] focus:border-transparent"
-          >
-            <option value="">All Types</option>
-            <option value="FARMHOUSE">Farmhouses</option>
-            <option value="VILLA">Villas</option>
-            <option value="WEDDING_LAWN">Wedding Lawns</option>
-            <option value="AIRBNB">Holiday Homes</option>
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" aria-hidden="true" />
-        </div>
+        {/* Removed redundant Type Filter */}
 
         {/* City Filter */}
         <div className="relative">
@@ -215,11 +203,10 @@ export default function PropertyListingToolbar({
           <MapPin size={5} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true" />
           <select
             id="property-city"
-            value={city}
+            value={city || "All Cities"}
             onChange={(e) => handleCityChange(e.target.value)}
             className="h-11 pl-10 pr-10 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[#2EAD45] focus:border-transparent"
           >
-            <option value="">All Cities</option>
             {CITY_OPTIONS.map((cityOption) => (
               <option key={cityOption} value={cityOption}>
                 {cityOption}
