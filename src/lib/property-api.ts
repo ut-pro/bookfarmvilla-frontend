@@ -88,6 +88,7 @@ interface GetActivePropertiesOptions {
   city?: string;
   minCapacity?: number;
   keyword?: string;
+  sort?: string;
   page?: number;
   size?: number;
 }
@@ -98,6 +99,7 @@ export async function getActiveProperties(
     city,
     minCapacity,
     keyword,
+    sort,
     page = 0,
     size = 100,
   }: GetActivePropertiesOptions = {},
@@ -133,6 +135,10 @@ export async function getActiveProperties(
       "keyword",
       keyword.trim(),
     );
+  }
+
+  if (sort?.trim() && sort !== "relevance") {
+    url.searchParams.set("sort", sort.trim());
   }
 
   const response = await fetch(url, {

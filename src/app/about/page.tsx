@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ReferralPolicySection from "@/components/referral/ReferralPolicySection";
 
 import {
   Building2,
@@ -509,6 +510,9 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* Referral Program Policy */}
+        <ReferralPolicySection />
 
         {/* Final statement */}
         <section className="bg-[#F8FAFC] py-12 sm:py-16 lg:py-20">

@@ -78,6 +78,10 @@ const footerColumns: FooterColumn[] = [
         href: "/about",
       },
       {
+        label: "Referral Program",
+        href: "/referral",
+      },
+      {
         label: "Careers",
         href: "/careers",
       },
@@ -129,6 +133,14 @@ const popularSearches: FooterLink[] = [
     href: "/properties?type=FARMHOUSE&city=Greater%20Noida",
   },
   {
+    label: "Farmhouses in Faridabad",
+    href: "/properties?type=FARMHOUSE&city=Faridabad",
+  },
+  {
+    label: "Farmhouses in Ghaziabad",
+    href: "/properties?type=FARMHOUSE&city=Ghaziabad",
+  },
+  {
     label: "Villas in Delhi",
     href: "/properties?type=VILLA&city=Delhi",
   },
@@ -143,6 +155,14 @@ const popularSearches: FooterLink[] = [
   {
     label: "Villas in Greater Noida",
     href: "/properties?type=VILLA&city=Greater%20Noida",
+  },
+  {
+    label: "Villas in Faridabad",
+    href: "/properties?type=VILLA&city=Faridabad",
+  },
+  {
+    label: "Villas in Ghaziabad",
+    href: "/properties?type=VILLA&city=Ghaziabad",
   },
   {
     label: "Wedding Lawns in Delhi",
@@ -161,28 +181,72 @@ const popularSearches: FooterLink[] = [
     href: "/properties?type=WEDDING_LAWN&city=Greater%20Noida",
   },
   {
-    label: "Event Vendors in Delhi NCR",
+    label: "Wedding Lawns in Faridabad",
+    href: "/properties?type=WEDDING_LAWN&city=Faridabad",
+  },
+  {
+    label: "Wedding Lawns in Ghaziabad",
+    href: "/properties?type=WEDDING_LAWN&city=Ghaziabad",
+  },
+  {
+    label: "Holiday Homes in Delhi",
+    href: "/properties?type=AIRBNB&city=Delhi",
+  },
+  {
+    label: "Holiday Homes in Noida",
+    href: "/properties?type=AIRBNB&city=Noida",
+  },
+  {
+    label: "Holiday Homes in Gurugram",
+    href: "/properties?type=AIRBNB&city=Gurugram",
+  },
+  {
+    label: "Holiday Homes in Greater Noida",
+    href: "/properties?type=AIRBNB&city=Greater%20Noida",
+  },
+  {
+    label: "Holiday Homes in Faridabad",
+    href: "/properties?type=AIRBNB&city=Faridabad",
+  },
+  {
+    label: "Holiday Homes in Ghaziabad",
+    href: "/properties?type=AIRBNB&city=Ghaziabad",
+  },
+  {
+    label: "Wedding Caterers in Delhi",
+    href: "/vendors?category=CATERER&city=Delhi",
+  },
+  {
+    label: "Wedding Photographers in Delhi",
+    href: "/vendors?category=PHOTOGRAPHER&city=Delhi",
+  },
+  {
+    label: "Makeup Artists in Delhi",
+    href: "/vendors?category=MAKEUP_ARTIST&city=Delhi",
+  },
+  {
+    label: "DJs in Delhi",
+    href: "/vendors?category=DJ&city=Delhi",
+  },
+  {
+    label: "Event Decorators in Delhi",
+    href: "/vendors?category=DECORATOR&city=Delhi",
+  },
+  {
+    label: "Vendors in Faridabad",
+    href: "/vendors?city=Faridabad",
+  },
+  {
+    label: "Vendors in Ghaziabad",
+    href: "/vendors?city=Ghaziabad",
+  },
+  {
+    label: "Party Planners in Delhi NCR",
     href: "/vendors",
   },
   {
-    label: "Caterers in Delhi NCR",
-    href: "/vendors?category=CATERER",
-  },
-  {
-    label: "Wedding Photographers in Delhi NCR",
-    href: "/vendors?category=PHOTOGRAPHER",
-  },
-  {
-    label: "Makeup Artists in Delhi NCR",
-    href: "/vendors?category=MAKEUP_ARTIST",
-  },
-  {
-    label: "DJs in Delhi NCR",
-    href: "/vendors?category=DJ",
-  },
-  {
-    label: "Event Decorators in Delhi NCR",
-    href: "/vendors?category=DECORATOR",
+    label: "Event Venues near me",
+    href: "/properties",
   },
   {
     label: "Venue & Celebration Guides",

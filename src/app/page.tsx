@@ -11,6 +11,7 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import JsonLd from "@/components/seo/JsonLd";
+import ReferralBannerWrapper from "@/components/referral/ReferralBannerWrapper";
 
 export const metadata: Metadata = {
   title: "BookFarmVilla | Farmhouses, Villas & Wedding Lawns for Rent",
@@ -68,6 +69,9 @@ export default function Home() {
         <WhyChooseUs />
         <PartnerSection />
         <TestimonialsSection />
+        <div className="px-4 pb-12 pt-4 sm:px-6 lg:px-8">
+          <ReferralBannerWrapper variant="homepage" />
+        </div>
       </main>
 
       <Footer />

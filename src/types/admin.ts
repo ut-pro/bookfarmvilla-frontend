@@ -25,7 +25,7 @@ export type PropertySortBy =
   | "capacity"
   | "status"
   | "createdAt";
-export type LeadSortBy = "name" | "createdAt" | "status";
+export type LeadSortBy = "name" | "refereeName" | "createdAt" | "status";
 export type VendorSortBy = "name" | "city" | "status" | "createdAt";
 
 export interface PageResponse<T> {
@@ -139,6 +139,11 @@ export interface AdminLead {
   status: LeadStatus;
   createdAt: string;
   modifiedAt: string;
+  // Referral-specific fields
+  refereeName?: string | null;
+  refereePhone?: string | null;
+  refereeEmail?: string | null;
+  propertyType?: PropertyType | null;
 }
 
 export interface AdminPartner {

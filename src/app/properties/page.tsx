@@ -9,6 +9,9 @@ import {
   getSeoProperties,
 } from "@/lib/seo-listings";
 import PropertyListingResults from "@/components/property/PropertyListingResults";
+import ReferralBannerWrapper from "@/components/referral/ReferralBannerWrapper";
+import FAQAccordion from "@/components/ui/FAQAccordion";
+import { propertyListingFAQs } from "@/data/faq";
 import type {
   PropertyType,
 } from "@/types/property";
@@ -19,7 +22,8 @@ interface PropertiesPageProps {
   searchParams: Promise<{
     type?: string | string[];
     city?: string | string[];
-    minCapacity?: string | string[];
+    sort?: string | string[];
+    keyword?: string | string[];
   }>;
 }
 
@@ -43,9 +47,9 @@ const propertyTypeDetails: Record<
       "Explore wedding lawns and venues for ceremonies, receptions and celebrations, with capacity, amenities, location and pricing details to help plan your event.",
   },
   AIRBNB: {
-    title: "Airbnb Properties for Rent",
+    title: "Holiday Homes",
     description:
-      "Explore Airbnb properties for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next stay.",
+      "Explore holiday homes for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next stay.",
   },
 };
 
@@ -56,6 +60,7 @@ const propertyTypeLinks: Array<{
   { type: "FARMHOUSE", label: "Farmhouses" },
   { type: "VILLA", label: "Villas" },
   { type: "WEDDING_LAWN", label: "Wedding Lawns" },
+  { type: "AIRBNB", label: "Holiday Homes" },
 ];
 
 function getValidPropertyType(
@@ -66,7 +71,8 @@ function getValidPropertyType(
   if (
     normalizedValue === "FARMHOUSE" ||
     normalizedValue === "VILLA" ||
-    normalizedValue === "WEDDING_LAWN"
+    normalizedValue === "WEDDING_LAWN" ||
+    normalizedValue === "AIRBNB"
   ) {
     return normalizedValue;
   }
@@ -77,7 +83,7 @@ function getValidPropertyType(
 export async function generateMetadata({
   searchParams,
 }: PropertiesPageProps): Promise<Metadata> {
-  const { type, city, minCapacity } = await searchParams;
+  const { type, city } = await searchParams;
   const selectedType = getValidPropertyType(type);
   const selectedCity = getSingleSearchParam(city).trim();
 
@@ -88,7 +94,7 @@ export async function generateMetadata({
         description:
           "Browse farmhouses, villas and wedding lawns for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next event.",
       };
-  
+
       const canonicalParams = new URLSearchParams();
 
   if (selectedType) {
@@ -108,7 +114,6 @@ export async function generateMetadata({
   const properties = await getSeoProperties(
     selectedType,
     selectedCity || undefined,
-    getValidMinimumCapacity(minCapacity),
   );
 
   const socialImage = getPropertySocialImage(properties);
@@ -155,24 +160,6 @@ function getSingleSearchParam(
     : value ?? "";
 }
 
-function getValidMinimumCapacity(
-  value: string | string[] | undefined,
-): number | undefined {
-  const normalizedValue =
-    getSingleSearchParam(value);
-
-  const parsedValue = Number(normalizedValue);
-
-  if (
-    !Number.isFinite(parsedValue) ||
-    parsedValue <= 0
-  ) {
-    return undefined;
-  }
-
-  return parsedValue;
-}
-
 export default async function PropertiesPage({
   searchParams,
 }: PropertiesPageProps) {
@@ -183,11 +170,6 @@ export default async function PropertiesPage({
   const selectedCity = getSingleSearchParam(
     resolvedSearchParams.city,
   ).trim();
-
-  const selectedMinimumCapacity =
-    getValidMinimumCapacity(
-      resolvedSearchParams.minCapacity,
-    );
 
   const pageContent = selectedType
     ? propertyTypeDetails[selectedType]
@@ -203,7 +185,6 @@ export default async function PropertiesPage({
   const properties = await getSeoProperties(
     selectedType,
     selectedCity || undefined,
-    selectedMinimumCapacity,
   );
 
   return (
@@ -283,13 +264,6 @@ export default async function PropertiesPage({
               <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-600 sm:text-base">
                 {pageContent.description}
               </p>
-
-              {selectedMinimumCapacity && (
-                <p className="mt-2 text-sm font-medium text-[#1E8A32]">
-                  Showing venues for at least{" "}
-                  {selectedMinimumCapacity} guests
-                </p>
-              )}
             </div>
 
             <nav
@@ -333,8 +307,13 @@ export default async function PropertiesPage({
             <PropertyListingResults
               type={selectedType}
               city={selectedCity || undefined}
-              minCapacity={selectedMinimumCapacity}
             />
+            <div className="mt-12 sm:mt-16">
+              <ReferralBannerWrapper variant="listing" />
+            </div>
+            <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12 mt-16">
+              <FAQAccordion items={propertyListingFAQs} title="Frequently Asked Questions" />
+            </div>
           </div>
         </section>
       </main>

@@ -9,6 +9,8 @@ import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import PropertyDetailsPageContent from "@/components/property/PropertyDetailsPageContent";
 import { getPropertyBySlug } from "@/lib/property-api";
+import { getActiveVendors } from "@/lib/public-api";
+import type { VendorResponse } from "@/types/vendor";
 
 interface PropertyDetailsPageProps {
   params: Promise<{
@@ -36,6 +38,15 @@ export default async function PropertyDetailsPage({
     );
   }
 
+  // Fetch active vendors for recommended vendors section
+  let vendors: VendorResponse[] = [];
+  try {
+    const response = await getActiveVendors({ size: 50 });
+    vendors = response.content;
+  } catch (error) {
+    console.error("Failed to load vendors for property page:", error);
+  }
+
   return (
     <>
       <Header />
@@ -50,7 +61,7 @@ export default async function PropertyDetailsPage({
             Back to Properties
           </Link>
 
-          <PropertyDetailsPageContent property={property} />
+          <PropertyDetailsPageContent property={property} vendors={vendors} />
         </div>
       </main>
 
