@@ -33,7 +33,7 @@ interface LeadTableRow {
   preferredDate: string | null;
   eventType: string | null;
   message: string | null;
-  refereeName: string | null;
+  refereeName?: string | null;
   status: LeadStatus;
   createdAt: string;
 }
@@ -64,7 +64,10 @@ export default function ReferralManagementTable({
         });
 
         if (mounted) {
-          setLeads(response.content);
+          setLeads(response.content.map((lead) => ({
+            ...lead,
+            refereeName: lead.refereeName ?? undefined,
+          })));
           setTotal(response.totalElements);
           setLoading(false);
         }
@@ -95,7 +98,10 @@ export default function ReferralManagementTable({
       });
 
       if (loading) {
-        setLeads(updated.content);
+        setLeads(updated.content.map((lead) => ({
+          ...lead,
+          refereeName: lead.refereeName ?? undefined,
+        })));
         setTotal(updated.totalElements);
         setLoading(false);
       }
@@ -132,6 +138,7 @@ export default function ReferralManagementTable({
               placeholder="Filter by status"
             />
             <Select
+              options={[]}
               placeholder="Search by name or phone"
               value={selectedSearch}
               onChange={(val) => setSelectedSearch(val)}
