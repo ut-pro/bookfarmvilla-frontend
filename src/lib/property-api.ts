@@ -21,16 +21,20 @@ function isSupportedMediaUrl(mediaUrl: string): boolean {
 function getPropertyMediaUrls(
   property: PropertyApiResponse,
 ): string[] {
-  return [...(property.images ?? [])]
+  const imageObjectUrls = [...(property.images ?? [])]
     .sort(
       (firstMedia, secondMedia) =>
         Number(secondMedia.isPrimary) - Number(firstMedia.isPrimary),
     )
     .map((media) => media.url?.trim())
-    .filter(
-      (mediaUrl): mediaUrl is string =>
-        Boolean(mediaUrl) && isSupportedMediaUrl(mediaUrl),
-    );
+    .filter((mediaUrl): mediaUrl is string => Boolean(mediaUrl));
+  const cardImageUrls = (property.imageUrls ?? [])
+    .map((mediaUrl) => mediaUrl?.trim())
+    .filter((mediaUrl): mediaUrl is string => Boolean(mediaUrl));
+
+  // Property list API uses PropertyCardResponse.imageUrls; detail APIs may use
+  // PropertyResponse.images[].url. Support both actual backend response shapes.
+  return [...imageObjectUrls, ...cardImageUrls].filter(isSupportedMediaUrl);
 }
 
 function mapPropertyToCard(
@@ -48,7 +52,7 @@ function mapPropertyToCard(
 
   return {
     id: property.id,
-    slug: property.slug.trim(),
+    slug: property.slug?.trim() || String(property.id),
     name: property.title,
     type: property.type,
     description: property.description?.trim() || undefined,
@@ -89,7 +93,8 @@ function mapPropertyToCard(
       imageUrls.length > 0 ? imageUrls : [PROPERTY_PLACEHOLDER],
     videoUrls,
     mediaUrls,
-    status: property.status,
+    // List responses are already filtered by status=ACTIVE and omit status.
+    status: property.status ?? "ACTIVE",
   };
 }
 
@@ -115,14 +120,15 @@ export async function getActiveProperties(
   }: GetActivePropertiesOptions = {},
   signal?: AbortSignal,
 ): Promise<PropertyCardData[]> {
-  const url = new URL("/api/properties", API_BASE_URL);
+  // Public property cards endpoint returns active properties by default.
+  // It uses the v2 card DTO (imageUrls, averageRating, reviewCount).
+  const url = new URL("/api/v2/properties/cards", API_BASE_URL);
 
-  url.searchParams.set("status", "ACTIVE");
   url.searchParams.set("page", String(page));
   url.searchParams.set("size", String(size));
 
   if (type) {
-    url.searchParams.set("type", type);
+    url.searchParams.append("types", type);
   }
 
   if (city?.trim()) {
@@ -147,8 +153,18 @@ export async function getActiveProperties(
     );
   }
 
-  if (sort?.trim() && sort !== "relevance") {
-    url.searchParams.set("sort", sort.trim());
+  if (sort?.trim() && sort !== "relevance" && sort !== "distance_asc") {
+    const sortMap: Record<string, { by: string; direction: string }> = {
+      price_asc: { by: "startingPrice", direction: "asc" },
+      price_desc: { by: "startingPrice", direction: "desc" },
+      rating_desc: { by: "averageRating", direction: "desc" },
+      newest: { by: "createdAt", direction: "desc" },
+    };
+    const mappedSort = sortMap[sort];
+    if (mappedSort) {
+      url.searchParams.set("sortBy", mappedSort.by);
+      url.searchParams.set("sortDirection", mappedSort.direction);
+    }
   }
 
   const response = await fetch(url, {
@@ -182,8 +198,7 @@ export async function getActiveProperties(
     data !== null &&
     "id" in data &&
     "title" in data &&
-    "city" in data &&
-    "images" in data
+    "city" in data
   ) {
     properties = [data as PropertyApiResponse];
   } else {
@@ -193,7 +208,9 @@ export async function getActiveProperties(
   return properties
     .filter(
       (property) =>
-        property.status === "ACTIVE" &&
+        // /api/v2/properties/cards returns active properties by default and
+        // its card DTO normally omits status. Reject inactive rows if present.
+        (property.status == null || property.status.toUpperCase() === "ACTIVE") &&
         (!type || property.type === type),
     )
     .map(mapPropertyToCard);
@@ -284,7 +301,7 @@ export async function getPropertyBySlug(
 
   const property = data as PropertyApiResponse;
 
-  if (property.status !== "ACTIVE") {
+  if (property.status !== undefined && property.status !== "ACTIVE") {
     return null;
   }
 

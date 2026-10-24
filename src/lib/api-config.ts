@@ -1,19 +1,24 @@
-const DEFAULT_API_BASE_URL = "https://api.bookfarmvilla.com";
+const DEFAULT_API_BASE_URL = "https://book-farm-villa-be.onrender.com";
 const configuredApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
-const isProductionBuild = process.env.NODE_ENV === "production";
-const configuredUrlIsLocalhost = (() => {
-  if (!configuredApiBaseUrl) return false;
-  try {
-    const hostname = new URL(configuredApiBaseUrl).hostname;
-    return ["localhost", "127.0.0.1", "::1"].includes(hostname);
-  } catch {
-    return false;
-  }
-})();
 
-// Production must always call the public backend, never the developer's local machine.
+function isLocalOrInvalidApiUrl(value: string): boolean {
+  try {
+    const parsedUrl = new URL(value);
+    const isHttpProtocol = parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+    const isLocalHost = ["localhost", "127.0.0.1", "::1"].includes(
+      parsedUrl.hostname.toLowerCase(),
+    );
+
+    return !isHttpProtocol || isLocalHost;
+  } catch {
+    return true;
+  }
+}
+
+// Public frontend requests must always use the deployed API. A stale local
+// .env value must never cause browser requests to target localhost:3000/8080.
 export const API_BASE_URL = (
-  isProductionBuild && configuredUrlIsLocalhost
+  !configuredApiBaseUrl || isLocalOrInvalidApiUrl(configuredApiBaseUrl)
     ? DEFAULT_API_BASE_URL
-    : configuredApiBaseUrl || DEFAULT_API_BASE_URL
+    : configuredApiBaseUrl
 ).replace(/\/+$/, "");
