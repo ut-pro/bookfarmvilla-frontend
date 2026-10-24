@@ -328,7 +328,7 @@ export default function PropertyDetailsPageContent({
         {/* Referral Strategy Section */}
         <ReferralStrategySection variant="property" />
 
-        {/* Referral Section */}
+        {/* Referral Section
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12 mt-16">
           <div className="rounded-2xl border border-[#1E8A32] bg-white p-8 sm:p-10 lg:p-12">
             <h2 className="text-xl font-bold text-[#0F172A] mb-6">
@@ -362,7 +362,7 @@ export default function PropertyDetailsPageContent({
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* FAQ Section */}
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 xl:px-12 mt-16">

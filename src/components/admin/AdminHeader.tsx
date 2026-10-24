@@ -134,12 +134,14 @@ export default function AdminHeader({ title }: AdminHeaderProps) {
   }, []);
 
   useEffect(() => {
+    if (!notificationsOpen) return;
+
     let active = true;
-    let polling = false;
+    let loadingNotifications = false;
 
     const refreshNotifications = async () => {
-      if (polling) return;
-      polling = true;
+      if (loadingNotifications) return;
+      loadingNotifications = true;
       try {
         const [leadPage, partnerPage] = await Promise.all([
           fetchLeads({
@@ -216,24 +218,15 @@ export default function AdminHeader({ title }: AdminHeaderProps) {
           );
         }
       } finally {
-        polling = false;
+        loadingNotifications = false;
       }
     };
 
     void refreshNotifications();
-    const interval = window.setInterval(() => {
-      if (document.visibilityState === "visible") {
-        void refreshNotifications();
-      }
-    }, 60_000);
-    const handleFocus = () => void refreshNotifications();
-    window.addEventListener("focus", handleFocus);
     return () => {
       active = false;
-      window.clearInterval(interval);
-      window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [notificationsOpen]);
 
   useEffect(() => {
     window.localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifications));

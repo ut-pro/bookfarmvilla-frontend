@@ -58,6 +58,12 @@ export interface PropertyApiResponse {
   amenities?: string[] | null;
   images?: PropertyImageResponse[] | null;
   averageRating?: number | null;
+  rating?: number | null;
+  reviewCount?: number | null;
+  totalReviews?: number | null;
+  reviewsCount?: number | null;
+  numberOfReviews?: number | null;
+  ratingsCount?: number | null;
   createdAt?: string;
   modifiedAt?: string;
 }

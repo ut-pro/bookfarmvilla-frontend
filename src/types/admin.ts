@@ -6,6 +6,7 @@
 export type PropertyType = "FARMHOUSE" | "VILLA" | "WEDDING_LAWN" | "AIRBNB";
 export type ListingStatus = "ACTIVE" | "INACTIVE";
 export type LeadStatus = "NEW" | "CONTACTED" | "CONVERTED" | "CLOSED";
+export type ReferralStatus = "NEW" | "CONTACTED" | "CONVERTED" | "CANCELLED";
 export type VendorCategory =
   | "CATERER"
   | "DECORATOR"
@@ -144,6 +145,26 @@ export interface AdminLead {
   refereePhone?: string | null;
   refereeEmail?: string | null;
   propertyType?: PropertyType | null;
+}
+
+export interface AdminReferral {
+  id: string;
+  referralNumber?: string | null;
+  referrerName: string;
+  referrerPhone: string;
+  referrerEmail: string | null;
+  refereeName: string | null;
+  refereePhone: string | null;
+  refereeEmail: string | null;
+  propertyType: string | null;
+  eventDate: string | null;
+  message: string | null;
+  status: ReferralStatus;
+  bookingDate: string | null;
+  bookingAmount: number | null;
+  rewardAmount: number | null;
+  createdAt: string;
+  modifiedAt: string;
 }
 
 export interface AdminPartner {

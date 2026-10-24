@@ -12,7 +12,7 @@ interface PropertyReviewsProps {
   propertyId: string;
 }
 
-const INITIAL_REVIEW_LIMIT = 5;
+const INITIAL_REVIEW_LIMIT = 3; // Show only first 3 reviews initially
 
 function formatReviewDate(dateString: string): string {
   try {
@@ -48,6 +48,7 @@ export default function PropertyReviews({ propertyId }: PropertyReviewsProps) {
   const averageRating = calculateAverageRating(reviews);
   const totalReviews = reviews.length;
   const displayedReviews = showAll ? reviews : reviews.slice(0, INITIAL_REVIEW_LIMIT);
+const [isLoadingMore, setIsLoadingMore] = useState(false);
   const hasMoreReviews = reviews.length > INITIAL_REVIEW_LIMIT;
 
   useEffect(() => {
@@ -250,10 +251,27 @@ export default function PropertyReviews({ propertyId }: PropertyReviewsProps) {
         {hasMoreReviews && !showAll && (
           <div className="mt-6 text-center">
             <button
-              onClick={() => setShowAll(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#2EAD45] bg-white px-6 py-3 text-sm font-semibold text-[#1E8A32] transition-colors hover:bg-[#2EAD45] hover:text-white"
+              onClick={() => {
+                setIsLoadingMore(true);
+                setTimeout(() => setShowAll(true), 300);
+                setTimeout(() => setIsLoadingMore(false), 600);
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#2EAD45] bg-white px-6 py-3 text-sm font-semibold text-[#1E8A32] transition-all duration-300 hover:bg-[#2EAD45] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#2EAD45]"
+              disabled={isLoadingMore}
             >
-              Show More Reviews ({reviews.length - INITIAL_REVIEW_LIMIT} more)
+              {isLoadingMore ? (
+                <div className="flex items-center gap-2">
+                  <div className="h-4 w-4 rounded-full border-2 border-[#2EAD45] border-t-transparent animate-spin"></div>
+                  Loading...
+                </div>
+              ) : (
+                <span className="flex items-center gap-1">
+                  <span>Show More Reviews</span>
+                  <span className="text-xs bg-[#2EAD45] text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {reviews.length - INITIAL_REVIEW_LIMIT}
+                  </span>
+                </span>
+              )}
             </button>
           </div>
         )}
@@ -262,7 +280,7 @@ export default function PropertyReviews({ propertyId }: PropertyReviewsProps) {
           <div className="mt-6 text-center">
             <button
               onClick={() => setShowAll(false)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-50"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-600 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300"
             >
               Show Less
             </button>

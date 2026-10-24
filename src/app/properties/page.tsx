@@ -32,7 +32,7 @@ const propertyTypeDetails: Record<
   { title: string; description: string }
 > = {
   FARMHOUSE: {
-    title: "Farmhouses for Rent",
+    title: "Farmhouses",
     description:
       "Find farmhouses for rent and booking with guest capacity, amenities, location and pricing details, ideal for parties, family celebrations and private events.",
   },
@@ -63,6 +63,26 @@ const propertyTypeLinks: Array<{
   { type: "AIRBNB", label: "Holiday Homes" },
 ];
 
+function getPropertyPageContent(type: PropertyType | undefined, city: string) {
+  const base = type ? propertyTypeDetails[type] : {
+    title: "Properties for Rent",
+    description: "Browse farmhouses, villas and wedding lawns for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next event.",
+  };
+  if (!city) return base;
+  const title = `${type === "FARMHOUSE" ? "Farmhouses" : base.title} in ${city}`;
+  const category = type === "FARMHOUSE" ? "farmhouses" : type === "VILLA" ? "villas" : type === "WEDDING_LAWN" ? "wedding lawns and venues" : type === "AIRBNB" ? "holiday homes and homestays" : "farmhouses, villas and wedding lawns";
+  const description = type === "FARMHOUSE"
+    ? `Discover farmhouses for rent in ${city} with guest capacity, amenities and pricing for parties, family celebrations and private events.`
+    : type === "VILLA"
+      ? `Find villas for rent in ${city} for private stays, parties, family celebrations and weekend getaways, with amenities and pricing details.`
+      : type === "WEDDING_LAWN"
+        ? `Explore wedding lawns and venues in ${city} for ceremonies, receptions and celebrations, with capacity, amenities and pricing details.`
+        : type === "AIRBNB"
+          ? `Discover holiday homes and homestays in ${city} for comfortable stays, family trips and weekend getaways, with amenities and pricing details.`
+          : `Browse ${category} in ${city} with guest capacity, amenities, locations and pricing for parties, weddings, family celebrations and private events.`;
+  return { title, description };
+}
+
 function getValidPropertyType(
   value: string | string[] | undefined,
 ): PropertyType | undefined {
@@ -87,13 +107,7 @@ export async function generateMetadata({
   const selectedType = getValidPropertyType(type);
   const selectedCity = getSingleSearchParam(city).trim();
 
-  const pageContent = selectedType
-    ? propertyTypeDetails[selectedType]
-    : {
-        title: "Properties for Rent",
-        description:
-          "Browse farmhouses, villas and wedding lawns for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next event.",
-      };
+  const pageContent = getPropertyPageContent(selectedType, selectedCity);
 
       const canonicalParams = new URLSearchParams();
 
@@ -118,17 +132,8 @@ export async function generateMetadata({
 
   const socialImage = getPropertySocialImage(properties);
 
-  const metadataTitle = selectedCity
-    ? `${pageContent.title} in ${selectedCity} | BookFarmVilla`
-    : selectedType
-      ? `${pageContent.title} | BookFarmVilla`
-      : "Properties for Rent | BookFarmVilla";
-
-  const metadataDescription = selectedCity
-    ? selectedType
-      ? `Explore ${pageContent.title.toLowerCase()} in ${selectedCity} with guest capacity, amenities, location and pricing details. Find your Delhi NCR venue with BookFarmVilla.`
-      : `Browse farmhouses, villas and wedding lawns in ${selectedCity} for parties, weddings and private events. Compare venue capacity, amenities and pricing with BookFarmVilla.`
-    : pageContent.description;
+  const metadataTitle = `${pageContent.title} | BookFarmVilla`;
+  const metadataDescription = pageContent.description;
 
   return {
     title: metadataTitle,
@@ -171,17 +176,9 @@ export default async function PropertiesPage({
     resolvedSearchParams.city,
   ).trim();
 
-  const pageContent = selectedType
-    ? propertyTypeDetails[selectedType]
-    : {
-        title: "Properties for Rent",
-        description:
-          "Browse farmhouses, villas and wedding lawns for rent, with venue details, guest capacity, amenities, locations and pricing to help plan your next event.",
-      };
+  const pageContent = getPropertyPageContent(selectedType, selectedCity);
 
-  const resultTitle = selectedCity
-    ? `${pageContent.title} in ${selectedCity}`
-    : pageContent.title;
+  const resultTitle = pageContent.title;
   const properties = await getSeoProperties(
     selectedType,
     selectedCity || undefined,
@@ -289,7 +286,7 @@ export default async function PropertiesPage({
                 return (
                   <Link
                     key={item.type}
-                    href={`/properties?type=${item.type}`}
+                    href={`/properties?type=${item.type}${selectedCity ? `&city=${encodeURIComponent(selectedCity)}` : ""}`}
                     scroll={false}
                     aria-current={isActive ? "page" : undefined}
                     className={`min-h-11 shrink-0 snap-start rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors sm:px-5 ${
@@ -302,11 +299,21 @@ export default async function PropertiesPage({
                   </Link>
                 );
               })}
+              <Link
+                href="/vendors"
+                scroll={false}
+                className="min-h-11 shrink-0 snap-start rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:border-[#2EAD45] hover:text-[#1E8A32] sm:px-5"
+              >
+                Vendors
+              </Link>
             </nav>
 
             <PropertyListingResults
               type={selectedType}
               city={selectedCity || undefined}
+              sort={getSingleSearchParam(resolvedSearchParams.sort) || undefined}
+              keyword={getSingleSearchParam(resolvedSearchParams.keyword) || undefined}
+              initialProperties={properties}
             />
             <div className="mt-12 sm:mt-16">
               <ReferralBannerWrapper variant="listing" />

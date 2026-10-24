@@ -24,11 +24,13 @@ import type {
   AdminPropertyPayload,
   AdminReview,
   AdminReviewPayload,
+  AdminReferral,
   AdminVendor,
   AdminVendorPayload,
   BlogPostStatus,
   BookingStatus,
   LeadStatus,
+  ReferralStatus,
   ListingStatus,
   LoginResponse,
   PageResponse,
@@ -378,6 +380,39 @@ export async function updateLeadStatus(id: string, status: LeadStatus): Promise<
   return adminApiFetch<AdminLead>(`/api/leads/${id}/status`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Referrals
+// ---------------------------------------------------------------------------
+
+export async function fetchReferrals(params: {
+  status?: ReferralStatus;
+  keyword?: string;
+  page?: number;
+  size?: number;
+}): Promise<PageResponse<AdminReferral>> {
+  const query = buildQuery({
+    status: params.status,
+    keyword: params.keyword,
+    page: params.page ?? 0,
+    size: params.size ?? 20,
+  });
+  return adminApiFetch<PageResponse<AdminReferral>>(`/api/referrals${query}`);
+}
+
+export async function updateReferral(
+  id: string,
+  updates: { status: ReferralStatus; bookingDate?: string; bookingAmount?: number },
+): Promise<AdminReferral> {
+  const query = buildQuery({
+    status: updates.status,
+    bookingDate: updates.bookingDate,
+    bookingAmount: updates.bookingAmount,
+  });
+  return adminApiFetch<AdminReferral>(`/api/referrals/${encodeURIComponent(id)}${query}`, {
+    method: "PATCH",
   });
 }
 

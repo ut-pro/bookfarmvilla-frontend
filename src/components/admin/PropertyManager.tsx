@@ -22,6 +22,7 @@ import type {
   AdminPropertyPayload,
   PropertySortBy,
   PropertyType,
+  ListingStatus,
   SortDirection,
 } from "@/types/admin";
 
@@ -48,6 +49,8 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const [city, setCity] = useState("");
+  const [status, setStatus] = useState<ListingStatus | "">("");
   const [keyword, setKeyword] = useState(
     () => searchParams.get("search") ?? "",
   );
@@ -73,6 +76,8 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
     try {
       const result = await fetchProperties({
         type: propertyType,
+        city: city || undefined,
+        status: status || undefined,
         keyword: keyword || undefined,
         page,
         size: pageSize,
@@ -87,7 +92,7 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
     } finally {
       setLoading(false);
     }
-  }, [propertyType, keyword, page, sort]);
+  }, [propertyType, city, status, keyword, page, sort]);
 
   useEffect(() => {
     // Loading is an intentional effect because server-side filters change with the controls.
@@ -193,6 +198,23 @@ export default function PropertyManager({ propertyType, typeLabel, typeLabelPlur
                 className="w-full rounded-xl border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-violet-400"
               />
             </div>
+            <input
+              aria-label="Filter by city"
+              value={city}
+              onChange={(e) => { setPage(0); setCity(e.target.value); }}
+              placeholder="City"
+              className="w-32 rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
+            />
+            <select
+              aria-label="Filter by status"
+              value={status}
+              onChange={(e) => { setPage(0); setStatus(e.target.value as ListingStatus | ""); }}
+              className="rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none focus:border-violet-400"
+            >
+              <option value="">All statuses</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
             <AdminSortControls<PropertySortBy>
               options={[
                 { label: "Title", value: "title" },

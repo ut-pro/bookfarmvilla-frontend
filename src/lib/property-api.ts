@@ -65,10 +65,20 @@ function mapPropertyToCard(
       Number.isFinite(property.longitude)
         ? property.longitude
         : null,
-    rating:
-      typeof property.averageRating === "number"
-        ? property.averageRating
-        : undefined,
+    rating: [property.averageRating, property.rating].find(
+      (value): value is number =>
+        typeof value === "number" && Number.isFinite(value) && value > 0,
+    ),
+    reviewCount: [
+      property.reviewCount,
+      property.totalReviews,
+      property.reviewsCount,
+      property.numberOfReviews,
+      property.ratingsCount,
+    ].find(
+      (count): count is number =>
+        typeof count === "number" && Number.isFinite(count) && count >= 0,
+    ),
     guestCapacity: property.capacity ?? 0,
     hasPool,
     amenities,

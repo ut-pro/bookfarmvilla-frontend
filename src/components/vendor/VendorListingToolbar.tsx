@@ -8,6 +8,7 @@ import type { VendorCategoryFilter } from "@/types/vendor";
 
 interface VendorListingToolbarProps {
   initialCategory?: VendorCategoryFilter;
+  initialCity?: string;
 }
 
 const VENDOR_CITY_OPTIONS = [
@@ -29,13 +30,14 @@ const VENDOR_SORT_OPTIONS = [
 
 export default function VendorListingToolbar({
   initialCategory,
+  initialCity,
 }: VendorListingToolbarProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
   const [category, setCategory] = useState<VendorCategoryFilter | undefined>(initialCategory);
-  const [city, setCity] = useState<string>("");
+  const [city, setCity] = useState<string>(initialCity ?? "");
   const [sort, setSort] = useState<string>("relevance");
   const [keyword, setKeyword] = useState<string>("");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -50,10 +52,12 @@ export default function VendorListingToolbar({
     // Validate category against known VendorCategoryFilter values
     if (urlCategory && ["CATERER", "PHOTOGRAPHER", "MAKEUP_ARTIST", "DJ", "DECORATOR", "OTHER_SERVICES"].includes(urlCategory)) {
       setCategory(urlCategory as VendorCategoryFilter);
+    } else {
+      setCategory(undefined);
     }
-    if (urlCity) setCity(urlCity);
-    if (urlSort) setSort(urlSort);
-    if (urlKeyword) setKeyword(urlKeyword);
+    setCity(urlCity ?? "");
+    setSort(urlSort ?? "relevance");
+    setKeyword(urlKeyword ?? "");
   }, [searchParams]);
 
   // Helper to update URL

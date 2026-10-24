@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import PropertyCard from "@/components/property/PropertyCard";
 import PropertyListingToolbar from "./PropertyListingToolbar";
@@ -12,6 +12,7 @@ interface PropertyListingResultsProps {
   city?: string;
   sort?: string;
   keyword?: string;
+  initialProperties?: PropertyCardData[];
 }
 
 export default function PropertyListingResults({
@@ -19,6 +20,7 @@ export default function PropertyListingResults({
   city,
   sort: initialSort,
   keyword: initialKeyword,
+  initialProperties = [],
 }: PropertyListingResultsProps) {
   const [sort, setSort] = useState<string>(initialSort || "relevance");
   const [keyword, setKeyword] = useState<string>(initialKeyword || "");
@@ -36,16 +38,30 @@ export default function PropertyListingResults({
     requestKey: string | null;
     properties: PropertyCardData[];
     hasError: boolean;
-  }>({
-    requestKey: null,
-    properties: [],
+  }>(() => ({
+    requestKey:
+      (!initialKeyword && (!initialSort || initialSort === "relevance"))
+        ? JSON.stringify([type ?? null, city ?? null, "relevance", ""])
+        : null,
+    properties: initialProperties,
     hasError: false,
-  });
+  }));
 
   const loading = result.requestKey !== requestKey;
   const { properties, hasError } = result;
+  const initialRequestKey = useRef(result.requestKey);
+  const initialFetchHandled = useRef(false);
 
   useEffect(() => {
+    // The page already rendered the default listing on the server. Reuse it
+    // instead of immediately requesting the same listing again on hydration.
+    if (!initialFetchHandled.current) {
+      initialFetchHandled.current = true;
+      if (initialRequestKey.current === requestKey) {
+        return;
+      }
+    }
+
     const controller = new AbortController();
 
     getActiveProperties(
